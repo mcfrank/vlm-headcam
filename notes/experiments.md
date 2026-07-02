@@ -447,3 +447,21 @@ DATA-MATCHED (all on S00510002 held-out eval, oracle):
 generalizes better (even to a single child's OWN held-out videos) than that child's own data.
 Single-child consistency helped the bootstrap toehold but HURTS generalizable word learning.
 Reconciles with Vong (within-child eval on same child's objects doesn't stress category diversity).
+
+## Curated-eval test + the "no big gap" resolution
+Dropped 16/61 categories on PRINCIPLED grounds (places basement/bathroom/kitchen/room/sidewalk/
+sandbox; body parts hair/hand; polysemous can/present/picture/orange/mouse/train; generic toy/
+person) -> 45 clean concrete-object cats. Re-eval saved models, full vs clean:
+| model | full | clean |
+| pooled oracle HN_full (S00360001 eval) | 48.1 (61) | 48.6 (45) |
+| within-child oracle S00510002 | 33.1 (60) | 31.2 (44) |
+Curation does NOT raise accuracy -> REFUTES "hard/ambiguous categories drag the number down": in
+4AFC a hard category is also an easy DISTRACTOR, so removing it ~cancels. The eval-difficulty (via
+category mix) is NOT the gap.
+RESOLUTION: our POOLED oracle (48-50) is already ~ Vong within-child (51) [loose: different evals/
+setups, but same ballpark] -> there is no large unexplained pipeline gap. The scary "33 vs 51" was
+comparing our DATA-STARVED single child to Vong. The genuinely low numbers are (a) the bootstrap
+not igniting (ch5, fundamental) and (b) within-child data-starvation (diversity+count, quantified).
+The supervised pooled pipeline performs comparably to the field. Konkle not in wkvong/multimodal-baby
+(eval code only); a true apples-to-apples cross-paper eval would need the Konkle stimulus set pulled
+to ccn2 (Konkle lab / Databrary) — optional future.
