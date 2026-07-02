@@ -12,6 +12,7 @@ book:
     - 01-background.qmd
     - 02-pipeline.qmd
     - 03-experiments.qmd
+    - 05-bootstrapping.qmd
     - 04-next.qmd
 
 bibliography: references.bib

@@ -1,0 +1,66 @@
+# Bootstrapping the filter {#sec-bootstrap}
+
+The experiments so far used a pretrained CLIP model to select the aligned pairs. As a
+*cognitive* proposal that is a non-starter: a child has no pretrained CLIP. The CLIP
+filter is standing in for exactly the grounded knowledge whose *acquisition* we are trying
+to explain. So the real question is whether alignment can be **bootstrapped from the
+learner's own developing word knowledge** — the move @vong2024's symbolic ancestor
+[@frank2009] made by jointly inferring the lexicon and the per-situation *referential
+intent* (which objects the speaker means). Better guesses about word meaning sharpen the
+guess about what is being referred to, and vice versa.
+
+In our terms: replace the external filter with a **self-estimated** soft alignment that
+co-evolves with the embeddings. That is an EM loop — the neural reincarnation of FGT's
+Gibbs sampler over the intent variable that CVCL discarded (CVCL assumes *every*
+co-occurring pair is a positive). The modern name for this problem is *noisy
+correspondence* learning [@huang2021ncr], and the reason it can work in principle is the
+**memorization effect**: networks fit consistent, repeated structure before they memorize
+noise, so early-training similarity is itself a weak alignment signal — no external model
+required.
+
+## E0 — the naive bootstrap does not ignite {#sec-e0}
+
+The simplest version (`train_boot.py`): warm up on all pairs, then iterate — score each
+pair by the model's *own* cross-modal cosine, fit a two-component mixture to those scores
+to get a soft "aligned" weight, and retrain weighted by that belief. CLIP is never used in
+training; it is kept only as a held-out yardstick (does the endogenous weight recover the
+CLIP-aligned pairs?). We ran a {within-kid, across-kid} × {data size} grid.
+
+| pool | size | unweighted | **bootstrap** | ρ(weight, CLIP) |
+|------|------|-----------|-----------|-----------------|
+| across | 20k / 60k / 140k | 28.6 / 29.4 / 33.0 | 28.9 / 30.8 / 32.2 | 0.02–0.04 |
+| within | 20k / 60k / 110k | 26.8 / 28.9 / 32.2 | 26.1 / 29.2 / 31.2 | 0.06–0.07 |
+
+*(CLIP-oracle toplines: across 46.7, within 34.9; chance 25.)*
+
+Three findings:
+
+1. **No ignition.** The bootstrap ≈ the unweighted baseline everywhere (Δ within ±1.3).
+   The endogenous weight is essentially uncorrelated with true alignment (ρ ≈ 0.02–0.07),
+   so it selects near-randomly and adds nothing.
+2. **Data amount helps the *unweighted* baseline, not the bootstrap.** Accuracy rises with
+   pool size (28.6 → 33.0), but the bootstrap tracks it — more data does not create the
+   cold-start toehold.
+3. **Within vs. across dissociates as predicted.** Within-kid gives a consistently
+   *stronger* (if still weak) toehold (ρ ≈ 0.07 vs ≈ 0.03) — one child's consistent world
+   is easier to bootstrap from — but a much *lower* ceiling (oracle 34.9 vs 46.7), because
+   one child's exemplars are fewer and less diverse. Easier start, lower ceiling.
+
+**Diagnosis.** At BabyView's alignment floor (~5–13% of pairs aligned) the memorization
+toehold is too faint: after warming up on ~88% misaligned pairs, the model cannot score
+aligned pairs above misaligned ones from a single frame's global embedding. Noisy-
+correspondence methods succeed at 20–50% noise; this is far past that. A *stronger*
+endogenous signal is needed — which motivates the next experiment.
+
+## E1 — region-level bootstrapping {#sec-e1}
+
+If a whole cluttered frame is too weak a cue, ask a sharper question: *is there some
+region in the frame that matches these words?* We embed a coarse region grid (frozen
+DINOv2 patch tokens pooled to 4×4, plus the global CLS token) and let an utterance match
+its **best region** (multiple-instance learning). The same max-region similarity becomes
+the endogenous alignment score for the EM loop. This needs no object detector and no CLIP,
+and it implements the "which frames *and* which regions" double-sparsity idea directly.
+
+*Results in progress — this section will report whether region-level MIL (a) raises the
+achievable ceiling and (b) creates the alignment toehold the global-embedding bootstrap
+lacked.*

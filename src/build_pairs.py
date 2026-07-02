@@ -20,6 +20,7 @@ def main():
     ap.add_argument("--min-clip", type=float, default=0.0, help="keep clip_score_max >= this")
     ap.add_argument("--exclude-videos", default=None, help="text file of held-out video_ids to drop")
     ap.add_argument("--exclude-children", default=None, help="comma-sep child_ids to drop (held out)")
+    ap.add_argument("--only-children", default=None, help="comma-sep child_ids to KEEP (within-kid pools)")
     ap.add_argument("--max-pairs", type=int, default=0, help="cap N pairs (0 = no cap)")
     ap.add_argument("--sample", choices=["top", "random"], default="random",
                     help="if capping: take top-scoring or a random sample")
@@ -42,6 +43,9 @@ def main():
     if args.exclude_children:
         drop = {c.strip() for c in args.exclude_children.split(",")}
         df = df[~df.child_id.astype(str).isin(drop)]
+    if args.only_children:
+        keep = {c.strip() for c in args.only_children.split(",")}
+        df = df[df.child_id.astype(str).isin(keep)]
 
     df["frame_idx"] = ((df.utterance_start_time + df.utterance_end_time) / 2).astype(int)
 
