@@ -1,0 +1,121 @@
+# Experiments {#sec-experiments}
+
+Four controlled experiments, all using the frozen two-tower probe of
+@sec-pipeline and the 4AFC metric on held-out children (chance 25%). Together
+they test two levers against referential noise — *alignment filtering* and
+*region grounding* — and probe how each behaves.
+
+## B — The alignment gap is robust {#sec-b}
+
+The base comparison holds data size fixed and varies only alignment: an
+**aligned** arm (utterances with CLIP score $>0.24$) versus a **random** arm of
+the same size drawn from the full distribution. Repeated across three held-out
+children and three seeds each:
+
+![Aligned vs. size-matched random, three held-out children (±sd over 3 seeds).
+The gap is present and consistent everywhere.](figures/fig_results_B.png){#fig-b width=75%}
+
+| Held-out child | aligned (>0.24) | random (matched) | gap |
+|----------------|-----------------|------------------|-----|
+| S00360001 | 46.9 ± 0.2 | 32.6 ± 1.6 | **+14.3** |
+| S00240001 | 43.8 ± 0.6 | 33.6 ± 0.3 | **+10.1** |
+| S00370002 | 44.5 ± 0.7 | 32.4 ± 0.3 | **+12.2** |
+| **mean** | | | **+12.2** |
+
+At identical data size, concentrating aligned pairs buys **+12 points**,
+cross-child, with tight error bars. Alignment quality — not quantity — is doing
+the work.
+
+## A — Filtering beats brute scale {#sec-a}
+
+Does more data help if it isn't filtered? We train on the **full unfiltered**
+BabyView stream (1.14M pairs, held-out S00360001) and compare to the aligned and
+random arms from @sec-b at that child.
+
+![The full unfiltered stream (8× more data) underperforms the aligned subset it
+contains.](figures/fig_results_A.png){#fig-a width=60%}
+
+| Training set | pairs | best 4AFC |
+|--------------|-------|-----------|
+| aligned (clip>0.24) | 137k | **46.7** |
+| unfiltered (everything) | 1.14M | 43.2 |
+| random (size-matched) | 137k | 34.6 |
+
+**Eight times more data is worse than the filtered subset it contains.** The
+aligned pairs live *inside* the unfiltered stream; drowning them in ~1M
+misaligned pairs dilutes the signal (46.7 → 43.2) but does not destroy it — the
+unfiltered arm still beats random, because the good pairs are in there. Filtering
+concentrates signal; scale alone dilutes it.
+
+::: {.callout-note}
+## An honest caveat about "divergence"
+
+Prior reports of BabyView contrastive training describe the *loss climbing*
+during end-to-end training. Our frozen-feature probe does **not** reproduce that:
+its validation loss falls and then flattens (5.39 → 5.13, never rising). The
+probe is too small to overfit 1.14M pairs, so the "loss goes up" phenomenon is an
+optimization/capacity effect stacked on top of the alignment problem. Our probe
+deliberately strips that away to isolate the alignment effect; the claim it
+supports is "filtered > unfiltered," not "unfiltered diverges."
+:::
+
+## C — A count-vs-quality sweet spot {#sec-c}
+
+If quality helps, does *more* quality always help? We sweep the filter threshold
+at held-out S00360001. Higher thresholds mean cleaner but fewer pairs.
+
+![Raising the threshold from 0.24 to 0.26 helps despite 6× fewer pairs; pushing
+to 0.28 (only ~3.8k pairs) hurts.](figures/fig_results_C.png){#fig-c width=65%}
+
+| min-clip | pairs | best 4AFC |
+|----------|-------|-----------|
+| 0.24 | 137,179 | 46.9 ± 0.2 |
+| **0.26** | **21,877** | **48.4 ± 0.8** |
+| 0.28 | 3,799 | 43.4 ± 0.7 |
+
+The curve is **non-monotonic**: there is an optimum around 22k clean pairs.
+Raising quality helps until it starves the model of data — at which point too few
+pairs (0.28, 3.8k) cost more than the added purity buys. Notably the sweet spot
+(~22k pairs) is about 2.4× SAYCam-S's 9,320 aligned pairs, and it *beats* using
+6× more, slightly-noisier data. This is exactly the shape @vong2024robust's
+"absolute count" thesis predicts: per-pair quality matters, but you still need
+enough pairs.
+
+## D — Object crops beat whole scenes {#sec-d}
+
+The second lever: replace each frame with the crop of its dominant detected
+object, so the model learns from the object rather than the cluttered scene.
+Restricted to the 50k aligned pairs in detection-covered videos, we run the full
+$2\times2$ of training representation × evaluation representation.
+
+![Object crops beat whole scenes regardless of eval representation; crop/crop is
+the best cell.](figures/fig_results_D.png){#fig-d width=55%}
+
+|  | frame-eval | crop-eval |
+|--|------------|-----------|
+| **frame-train** | 39.2 | 45.4 |
+| **crop-train** | 42.9 | **48.7** |
+
+Reading across rows, **crop-training beats frame-training on the same eval**
+(+3.7 on frame-eval, +3.3 on crop-eval): pairing the utterance with the isolated
+object is a better learning signal than pairing with the scene. Evaluating on
+crops also beats evaluating on frames (isolating the object at test time helps
+too). The best cell — crop-train/crop-eval, **48.7** — is the highest number in
+the study, on only 50k pairs.
+
+(The frame-train/frame-eval baseline here, 39.2, is below the full aligned model
+of @sec-b because it uses the smaller detection-video subset and pairs with the
+detection frame rather than the CLIP-best frame; the clean comparison is crop vs.
+frame on the *identical* 50k pairs.)
+
+## Summary
+
+| Experiment | Finding |
+|------------|---------|
+| B | Alignment filtering: **+12.2 pts** cross-child, size-matched, 3 seeds. |
+| A | Filtered 137k **beats** unfiltered 1.14M — scale dilutes signal. |
+| C | Count-vs-quality **sweet spot** at ~22k pairs (clip>0.26): 48.4. |
+| D | Object crops beat whole scenes **+3–4 pts**; best overall 48.7. |
+
+Two cheap, composable levers move word–object accuracy well above chance on a
+corpus where naive training fails. The next chapter takes stock.

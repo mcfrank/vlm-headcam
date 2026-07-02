@@ -1,0 +1,60 @@
+# Overview {.unnumbered}
+
+Children learn the meanings of words from remarkably little data — a few hundred
+million words heard by age five, embedded in rich multimodal experience. Large
+models need three to five orders of magnitude more [@frank2023data]. One
+appealing route to closing that gap is to learn word–object mappings directly
+from the visual and linguistic stream a child actually experiences. @vong2024
+showed this is possible in principle: a minimal CLIP-style model (CVCL) trained
+on 61 hours of headcam video and transcripts from a *single* child (SAYCam-S)
+learned to map words to their visual referents well above chance.
+
+Our lab's attempts to reproduce that success on other corpora — in particular
+our own, much larger **BabyView** corpus [@long2025babyview] — failed. Trained
+naively on BabyView, contrastive vision–language models sit near chance, and in
+the end-to-end setting the loss can even climb during training
+[@lin2026egobabyvlm]. The consensus diagnosis across several groups (and our own
+symbolic modeling) is that the problem is **referential alignment**: in
+naturalistic egocentric data, the things being talked about are usually not the
+things on screen. Effective learning moments are rare and buried in noise.
+
+This book documents a small, fast prototype built to iterate on that problem. It
+uses a frozen-vision probe — cheap enough to run dozens of controlled
+experiments in an afternoon — to ask a concrete question: *if the problem is
+referential noise, does concentrating the aligned moments rescue learning?*
+
+| Chapter | What it covers |
+|---------|----------------|
+| [Background](01-background.qmd) | The data gap, CVCL, why BabyView breaks contrastive learning, and the alignment diagnosis with numbers. |
+| [The pipeline](02-pipeline.qmd) | A walkthrough of the modeling infrastructure — data, the alignment filter, the frozen two-tower model, the 4AFC evaluation, and region grounding — with worked examples. |
+| [Experiments](03-experiments.qmd) | Four controlled experiments: robustness of the alignment gap, filtering vs. brute scale, the count-vs-quality frontier, and object crops vs. whole scenes. |
+| [Where next](04-next.qmd) | What the results imply and the obvious next moves. |
+
+## The question in one figure
+
+The core intuition is that egocentric speech and vision are only intermittently
+about the same thing. A cheap off-the-shelf signal — the CLIP cosine similarity
+between a frame and the utterance spoken over it — separates the moments where
+they align from the moments where they don't:
+
+![Frame–utterance pairs at the top of the CLIP-alignment distribution (kept by
+the filter) genuinely show the named thing; pairs near the median (dropped) do
+not. Faces are visible in these headcam frames, so the images are regenerated
+locally from the cluster and are **not** committed to the
+repository.](figures/frames/fig_alignment_examples.png){#fig-alignment}
+
+The prototype tests whether training on the top row — and its analogues — is
+enough to learn word–object mappings where training on everything is not.
+
+## The model in one paragraph
+
+The object of learning is a joint embedding space in which an image of a thing
+and the word for that thing land near each other. A **frozen DINOv2** vision
+encoder maps a frame to a 768-d vector; a small **bag-of-words** text encoder
+maps an utterance to a vector in the same space; a symmetric contrastive
+(InfoNCE) objective pulls co-occurring (frame, utterance) pairs together and
+pushes mismatched pairs apart. Because the vision encoder is frozen, "training"
+is just a linear projection plus word embeddings — so each run is minutes, not
+hours, and the experiments isolate the effect of *which pairs the model sees*
+rather than of optimization or capacity. The next chapter walks through every
+piece; the code lives in [`src/`](https://github.com/mcfrank/vlm-headcam/tree/master/src).

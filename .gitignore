@@ -3,3 +3,12 @@ emb*/
 *.tar
 __pycache__/
 .DS_Store
+
+# Quarto book build
+book/_book/
+book/.quarto/
+book/*_files/
+
+# Human-subjects frames render into the book locally but are NOT committed
+# (regenerate with src/make_figures.py on ccn2). Aggregate result plots ARE committed.
+book/figures/frames/

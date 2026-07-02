@@ -1,0 +1,175 @@
+# The pipeline {#sec-pipeline}
+
+This chapter walks through the whole modeling pipeline, from raw cluster data to
+a trained model and its evaluation. The design goal is *iteration speed*: every
+choice below is made so that a full experiment runs in minutes, letting us test
+many hypotheses about the learning signal rather than one expensive model.
+
+## Data on the cluster
+
+Everything derives from the BabyView 2025.2 release on ccn2, under
+`/ccn2a/dataset/babyview/2025.2/`:
+
+| Asset | What it is | Used for |
+|-------|------------|----------|
+| `extracted_frames_1fps/<video>/NNNNN.jpg` | video frames at 1 fps (8,566 videos) | vision input |
+| `outputs/merged_transcripts_parsed.csv` | 4.56M token rows, WhisperX + spaCy POS/lemma | text input, filtering |
+| `outputs/full_clip_results.csv` | 1.28M utterances with per-utterance frame–utterance CLIP scores | **the alignment filter** |
+| `outputs/object_detections/cdi/<video>/` | YOLOE detections prompted with the CDI noun list (2,969 videos) | evaluation + region grounding |
+
+A single utterance, then, is a row with a video, a start/end time, the words
+spoken, and a precomputed CLIP alignment score. At 1 fps, a frame index is just
+a timestamp in seconds, so we pair an utterance with the frame at the midpoint of
+its window.
+
+## The alignment filter
+
+The filter is the central knob. `full_clip_results.csv` already stores, for each
+utterance, the maximum CLIP cosine similarity between the utterance text and any
+frame in its window (`clip_score_max`). Selecting utterances above a threshold
+costs nothing and, as @fig-alignment2 shows, cleanly separates referentially
+grounded moments from ungrounded ones.
+
+![High-scoring pairs (top) show the named referent on screen; median-scoring
+pairs (bottom) are displaced, abstract, or about something off-camera. This is
+the signal the filter concentrates. *(Regenerated locally; not committed.)*
+](figures/frames/fig_alignment_examples.png){#fig-alignment2}
+
+Building a training manifest is then one pass over the CSV with a threshold, a
+held-out child excluded, and (optionally) a size cap for size-matched controls:
+
+```python
+# src/build_pairs.py (abridged)
+df = pd.read_csv(CLIP_RESULTS)
+df = df[df.clip_score_max >= args.min_clip]        # the alignment knob
+df = df[~df.child_id.isin(held_out)]               # cross-child generalization
+df["frame_idx"] = ((df.start + df.end) / 2).astype(int)   # midpoint frame
+```
+
+## The vision tower: frozen DINOv2
+
+Each frame is embedded once by a **frozen DINOv2-base** encoder (a
+self-supervised Vision Transformer) into a 768-dimensional vector — the model's
+`pooler_output` (the CLS token). We compute these embeddings for every frame any
+experiment needs (~1.27M frames) and cache them to disk as float16 (~1.5 KB per
+frame). Nothing about the vision encoder is learned.
+
+Freezing the vision tower is the decision that makes the prototype fast and the
+experiments clean:
+
+- **Fast.** With frames precomputed, a training run reads 768-d vectors and fits
+  only a small projection and word embeddings — minutes on one GPU.
+- **Clean.** Because capacity and optimization are held fixed, differences
+  between runs reflect *which pairs the model sees*, not how hard the vision
+  problem is. (This also means our probe cannot reproduce the training-loss
+  *divergence* reported for end-to-end pixel models — see @sec-experiments — but
+  it isolates the alignment effect that divergence obscures.)
+
+## The text tower: bag of words
+
+Following CVCL's finding that architecture barely matters, the text encoder is
+deliberately minimal: an embedding table over the training vocabulary, mean-
+pooled across the tokens of an utterance. A word's meaning is just its embedding;
+an utterance's meaning is the average of its words'.
+
+## The joint space and the contrastive objective
+
+Both towers project to a shared $d$-dimensional space and are L2-normalized. For
+a batch of $N$ (image, text) pairs with embeddings $v_i$ and $t_i$, cosine
+similarities are scaled by a learned temperature $\tau$ and trained with the
+symmetric InfoNCE loss — each image should pick its own caption out of the batch,
+and vice versa:
+
+$$
+\mathcal{L} = \tfrac12\!\left[
+-\frac1N\sum_i \log\frac{e^{s\,\langle v_i,t_i\rangle}}{\sum_j e^{s\,\langle v_i,t_j\rangle}}
+\;-\;\frac1N\sum_i \log\frac{e^{s\,\langle v_i,t_i\rangle}}{\sum_j e^{s\,\langle v_j,t_i\rangle}}
+\right], \qquad s = 1/\tau.
+$$
+
+The whole model is about thirty lines:
+
+```python
+# src/train.py — the two-tower model
+class TwoTower(nn.Module):
+    def __init__(self, vocab_size, dim=512, drop=0.1):
+        super().__init__()
+        self.vproj = nn.Sequential(nn.LayerNorm(768), nn.Dropout(drop),
+                                   nn.Linear(768, dim))          # frozen-emb -> joint
+        self.word = nn.Embedding(vocab_size, dim, padding_idx=0) # bag of words
+        self.logit_scale = nn.Parameter(torch.tensor(np.log(1/0.07)))
+
+    def encode_image(self, v):
+        return F.normalize(self.vproj(v), dim=-1)
+
+    def encode_text(self, t, n):
+        e = self.word(t)                                # [B, L, D]
+        mask = (t != 0).unsqueeze(-1).float()
+        pooled = (e * mask).sum(1) / n.clamp(min=1).unsqueeze(-1)
+        return F.normalize(pooled, dim=-1)
+
+    def forward(self, v, t, n):
+        iv, tv = self.encode_image(v), self.encode_text(t, n)
+        logits = self.logit_scale.clamp(max=np.log(100)).exp() * iv @ tv.t()
+        labels = torch.arange(len(v), device=v.device)
+        return 0.5 * (F.cross_entropy(logits, labels) +
+                      F.cross_entropy(logits.t(), labels))
+```
+
+Defaults: joint dim 512, batch 256, AdamW at lr $3\times10^{-4}$, 20 epochs,
+vocabulary of words appearing $\ge 5$ times.
+
+## Evaluating: the 4AFC test
+
+We want a metric that (a) measures word→object mapping directly, (b) is
+comparable to CVCL, and (c) needs no human annotation so it can run every epoch.
+The CDI-prompted YOLOE detections provide it. On **held-out children**, a frame
+is labeled with category $C$ when $C$ is the *dominant* detected object (largest,
+confident, and a clear majority of detected object area) — i.e. the frame is
+unambiguously "about" $C$.
+
+A trial presents the model with a cue word and four frames — one from the cue's
+category, three from other categories — and the model picks the frame whose
+image embedding is closest to the word's embedding. Chance is 25%.
+
+![A single 4AFC trial for the cue word "car". The model scores each frame's
+embedding against the word embedding and picks the maximum. *(Regenerated
+locally; not committed.)*](figures/frames/fig_4afc_trial.png){#fig-4afc}
+
+Because the vision tower is frozen and shared, the labeled eval frames are
+embedded once and reused across every run; only the learned text tower and
+projection differ. Held-out children are excluded from training entirely, so the
+metric measures *generalization of word meanings across children*, not memorized
+frames.
+
+## A second lever: region grounding
+
+The alignment filter attacks *when* to learn. A complementary idea attacks
+*what* in the frame to learn from. Even in a well-aligned moment, the frame is a
+cluttered scene and the referent is one object in it. Using the YOLOE detections,
+we can replace the whole frame with the **crop** of the dominant detected object
+before embedding it — so the contrastive target is the object, not the scene.
+
+![Region grounding pairs the utterance with the object crop (right) instead of
+the full scene (left). *(Regenerated locally; not committed.)*
+](figures/frames/fig_crop_example.png){#fig-crop}
+
+This is the same pipeline with a different visual input: crops are embedded by
+the same frozen DINOv2, cached the same way, and trained with the same objective.
+@sec-experiments tests both levers.
+
+## Reproducing
+
+The pipeline is a handful of small scripts, run on ccn2 with the environment at
+`/data2/mcfrank/ladder/condaenv`:
+
+```bash
+python build_eval.py    --videos held_out_child_videos.txt   # labeled 4AFC frames
+python build_pairs.py   --name aligned --min-clip 0.24 ...    # training manifest
+python embed_frames.py  --frames frames_all.parquet           # cache DINOv2 features
+python train.py         --manifest aligned.parquet ...        # train + eval
+```
+
+Frame embeddings and run logs live under `/data2/mcfrank/vlm-headcam/`; only
+aggregate results are committed to the repository (human-subjects frames stay on
+the cluster).

@@ -1,0 +1,83 @@
+# Background {#sec-background}
+
+## The data gap
+
+Estimates of children's linguistic input converge on roughly $6\times10^7$ words
+by age five and up to a few $\times10^8$ words by adulthood; frontier language
+models train on $10^{12}$ tokens or more — a gap of three to five orders of
+magnitude [@frank2023data]. Yet children generalize from their tiny, noisy,
+*grounded* stream in ways models trained on human-scale text cannot. A natural
+hypothesis is that grounding — learning words against the sensory world they
+refer to — is part of what makes children so sample-efficient. Testing that
+hypothesis requires models that learn from the child's actual audiovisual
+experience.
+
+## CVCL: it can work on one child
+
+@vong2024 provided an existence proof. Their CVCL model — a two-tower
+CLIP-style network — was trained on **SAYCam-S**: 61 hours of headcam video from
+a single child aged 6–25 months, yielding ~600,000 frames paired with ~37,500
+transcribed utterances. Frames and the utterances spoken around them are treated
+as matching pairs; a contrastive loss aligns them. Evaluated on a 4-alternative
+forced-choice test (pick which of four images matches a target word; chance
+25%), CVCL reached **61.6%** on in-distribution categories and **34.7%** on
+clean object photos (Konkle). Ablations showed the essential ingredient is the
+*consistent temporal co-occurrence* of frame and utterance — shuffling the
+pairing collapses performance to chance — while the encoder architecture barely
+matters.
+
+## Why BabyView breaks it
+
+**BabyView** [@long2025babyview] is a far larger, higher-resolution egocentric
+corpus — 868 hours released (2,500+ collected) across dozens of children, with
+a camera geometry that captures both faces and objects in the child's hands.
+It should be a better substrate. Instead, self-supervised vision on BabyView
+frames scales poorly, and contrastive vision–language models trained on it sit
+near chance; @lin2026egobabyvlm reproduce the identical recipe successfully on
+curated captions (COCO) but not on BabyView, and trace the failure to
+**semantic alignment**.
+
+The evidence that alignment is the culprit is quantitative and consistent across
+groups:
+
+| Source | Measure | BabyView / naturalistic | Reference |
+|--------|---------|-------------------------|-----------|
+| @lin2026egobabyvlm | JSD(true-pair vs shuffled CLIP scores) | **0.012** | COCO 0.916 |
+| @vong2024robust | mean frame–utterance CLIP sim | ~0.22 (S, A, Y all equal) | — |
+| Frank symbolic work | caregiver noun mentions naming an in-view object | **~12%** | — |
+
+BabyView's average frame–utterance alignment sits essentially at the
+random-pairing floor. Most of the time, the speech is displaced (past/future),
+abstract, about a book's contents, or about something outside the camera's view.
+
+## The lever: count, not average
+
+The single most useful result for a prototype comes from the CVCL follow-up
+[@vong2024robust]. Comparing the three SAYCam children, they found that
+*average* alignment is identical across children, but the **number of
+highly-aligned pairs** (frame–utterance CLIP similarity $> 0.24$) differs — and
+that count tracks who learns best:
+
+| Child | highly-aligned pairs (>0.24) | share of data | 4AFC accuracy |
+|-------|------------------------------|---------------|---------------|
+| S | 9,320 | 7.6% | best |
+| Y | 3,514 | 4.9% | middle |
+| A | 3,223 | 4.4% | worst |
+
+Their thesis: *the absolute count of high-quality aligned examples is the driver
+of successful word learning*, not average corpus quality, transcription method,
+or architecture.
+
+This reframes BabyView's scale from a liability into an opportunity. If ~9,000
+aligned pairs were enough for CVCL on child S, then BabyView — with 1.28M scored
+utterances — should contain *far* more aligned pairs than any single child, even
+though its average alignment is at the floor. Counting them directly:
+
+> Of BabyView's **1,282,036** scored utterances (37 children), **165,770**
+> (12.9%) have a maximum-frame CLIP score above 0.24 — roughly **18× SAYCam-S's
+> aligned-pair count**.
+
+The prototype in the next chapters is built to test the consequence: whether
+*concentrating* those aligned pairs — by filtering, and by grounding to objects
+rather than scenes — is enough to learn word–object mappings where naive
+training on the full, noisy stream is not.

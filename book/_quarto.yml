@@ -1,0 +1,29 @@
+project:
+  type: book
+  output-dir: _book
+
+book:
+  title: "Learning Words from a Child's-Eye View"
+  subtitle: "Alignment filtering and region grounding for word–object learning on BabyView"
+  author: "Michael C. Frank"
+  search: true
+  chapters:
+    - index.qmd
+    - 01-background.qmd
+    - 02-pipeline.qmd
+    - 03-experiments.qmd
+    - 04-next.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    code-fold: show
+    fig-align: center
+    df-print: paged
+
+execute:
+  enabled: false
