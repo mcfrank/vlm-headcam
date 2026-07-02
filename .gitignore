@@ -12,3 +12,6 @@ book/*_files/
 # Human-subjects frames render into the book locally but are NOT committed
 # (regenerate with src/make_figures.py on ccn2). Aggregate result plots ARE committed.
 book/figures/frames/
+
+# Background papers (copyrighted; keep local, do not publish)
+background/
