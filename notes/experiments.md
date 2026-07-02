@@ -345,3 +345,16 @@ bootstrap; nothing ignites. Refinement TODO (Mike): "looked-at/held -> talked-ab
 too crude — child_hand is PRESENCE not hand+object-at-location; frame-center is center-vs-edge
 CONTRAST not object-at-center. Build object-at-hand (held) + object-at-center (looked-at) via
 the DINOv2 region grid + temporal persistence, rerun filter test.
+
+## Region prior (child gaze = center) + utterance-cue matrix (design from Mike)
+Added model.region_prior (biases WHICH region wins the MIL argmax; scored with raw sim, no
+logit inflation) + speaker diarization (LENA FEM/MAL/KCHI/OCH via time-overlap join).
+CENTER region prior (child-gaze proxy) HURTS the oracle monotonically: delta 0/.05/.1/.2 ->
+50.0/47.3/46.7/45.8. Confirmed clean (Option A). The referent is NOT at frame center; the
+learned MIL similarity already selects better than a positional bias. => static positional
+region priors don't help; deprioritize per-frame hand-location priors (same override mech).
+Utterance cues (rho vs clip, on their coverage): prosody rms_range ~0.18, caregiver-speech
+(FEM/MAL) 0.08 (caregiver 43% aligned vs child 38%), discourse cont_share 0.09, child_hand ~0,
+caregiver-close (adult size upper-frame) -0.01 (NULL). Boot ext-prior (across-140k): caregiver
+35.6 (best), discourse 35.5, prosody 35.0, lang 35.0 vs plain 34.3 -- all small, no ignition.
+Full independent+combined matrix (BXM_*) running.
