@@ -397,3 +397,25 @@ Not-apples-to-apples vs CVCL on EVERY axis: unfrozen-vs-frozen, single-child-vs-
 eval, curated-vs-YOLOE gold, all-pairs-vs-discover-alignment. Highest-leverage fixes are the
 METHODOLOGICAL leaks: (1) unfreeze vision on a winning recipe (never tried; 72 ceiling has headroom),
 (2) cleaner eval, (3) real text encoder > BoW. Alignment leak (14pt) is the proven-hard one.
+
+## WITHIN- vs CROSS-child (new ch6 direction; Vong&Lake 2026 comparison)
+Top-3 kids by utts: S00400001(135k/126h), S00510002(119k/99h/108k reg-frames), S00320001(118k/132h).
+S00510002 best resourced (95% of utts region-embedded). Within-child pipeline (build_within_child.py):
+VIDEO-level TEMPORAL holdout (last 20% of videos; frame-level would leak contiguous frames);
+within-child 4AFC eval from CDI detections on held-out videos, matched to the 61 cross-child CDI cats.
+S00510002: 396 train / 98 test videos, 89k train pairs (15k aligned).
+Results (all on the SAME S00510002 held-out matched-60cat eval):
+| model | aligned train | 4AFC |
+| within-child all-pairs | (89k all) | 31.2 |
+| within-child oracle | 15k | 33.1 |
+| pooled oracle HN_full (incl S00510002 other vids) | 110k | 41.2 |
+| (HN_full on native S00360001 eval) | | 48.1 |
+DIAGNOSTIC REVERSED the hypothesis: within-child is HARDER, not easier. Clean decomposition:
+(1) DATA AMOUNT: pooled-110k (41) > single-child-15k (33) on the SAME eval = +8 -> Vong Finding 5
+"count is king" reproduced in our pipeline; a single child lacks aligned data. (2) S00510002 eval
+~7 harder than S00360001 (41 vs 48, same model). => NO cross-child penalty; POOLING HELPS.
+Remaining gap to Vong's within-child 51 (we get 33) is confounded by ENCODER (our frozen generic
+dinov2-base vs their unfrozen child-DINO ViT) + EVAL (YOLOE-gold temporal holdout vs curated Labeled-S).
+NEXT to isolate single-child-vs-pooled at fixed data: train pooled oracle on matched 15k aligned.
+Vong 2026 also rules out: Whisper fine (57 vs 62), better LM doesn't help (CVCL≈+GPT2≈+LM), more data
+minimal, CLIP-L only 67% on their eval. => don't chase LM/transcripts; encoder+eval are the levers.
