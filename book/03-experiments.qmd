@@ -166,6 +166,28 @@ memorized). And the injected label is noiseless, unlike real speech. The value i
 in the *contrasts*: control isolates frame quality, +label − control isolates
 alignment, and label-only marks the ceiling.
 
+## Which words, and why {#sec-which-words}
+
+That ~72 ceiling is an average over a very uneven landscape. Broken down by CDI
+category, the model's per-word accuracy is a broad, continuous distribution from
+chance to near-perfect, not a uniform level: it learns *plant* (92%), *car*,
+*window*, and *couch* (all ~84%) essentially perfectly, while *sky* (10%),
+*present* (12%), *cat* (14%), and *picture* (20%) sit at or below chance. Two
+things sort winners from losers, and neither is simply how often the word is
+heard — the correlation between a category's accuracy and how often it is spoken
+in aligned moments is only $\rho \approx 0.22$, necessary but far from sufficient.
+*"can"* is said over a thousand times yet scores 28%, because a bag-of-words
+encoder cannot separate the container from the modal verb; *cat* is common but
+visually small and deformable. What the model learns are the **visually
+distinctive, lexically unambiguous concrete nouns**; what it fails are the diffuse
+(*sky*), the polysemous (*can*, *present*), and the context-dependent (*picture*).
+This is the same failure mode @vong2024 and @vonglake2026 report for a strong CLIP
+model on their looking-while-listening eval — near-perfect on clean objects, at
+chance on *floor* and *hand*. So much of the distance between our numbers and 100%
+is not a learning failure but a property of the vocabulary and the frozen
+features: at this resolution a substantial minority of CDI words are simply not
+separable, which caps *any* model's achievable accuracy on this eval.
+
 ## Summary
 
 | Experiment | Finding |
