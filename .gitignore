@@ -20,3 +20,6 @@ background/
 metadata/videos.csv
 metadata/demogs.csv
 scripts/*.png
+
+# publish-public.sh backup copy of human-subjects frames (never commit)
+book/figures/frames_hold/
