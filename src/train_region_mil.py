@@ -286,6 +286,9 @@ def main():
     ap.add_argument("--center-prior", type=float, default=0.0,
                     help="REGION prior (child-gaze): add this cosine bonus to the central 2x2 "
                          "grid cells so the MIL prefers central regions (0 = off)")
+    ap.add_argument("--discourse-runs", action="store_true",
+                    help="STRUCTURAL discourse prior (non-cheating): boost E-step weights that "
+                         "sit in a temporal RUN of high weight within a video (reference is clumpy)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -302,6 +305,15 @@ def main():
     ds = RegionPairs(emb, lut, man, vocab)
     save_json(vocab, out / "vocab.json")
     print(f"pairs {len(ds)} | vocab {len(vocab)} | mode {args.mode}", flush=True)
+
+    video_orders = None
+    if args.discourse_runs:
+        from collections import defaultdict
+        vi = defaultdict(list)
+        for i, (v, f) in enumerate(ds.vf):
+            vi[v].append((f, i))
+        video_orders = [np.array([i for _, i in sorted(lst)]) for lst in vi.values()]
+        print(f"discourse-runs: {len(video_orders)} videos for temporal run-boost", flush=True)
 
     ext_prior = None
     if args.ext_prior:
@@ -386,6 +398,14 @@ def main():
                 else:
                     w = np.clip(gmm2_posterior(s), args.floor, 1.0)
                 w = w.astype(np.float32)
+                if video_orders is not None:        # boost weights inside a temporal RUN of high weight
+                    from scipy.ndimage import uniform_filter1d
+                    w2 = w.copy()
+                    for order in video_orders:
+                        wv = w[order]
+                        run = uniform_filter1d(wv, size=5, mode="nearest")   # length-preserving local mean
+                        w2[order] = wv * (0.5 + run)   # in a high-weight bout -> up to ~1.5x; isolated -> ~0.5x
+                    w = np.clip(w2, args.floor, 1.0).astype(np.float32)
             conf = w                                # refine prototype confidence next round
             W = torch.tensor(w, dtype=torch.float32, device=dev)
             epochs(args.epochs_per_round, "boot", r)
