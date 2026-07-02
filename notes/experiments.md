@@ -31,6 +31,20 @@ too weak a signal at BabyView's ~5–13% alignment floor.
 |----|------|------|------|-----------|-------|
 | E0 | cosine-EM | across140k | 32.2 | 0.03 | no ignition |
 | E0 | cosine-EM | within110k | 31.2 | 0.06 | no ignition |
+| E1 | region-MIL ORACLE | across | **49.9** | — | region attention raises ceiling +3.2 vs CLS 46.7 |
+| E1 | region-MIL ORACLE | within | 39.4 | — | +4.5 vs CLS 34.9 |
+| E1 | region-MIL unweighted | across140k | 34.8 | — | +1.8 vs CLS; no filter |
+| E1 | region-MIL boot | across140k | 34.3 | 0.035 | **still no ignition** (E-step ρ unchanged) |
+| E1 | region-MIL boot | within110k | 31.4 | 0.062 | still no ignition |
+
+### E1 takeaway
+Region-MIL **raises the achievable ceiling** (oracle 46.7→49.9) and helps the unweighted
+baseline (+2), confirming region attention is a better representation. BUT the **bootstrap
+still doesn't ignite**: the max-region E-step's ρ(weight,clip) stays 0.03–0.07 — same as
+CLS cosine-EM. Stronger *representation* ≠ stronger *self-supervision signal*. The gap
+between unweighted region-MIL (34.8) and region-MIL oracle (49.9) — ~15 pts — is what a
+working bootstrap could recover. → E8 (distinctiveness) + E2 (lang prior) target the
+E-step signal directly [Batch 2, launching].
 
 ## Status (overnight)
 - **E1 region-MIL RUNNING** (on-box orchestrator run_batch1.sh, GPUs 1,6 — node shared
@@ -62,3 +76,22 @@ too weak a signal at BabyView's ~5–13% alignment floor.
 
 Batch 2 = region-MIL boot × {lang(E2), distinct(E8), distinct+lang} × {across-140k,
 within-110k, across-60k}. Compares against Batch 1's plain region-MIL boot.
+
+### E2/E8 results (Batch 2) — modest, no ignition
+| variant | pool | 4AFC | ρ(w,clip) |
+|---------|------|------|-----------|
+| lang (E2) | within110 | 32.6 | **0.095** (best ρ yet) |
+| lang (E2) | across140 | 34.9 | 0.059 |
+| distinct (E8) | across140 | 34.6 | 0.013 (distinct alone doesn't help ρ) |
+| distinct+lang | across140 | **35.1** | 0.048 |
+Takeaway: the **language prior helps most** (ρ 0.06→0.095 within); distinctiveness alone
+barely moves ρ. Best 4AFC ~35 — just above the unweighted region baseline (34.8), still
+far below oracle 49.9. **Still no ignition, but the LANGUAGE side carries more
+bootstrappable signal than vision.** → E9 cross-situational prototypes [Batch 3, running].
+
+Batch 3 = cross-situational prototype (E9): accumulate a word→region prototype across
+situations; alignment = does the pair's region match the word's accumulated prototype?
+Variants: proto, proto+lang, across/within. If this also fails, the strong conclusion is
+that no instantaneous/accumulated self-supervised score separates aligned pairs at this
+noise floor — motivating curriculum (E5) or minimal external cues (social/prosodic, which
+children actually have).

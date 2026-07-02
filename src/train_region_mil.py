@@ -157,6 +157,46 @@ def pair_scores(model, ds, dev, bs=512, mode="max", tbg=None):
     return s
 
 
+@torch.no_grad()
+def region_argmax_emb(model, ds, dev, bs=512):
+    """For each pair, the JOINT embedding of the region best-aligned to its own text (E),
+    and that alignment score (s)."""
+    model.eval(); D = model.word.embedding_dim
+    E = np.zeros((len(ds), D), np.float32); s = np.zeros(len(ds), np.float32)
+    dl = torch.utils.data.DataLoader(ds, batch_size=bs, shuffle=False, collate_fn=collate)
+    for idx, v, t, n in dl:
+        R = model.enc_regions(v.to(dev)); T = model.enc_text(t.to(dev), n.to(dev))
+        sim = torch.einsum('brd,bd->br', R, T)              # [B,Rn]
+        mx, arg = sim.max(1)
+        e = R[torch.arange(len(R)), arg]                    # [B,D]
+        E[idx.numpy()] = e.cpu().numpy(); s[idx.numpy()] = mx.cpu().numpy()
+    return E, s
+
+
+def cross_situational_scores(ds, E, conf, vocab_size):
+    """Cross-situational prototype step. proto[w] = confidence-weighted mean of the chosen
+    region embeddings across all situations where w occurs. A pair's alignment = does its
+    chosen region match the accumulated prototype of one of its words? (Stable signal from
+    accumulation, vs a single noisy pair.) Returns (score per pair, prototype coherence per word)."""
+    D = E.shape[1]
+    psum = np.zeros((vocab_size, D)); pcnt = np.zeros(vocab_size)
+    for i, toks in enumerate(ds.ids):
+        c = conf[i]
+        for w in set(toks):
+            psum[w] += c * E[i]; pcnt[w] += c
+    proto = psum / np.maximum(pcnt[:, None], 1e-6)
+    nrm = np.linalg.norm(proto, axis=1, keepdims=True)
+    proto = proto / np.maximum(nrm, 1e-6)
+    coh = nrm.squeeze(-1)                                    # ||mean||: coherent word -> ~1
+    s = np.zeros(len(ds), np.float32)
+    for i, toks in enumerate(ds.ids):
+        best = 0.0
+        for w in set(toks):
+            best = max(best, float(E[i] @ proto[w]))
+        s[i] = best
+    return s, coh
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", required=True)
@@ -177,6 +217,8 @@ def main():
                     help="fold bootstrapped word-groundedness prior into the E-step weight")
     ap.add_argument("--score-mode", choices=["max", "distinct"], default="max",
                     help="distinct = subtract each region's generic salience (base-rate correction)")
+    ap.add_argument("--proto", action="store_true",
+                    help="cross-situational prototype E-step (accumulate word->region prototypes)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -210,15 +252,22 @@ def main():
             epochs(1, "plain", e)
     else:
         epochs(args.warmup, "warmup", -1)
+        conf = np.ones(len(ds), np.float32)   # for proto accumulation
         for r in range(args.rounds):
-            tbg = mean_text(model, ds, dev) if args.score_mode == "distinct" else None
-            s = pair_scores(model, ds, dev, mode=args.score_mode, tbg=tbg)
+            if args.proto:
+                E, _ = region_argmax_emb(model, ds, dev)
+                s, coh = cross_situational_scores(ds, E, conf, len(vocab))
+            else:
+                tbg = mean_text(model, ds, dev) if args.score_mode == "distinct" else None
+                s = pair_scores(model, ds, dev, mode=args.score_mode, tbg=tbg)
             if args.lang_prior:
                 L, g = language_prior(ds, s)
                 combined = 0.5 * (rank01(s) + rank01(L))   # need BOTH a matching region and a grounded word
                 w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
             else:
                 w = np.clip(gmm2_posterior(s), args.floor, 1.0)
+            w = w.astype(np.float32)
+            conf = w                                # refine prototype confidence next round
             W = torch.tensor(w, dtype=torch.float32, device=dev)
             epochs(args.epochs_per_round, "boot", r)
             y = yardstick(w, ds.clip); log[-1].update(y); print("  yardstick:", y, flush=True)

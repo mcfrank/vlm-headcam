@@ -61,6 +61,49 @@ its **best region** (multiple-instance learning). The same max-region similarity
 the endogenous alignment score for the EM loop. This needs no object detector and no CLIP,
 and it implements the "which frames *and* which regions" double-sparsity idea directly.
 
-*Results in progress — this section will report whether region-level MIL (a) raises the
-achievable ceiling and (b) creates the alignment toehold the global-embedding bootstrap
-lacked.*
+Region-MIL cleanly separates two things that E0 had conflated — the *representation* and
+the *self-supervision signal*.
+
+| region-MIL | across | within | vs CLS |
+|------------|--------|--------|--------|
+| oracle (aligned pairs given) | **49.9** | 39.4 | +3.2 / +4.5 |
+| unweighted baseline | 34.8 | 34.1 | +1.8 / +1.9 |
+| bootstrap (best) | 34.3 | 31.4 | ≈ |
+| bootstrap ρ(weight, CLIP) | 0.035 | 0.06 | ≈ E0 |
+
+**Region attention raises the achievable ceiling** (oracle 46.7 → 49.9) and lifts the
+unweighted baseline — matching an utterance to its best region is a better representation,
+consistent with the object-crop result of @sec-d. **But the bootstrap still does not
+ignite:** the max-region alignment score is no better than the whole-frame cosine at
+telling aligned pairs from misaligned ones (ρ ≈ 0.03–0.07, unchanged). A stronger
+*representation* did not buy a stronger *self-supervision signal*.
+
+The lesson: the toehold problem is about the **scoring function**, not the visual
+features. The gap between the unweighted region model (34.8) and its oracle (49.9) — ~15
+points — is exactly what a working bootstrap could recover. The next experiments therefore
+target the E-step score itself: a **base-rate correction** (E8) that discounts
+ever-present regions, and a **language prior** (E2) that trusts utterances containing
+words the model already grounds.
+
+## E2 / E8 — sharpening the E-step {#sec-e2e8}
+
+If a stronger *representation* didn't fix the bootstrap, maybe the *scoring function* can.
+Two ideas, both fully self-supervised: a **base-rate correction** (E8) that subtracts each
+region's generic salience so ever-present regions stop winning, and a **language prior**
+(E2) that up-weights utterances containing words the model already grounds (function words
+self-exclude — no POS).
+
+| variant (region-MIL boot) | pool | best 4AFC | ρ(weight, CLIP) |
+|---------------------------|------|-----------|-----------------|
+| language prior | within-110k | 32.6 | **0.095** |
+| language prior | across-140k | 34.9 | 0.059 |
+| distinctiveness | across-140k | 34.6 | 0.013 |
+| distinctiveness + language | across-140k | **35.1** | 0.048 |
+
+The **language prior helps most** — it roughly doubles the weight–alignment correlation
+within-kid (0.06 → 0.095), while distinctiveness alone barely moves it. Best accuracy
+edges to ~35, just above the unweighted region baseline (34.8) but still far from the
+oracle (49.9). So: **the language side carries more bootstrappable signal than the visual
+side** — an utterance's words are a better clue to whether a moment is referential than
+the frame's regions are — but neither, instantaneously, is enough to ignite. The next
+experiment gives the signal *memory*: accumulate a word→region prototype across situations.
