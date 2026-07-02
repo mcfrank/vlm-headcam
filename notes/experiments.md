@@ -373,3 +373,27 @@ null. VERDICT: at 1fps on the real pool the social/language cues are too weak to
 combined +1 (marginal), «curriculum 37.6 «oracle 49.9. Ch5 negative stands. One principled
 mechanism still untested: discourse as a STRUCTURAL prior (temporal runs of high endogenous
 weight, non-cheating) — cheap, but unlikely to change the verdict given everything above.
+
+### Discourse-structural prior (Option A) + region-prior — both null/hurt (cue investigation CLOSED)
+Discourse structural prior (--discourse-runs: boost E-step weights in temporal runs of high
+weight; non-cheating, FTF clumpiness) 3 seeds: 34.41±0.66 = plain 34.40±0.58 (NO effect).
+Stacked on combined: 35.29±1.03 = combined 35.43±0.79 (no add). Center REGION prior HURTS
+(50->46). Full verdict across utterance-weights AND region-priors, independent+combined, seeded:
+best = combined utterance cues +1.0 (~1.5sigma); everything else within noise or hurts. No
+social signal reaches the rho~0.3 titration bar on the true pool. Ch5 §sec-which tightened.
+
+### SYSTEM ACCURACY WATERFALL (why the numbers are what they are; for the writeup)
+4AFC held-out child, chance 25:
+- 100 -> ~72: frozen DINO+BoW + clean labels + alignment GIVEN (ch3 label-topline). Loss to
+  representation (frozen features can't separate all cats) + noisy YOLOE eval-gold + hard/
+  polysemous CDI words. METHODOLOGICAL (our probe choices; features HAVE the info given clean align).
+- 72 -> ~50: real utterances instead of clean labels (region-MIL oracle). Referential slack:
+  real speech, even aligned, doesn't cleanly name the on-screen object; BoW. Mostly FUNDAMENTAL
+  (+ partly BoW). (caveat: 72/50 not identical eval frame-sets.)
+- 50 -> ~36: alignment DISCOVERED not given (best bootstrap). The ch5 result: co-occurrence too
+  sparse + social cues too weak at 1fps. FUNDAMENTAL to this stream/tools.
+- 36 -> 34/25: recovered / chance.
+Not-apples-to-apples vs CVCL on EVERY axis: unfrozen-vs-frozen, single-child-vs-pooled+cross-child
+eval, curated-vs-YOLOE gold, all-pairs-vs-discover-alignment. Highest-leverage fixes are the
+METHODOLOGICAL leaks: (1) unfreeze vision on a winning recipe (never tried; 72 ceiling has headroom),
+(2) cleaner eval, (3) real text encoder > BoW. Alignment leak (14pt) is the proven-hard one.

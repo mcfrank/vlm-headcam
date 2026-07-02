@@ -190,11 +190,19 @@ seeds, against a CLIP-aligned positive control that trains +5 points over random
 and prosody each buy a small, real lift — about +1.5 points over random, roughly a quarter of
 what the CLIP control buys — and, exactly as @frank2013social found, the **combination does
 not beat the best single cue**: the cues are redundant, and the null vision cues only dilute
-it. Folded into the bootstrap itself, as a prior on the EM E-step, a discourse cue lifts the
-self-supervised model +1.3 points — the same order as the language prior of @sec-e2e8, and
-still far from ignition.
+it. The filter screen, though, runs on a region-cache-enriched pool where the cues look ~2–4×
+stronger than they are; on the *true* training pool (≈13% aligned) the same cues correlate
+with alignment at only $\rho \approx 0.05$. Folded into the bootstrap there, as a prior on the
+EM E-step (three seeds each), every cue alone is within seed noise, and only the unsupervised
+*combination* of all of them edges the plain baseline — $+1.0$ point at roughly $1.5\sigma$.
+A structural discourse prior that boosts temporal *runs* of high weight — exactly the
+reference-continuity clumpiness of @frank2013social — adds nothing on top. And the cues can be
+turned into *region* priors, not just utterance weights: biasing the MIL toward the frame
+centre (the child's gaze, in a head-mounted camera) actively **hurts**, dropping the oracle
+from 50 to 46, because the referent is not reliably centred and the learned similarity already
+picks a better region than position can.
 
-Two findings deserve to be separated, because they fail for different reasons.
+Two vision failures are worth separating, because they fail for different reasons.
 
 - **Pointing is a *detection* failure, not an informativeness one.** Extended straight arms
   are about as rare as @frank2013social's points (~10% of frames), but inspecting them shows
@@ -202,20 +210,23 @@ Two findings deserve to be separated, because they fail for different reasons.
   distal object; and the finger-level signature of a true point is unresolvable — at arm's
   length the hand keypoints are too small to read. The one cue the literature most wants is
   precisely the one this data's resolution cannot expose.
-- **"Looked-at" and "held" are *heuristic* failures.** The developmental logic is sound —
-  children talk about what they hold and look at — but our proxies measured the wrong thing:
-  a child hand's mere *presence*, and the centre's mere *contrast* with the periphery, rather
-  than an *object at the hand* or *at the centre*. Whether a proper "object-there"
-  operationalisation recovers the signal is the open question this chapter leaves — and,
-  unlike pointing, it is answerable with the data in hand.
+- **"Looked-at" and "held" fail even after the heuristic is fixed.** The developmental logic
+  is sound — children talk about what they hold and look at — and our first proxies did
+  measure the wrong thing (a hand's mere *presence*, the centre's mere *contrast*). But the
+  fixed, object-grounded versions — a region prior at the child's hand, or at the gaze centre
+  — fare no better, because a *positional* prior fights the very region-selection the model
+  already does well. The cue is right; the 1-fps, coarse-grid signal is not enough to place it.
 
-The honest summary is a split. **Reference in BabyView is socially cued, but only the
-language-side cues — prosody, discourse continuity — are both present in the stream and
-machine-readable at 1 fps, and even they are weak: a quarter of the CLIP filter, nowhere near
-ignition.** The vision-side cues fail for two separable reasons — the gesture that carries the
-most information (pointing) lives below the data's temporal and spatial resolution, and the
-cues that should work (holding, looking) were measured too crudely to tell. The titration's
-target, a cue worth $\rho \gtrsim 0.3$, remains unmet; but the map of *why* is now specific
-enough to say what would move it: object-grounded cues that ask what is *at* the hand or the
-centre rather than whether a hand is present, higher-frame-rate gaze and gesture tracking, or
-more data to let the rare, precise cues accumulate.
+The honest summary is a split, and it is now well tested. **Reference in BabyView is socially
+cued, but only the language-side cues — prosody, discourse continuity, caregiver speech — are
+both present in the stream and machine-readable at 1 fps, and even combined they buy about a
+single point of 4AFC, a fraction of the CLIP filter and nowhere near ignition.** The
+vision-side cues fail for two reasons — the gesture that carries the most information
+(pointing) lives below the data's temporal and spatial resolution, and the region priors that
+should encode holding and looking fight the learned selection. Across utterance weights and
+region priors, independent and combined, seeded, the titration's target — a cue worth $\rho
+\gtrsim 0.3$ — is not met by any social signal we can read from this stream. What is missing
+is not a cleverer cue but a different regime: higher-frame-rate gaze and gesture tracking than
+1 fps exposes, an unfrozen visual encoder tuned to the child's own world rather than a general
+one, and more of the child's *own* consistent data — the conditions under which a model like
+CVCL, on a single child's stream, does learn.
