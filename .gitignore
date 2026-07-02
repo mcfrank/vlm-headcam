@@ -18,3 +18,5 @@ background/
 
 # Airtable export: subject-level metadata (ages, birthdates, languages, GCP paths) — human-subjects, keep local
 metadata/videos.csv
+metadata/demogs.csv
+scripts/*.png
