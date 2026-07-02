@@ -15,3 +15,6 @@ book/figures/frames/
 
 # Background papers (copyrighted; keep local, do not publish)
 background/
+
+# Airtable export: subject-level metadata (ages, birthdates, languages, GCP paths) — human-subjects, keep local
+metadata/videos.csv

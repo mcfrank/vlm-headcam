@@ -28,7 +28,7 @@ referential noise, does concentrating the aligned moments rescue learning?*
 | [Background](01-background.qmd) | The data gap, CVCL, why BabyView breaks contrastive learning, and the alignment diagnosis with numbers. |
 | [The pipeline](02-pipeline.qmd) | A walkthrough of the modeling infrastructure — data, the alignment filter, the frozen two-tower model, the 4AFC evaluation, and region grounding — with worked examples. |
 | [Alignment experiments](03-experiments.qmd) | Five controlled experiments: robustness of the alignment gap, filtering vs. brute scale, the count-vs-quality frontier, object crops vs. whole scenes, and an injected-alignment topline. |
-| [Where next](04-next.qmd) | What the results imply and the obvious next moves. |
+| [Bootstrapping the filter](05-bootstrapping.qmd) | Can a naive learner *self-discover* alignment, with no CLIP? Six self-supervised mechanisms, why none ignites, a titration of how good a cue would have to be, and an audit of whether the social cues children use are recoverable here. |
 
 ## The question in one figure
 
