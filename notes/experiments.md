@@ -329,3 +329,19 @@ VERDICT: the rescue lives on the LANGUAGE side (prosody, discourse: weak but rea
 with the project-wide language>vision asymmetry); vision-side social cues (pose, pointing,
 gaze-as-center) are null or undetectable at 1fps. Code: prosody_for_pairs / discourse_for_pairs
 / pose_pointing / frame_center_for_pairs / build_combined_cues.
+
+## Bootstrap-with-cue (BX): language priors folded into the EM E-step
+train_region_mil.py --ext-prior <parquet> --ext-col <col> blends an external per-pair cue
+into the boot weight: combined=0.5*(rank01(model_s)+rank01(cue)) -> gmm2. Region-MIL boot,
+across-140k:
+| E-step | best 4AFC | rho(w,clip) |
+| plain (baseline) | 34.3 | 0.045 |
+| + discourse (cont_share) | 35.5 | 0.045 |
+| + prosody (rms_range) | 35.0 | 0.065 |
+| + language prior (ch4) | 35.0 | 0.08 |
+Discourse prior best (+1.3 over plain), ~ the lang prior. Small, consistent, but no ignition
+(rho<=0.08, «oracle 49.9; still < curriculum 37.6). Confirms: language cues weakly help the
+bootstrap; nothing ignites. Refinement TODO (Mike): "looked-at/held -> talked-about" cues are
+too crude — child_hand is PRESENCE not hand+object-at-location; frame-center is center-vs-edge
+CONTRAST not object-at-center. Build object-at-hand (held) + object-at-center (looked-at) via
+the DINOv2 region grid + temporal persistence, rerun filter test.
