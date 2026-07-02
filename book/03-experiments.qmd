@@ -1,9 +1,11 @@
-# Experiments {#sec-experiments}
+# Alignment experiments {#sec-experiments}
 
-Four controlled experiments, all using the frozen two-tower probe of
+Five controlled experiments, all using the frozen two-tower probe of
 @sec-pipeline and the 4AFC metric on held-out children (chance 25%). Together
 they test two levers against referential noise — *alignment filtering* and
-*region grounding* — and probe how each behaves.
+*region grounding* — probe how each behaves, and (@sec-topline) bracket the
+alignment effect with an artificial topline that separates *alignment* from
+*frame quality*.
 
 ## B — The alignment gap is robust {#sec-b}
 
@@ -108,6 +110,62 @@ of @sec-b because it uses the smaller detection-video subset and pairs with the
 detection frame rather than the CLIP-best frame; the clean comparison is crop vs.
 frame on the *identical* 50k pairs.)
 
+## E — An alignment topline (and a confound test) {#sec-topline}
+
+Experiments B–D *select* aligned data. Selection confounds two things: the
+selected pairs are more aligned (the text names the on-screen object), but the
+selected *frames* may also simply be cleaner — bigger, more canonical, more
+recognizable objects. Does the gap come from alignment, or from frame quality?
+
+This experiment separates them by *injecting* alignment rather than selecting for
+it. We take **random** (not alignment-selected) utterances whose midpoint frame
+carries a confident object detection — 414k pairs — and, holding that frame set
+fixed, vary only the text:
+
+- **control** — the utterance only;
+- **+label** — the utterance with the frame's detected object label(s) appended
+  (correct alignment injected);
+- **label-only** — just the detected label(s) — the ceiling of what the frozen
+  features can express under perfect alignment.
+
+Because the *frames are identical* across the three, any gain over control cannot
+be a frame-quality effect.
+
+![Injecting correct labels onto ordinary random frames. Frame quality alone
+(control vs. random) adds little; injected alignment (+label) is enormous; the
+noisy utterance adds nothing on top of the label.](figures/fig_results_topline.png){#fig-topline width=65%}
+
+| Arm (held-out S00360001, 3 seeds) | text | best 4AFC |
+|-----------------------------------|------|-----------|
+| random (Exp B) | natural utterance, random frames | 32.6 ± 1.6 |
+| control | natural utterance, detection frames | 35.5 ± 1.2 |
+| +label | utterance + detected labels | **71.4 ± 0.5** |
+| label-only | detected labels only | 71.7 ± 0.4 |
+
+Three things fall out:
+
+1. **The frame-quality confound is small.** Putting random utterances on
+   clean-object frames (control) beats pure random by only **+2.9** — most of
+   Exp B's gap is *not* explained by aligned frames being visually easier.
+2. **Alignment is the driver.** On the *identical* frames, injecting the correct
+   label jumps accuracy by **+35.9** (35.5 → 71.4). This cannot be frame quality;
+   it is alignment, full stop. (And label-only ≈ +label: the noisy utterance
+   contributes essentially nothing once the correct label is present.)
+3. **There is large headroom.** The frozen features can express ~**71.7%** on
+   this eval under perfect labels. Our best *natural* model (48.7, @sec-d) sits
+   only about a third of the way from control (35.5) to that ceiling — so the
+   bottleneck is *alignment quality of the training signal*, not the capacity of
+   the frozen vision features. Better selection / referent identification has
+   room to run before unfreezing the encoder becomes necessary.
+
+Two caveats. This is a *topline*, not a claim about naturalistic learning: since
+the eval labels also come from the detector, the +label and label-only arms are
+partly learning to recover the detector through the frozen features (a high
+number is expected — the held-out child keeps it cross-child rather than
+memorized). And the injected label is noiseless, unlike real speech. The value is
+in the *contrasts*: control isolates frame quality, +label − control isolates
+alignment, and label-only marks the ceiling.
+
 ## Summary
 
 | Experiment | Finding |
@@ -116,6 +174,9 @@ frame on the *identical* 50k pairs.)
 | A | Filtered 137k **beats** unfiltered 1.14M — scale dilutes signal. |
 | C | Count-vs-quality **sweet spot** at ~22k pairs (clip>0.26): 48.4. |
 | D | Object crops beat whole scenes **+3–4 pts**; best overall 48.7. |
+| E | Injected-alignment topline **71.4** on fixed frames; frame-quality confound only +2.9; ceiling ~71.7 → large headroom. |
 
 Two cheap, composable levers move word–object accuracy well above chance on a
-corpus where naive training fails. The next chapter takes stock.
+corpus where naive training fails — and the topline shows the effect is
+alignment *per se*, with substantial room left before the frozen features
+become the limit. The next chapter takes stock.

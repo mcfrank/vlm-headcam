@@ -159,3 +159,28 @@ if rc is not None and len(rc):
     a2.set_xticks([]); a2.set_yticks([])
     fig.tight_layout(); fig.savefig(FOUT/"fig_crop_example.png"); plt.close(fig)
 print("frame figures done ->", FOUT)
+
+# ---------- topline: alignment injection on fixed frames ----------
+def sb(prefix):
+    vals = [best(f"{prefix}_s{s}") for s in range(3)]
+    vals = [v for v in vals if v]
+    return (np.mean(vals), np.std(vals)) if vals else (np.nan, 0)
+
+
+tl = [("random\n(Exp B)", sb("B_random_S00360001"), C["random"]),
+      ("control\n(utt only)", sb("T_control"), "#8fb0c9"),
+      ("+label\n(injected)", sb("T_label"), C["aligned"]),
+      ("label-only\n(ceiling)", sb("T_labelonly"), C["crop"])]
+if all(not np.isnan(t[1][0]) for t in tl):
+    fig, ax = plt.subplots(figsize=(6.4, 4.0))
+    ax.bar([t[0] for t in tl], [t[1][0]*100 for t in tl],
+           yerr=[t[1][1]*100 for t in tl], color=[t[2] for t in tl], capsize=3)
+    ax.axhline(25, ls="--", c="k", lw=1); ax.text(3.1, 26, "chance", fontsize=9)
+    ax.axhline(46.9, ls=":", c=C["aligned"], lw=1.5)
+    ax.text(-0.4, 47.6, "aligned (Exp B)", fontsize=8, color=C["aligned"])
+    for i, t in enumerate(tl):
+        ax.text(i, t[1][0]*100+0.7, f"{t[1][0]*100:.1f}", ha="center", fontsize=10)
+    ax.set_ylabel("4AFC accuracy (%)")
+    ax.set_title("Topline: injecting alignment onto fixed random frames")
+    fig.tight_layout(); fig.savefig(OUT/"fig_results_topline.png"); plt.close(fig)
+    print("topline figure done")
