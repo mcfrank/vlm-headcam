@@ -27,7 +27,7 @@ def load_region_cache(d):
 
 class RegionPairs(torch.utils.data.Dataset):
     def __init__(self, emb, lut, man, vocab, max_len=16):
-        self.rows, self.ids, self.clip = [], [], []
+        self.rows, self.ids, self.clip, self.vf = [], [], [], []
         for r in man.itertuples(index=False):
             k = frame_key(r.video_id, r.frame_idx)
             if k not in lut:
@@ -37,6 +37,7 @@ class RegionPairs(torch.utils.data.Dataset):
                 continue
             self.rows.append(lut[k]); self.ids.append(toks)
             self.clip.append(float(getattr(r, "clip_score_max", np.nan)))
+            self.vf.append((r.video_id, int(r.frame_idx)))
         self.emb = emb; self.max_len = max_len; self.clip = np.array(self.clip)
 
     def __len__(self):
@@ -61,6 +62,7 @@ class RegionMIL(nn.Module):
         self.vproj = nn.Sequential(nn.LayerNorm(EMB_DIM), nn.Dropout(drop), nn.Linear(EMB_DIM, dim))
         self.word = nn.Embedding(vocab, dim, padding_idx=0)
         self.logit_scale = nn.Parameter(torch.tensor(np.log(1 / 0.07)))
+        self.region_prior = None        # optional [Rn] bias on which region wins the MIL max
 
     def enc_regions(self, v):           # v [B,R,768] -> [B,R,D] normalized
         return F.normalize(self.vproj(v), dim=-1)
@@ -70,7 +72,10 @@ class RegionMIL(nn.Module):
         return F.normalize((e * m).sum(1) / n.clamp(min=1).unsqueeze(-1).float(), dim=-1)
 
     def sims(self, R, T):               # R [B,Rn,D], T [M,D] -> [B,M] max over regions
-        return torch.einsum('brd,md->brm', R, T).max(1).values
+        s = torch.einsum('brd,md->brm', R, T)
+        if self.region_prior is not None:
+            s = s + self.region_prior.view(1, -1, 1)   # bias region SELECTION toward cued regions
+        return s.max(1).values
 
     def forward_loss(self, v, t, n, w):
         R = self.enc_regions(v); T = self.enc_text(t, n)
@@ -107,7 +112,10 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
         for _ in range(n_trials):
             cand = [rng.choice(pools[cat])] + [rng.choice(pools[c]) for c in rng.choice(others, 3, replace=False)]
             cr = Rp[[r2i[r] for r in cand]]                                    # [4,R,D]
-            sc = torch.einsum('brd,md->brm', cr, tv).max(1).values.squeeze(-1) # [4]
+            sc = torch.einsum('brd,md->brm', cr, tv)                           # [4,R,1]
+            if model.region_prior is not None:
+                sc = sc + model.region_prior.view(1, -1, 1)
+            sc = sc.max(1).values.squeeze(-1)                                  # [4]
             if sc.argmax().item() == 0:
                 correct += 1
         accs.append(correct / n_trials)
@@ -180,6 +188,8 @@ def pair_scores(model, ds, dev, bs=512, mode="max", tbg=None):
         sim = torch.einsum('brd,bd->br', R, T)                      # [B,Rn]
         if mode == "distinct":
             sim = sim - (R @ tbg)                                   # subtract generic salience
+        if model.region_prior is not None:
+            sim = sim + model.region_prior.view(1, -1)
         s[idx.numpy()] = sim.max(1).values.cpu().numpy()
     return s
 
@@ -194,6 +204,8 @@ def region_argmax_emb(model, ds, dev, bs=512):
     for idx, v, t, n in dl:
         R = model.enc_regions(v.to(dev)); T = model.enc_text(t.to(dev), n.to(dev))
         sim = torch.einsum('brd,bd->br', R, T)              # [B,Rn]
+        if model.region_prior is not None:
+            sim = sim + model.region_prior.view(1, -1)
         mx, arg = sim.max(1)
         e = R[torch.arange(len(R)), arg]                    # [B,D]
         E[idx.numpy()] = e.cpu().numpy(); s[idx.numpy()] = mx.cpu().numpy()
@@ -260,6 +272,13 @@ def main():
                          "blend: combine cue with the model's own score each round")
     ap.add_argument("--gate-frac", type=float, default=0.12,
                     help="gate mode: fraction of pairs kept as hard positives (default ~ base rate)")
+    ap.add_argument("--ext-prior", default=None,
+                    help="parquet (video_id,frame_idx,<col>) of an external per-pair cue folded "
+                         "into the boot E-step weight (e.g. prosody/discourse). See --ext-col")
+    ap.add_argument("--ext-col", default="cont_share", help="column in --ext-prior to use")
+    ap.add_argument("--center-prior", type=float, default=0.0,
+                    help="REGION prior (child-gaze): add this cosine bonus to the central 2x2 "
+                         "grid cells so the MIL prefers central regions (0 = off)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -277,7 +296,22 @@ def main():
     save_json(vocab, out / "vocab.json")
     print(f"pairs {len(ds)} | vocab {len(vocab)} | mode {args.mode}", flush=True)
 
+    ext_prior = None
+    if args.ext_prior:
+        ep = pd.read_parquet(args.ext_prior)
+        d = {(v, int(f)): float(x) for v, f, x in zip(ep.video_id, ep.frame_idx, ep[args.ext_col])}
+        ext_prior = np.array([d.get(vf, np.nan) for vf in ds.vf], np.float32)
+        med = np.nanmedian(ext_prior); ext_prior = np.where(np.isnan(ext_prior), med, ext_prior)
+        print(f"ext-prior {args.ext_col}: covered {np.isfinite([d.get(vf, np.nan) for vf in ds.vf]).mean():.0%} "
+              f"| rho(prior,clip)={yardstick(rank01(ext_prior), ds.clip).get('spearman_w_clip')}", flush=True)
+
     model = RegionMIL(len(vocab), args.dim).to(dev)
+    if args.center_prior > 0:
+        R = emb.shape[1]                     # 1 CLS + G*G grid (17 for 4x4)
+        pri = torch.zeros(R, device=dev)
+        pri[[6, 7, 10, 11]] = args.center_prior   # central 2x2 of the 4x4 grid (CLS=idx0)
+        model.region_prior = pri
+        print(f"center-prior {args.center_prior} on region cells [6,7,10,11]", flush=True)
     if args.init_from:
         model.load_state_dict(torch.load(args.init_from, map_location=dev))
         print(f"init from {args.init_from}", flush=True)
@@ -332,7 +366,10 @@ def main():
                 else:
                     tbg = mean_text(model, ds, dev) if args.score_mode == "distinct" else None
                     s = pair_scores(model, ds, dev, mode=args.score_mode, tbg=tbg)
-                if cue is not None and args.prior_mode == "blend":
+                if ext_prior is not None:
+                    combined = 0.5 * (rank01(s) + rank01(ext_prior))   # endogenous score + external cue
+                    w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
+                elif cue is not None and args.prior_mode == "blend":
                     combined = 0.5 * (rank01(s) + rank01(cue))   # cue + endogenous score
                     w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
                 elif args.lang_prior:
