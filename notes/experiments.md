@@ -431,3 +431,19 @@ the EVAL: our YOLOE-gold, temporal-holdout, 60-cat CDI eval (incl hard/ambiguous
 curated Labeled-S (22-41 clean cats). NB: within OUR setup count still helps (pooled-110k 41 >
 single-15k 33); we're just capped at a lower ceiling by the eval. Note (Mike): 2026.1 has 200+h from
 several kids -> could rerun pipeline for deeper single-child work at compute cost.
+
+## Within-child across 3 kids + DATA-MATCHED single-vs-pooled (the "whose" answer)
+Within-child oracle (each on own matched-CDI-cat eval): S00510002 33.1, S00320001 29.7,
+S00400001 36.1; all-pairs 31.2/30.1/34.0. Pattern holds across kids (~30-36), not S00510002-
+specific. Oracle barely beats all-pairs within a single child (too few aligned: 10-15k).
+DATA-MATCHED (all on S00510002 held-out eval, oracle):
+| training | aligned pairs | 4AFC |
+| single child (S00510002) | 15k | 33.1 |
+| pooled (many kids) | 15k | 38.3 |
+| pooled (many kids) | 110k | 41.2 |
+=> At MATCHED 15k count, POOLING beats single-child by +5.2 (DIVERSITY), and count adds another
++2.9 (15k->110k, diminishing). So the single-child deficit is BOTH: ~⅔ diversity, ~⅓ count.
+"WHOSE" matters more than "how much": a pool of many children's aligned examples per category
+generalizes better (even to a single child's OWN held-out videos) than that child's own data.
+Single-child consistency helped the bootstrap toehold but HURTS generalizable word learning.
+Reconciles with Vong (within-child eval on same child's objects doesn't stress category diversity).
