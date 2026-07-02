@@ -17,7 +17,7 @@ import torch.nn.functional as F
 from collections import Counter
 from pathlib import Path
 
-from common import MANIFEST_DIR, load_emb_cache, tokenize, EMB_DIM, save_json
+from common import MANIFEST_DIR, EMB_DIR, load_emb_cache, tokenize, EMB_DIM, save_json, frame_key
 
 
 # ---------------- data ----------------
@@ -38,8 +38,9 @@ def encode(text, vocab, max_len=16):
 class Pairs(torch.utils.data.Dataset):
     def __init__(self, emb, lut, manifest, vocab, max_len=16):
         rows, self.ids, self.embrows = [], [], []
+        has_key = "key" in manifest.columns
         for r in manifest.itertuples(index=False):
-            key = (r.video_id, int(r.frame_idx))
+            key = r.key if has_key else frame_key(r.video_id, r.frame_idx)
             if key not in lut:
                 continue
             ids = encode(r.text, vocab, max_len)
@@ -98,11 +99,12 @@ class TwoTower(nn.Module):
 def eval_4afc(model, emb, lut, eval_frames, vocab, device, n_trials=100, seed=0, max_len=16):
     rng = np.random.default_rng(seed)
     # category -> list of emb-cache rows; and category token ids
+    has_key = "key" in eval_frames.columns
     pools, cat_ids = {}, {}
     for cat, g in eval_frames.groupby("category"):
         ids = encode(cat, vocab, max_len)
-        rows = [lut[(v, int(f))] for v, f in zip(g.video_id, g.frame_idx)
-                if (v, int(f)) in lut]
+        keys = g.key if has_key else [frame_key(v, f) for v, f in zip(g.video_id, g.frame_idx)]
+        rows = [lut[k] for k in keys if k in lut]
         if ids and len(rows) >= 4:
             pools[cat] = rows
             cat_ids[cat] = ids
@@ -146,6 +148,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", required=True)
     ap.add_argument("--eval-frames", default=str(MANIFEST_DIR / "eval_frames.parquet"))
+    ap.add_argument("--emb-dir", default=str(EMB_DIR), help="embedding cache for training pairs")
+    ap.add_argument("--eval-emb-dir", default=None, help="embedding cache for eval (default: --emb-dir)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--dim", type=int, default=512)
     ap.add_argument("--epochs", type=int, default=20)
@@ -163,7 +167,8 @@ def main():
     outdir = Path(args.out)
     outdir.mkdir(parents=True, exist_ok=True)
 
-    emb, lut = load_emb_cache()
+    emb, lut = load_emb_cache(args.emb_dir)
+    eemb, elut = (emb, lut) if not args.eval_emb_dir else load_emb_cache(args.eval_emb_dir)
     man = pd.read_parquet(args.manifest)
     eval_frames = pd.read_parquet(args.eval_frames)
 
@@ -202,7 +207,7 @@ def main():
                 vl += model(v, t, n).item()
         vl /= max(1, len(vdl))
 
-        ev = eval_4afc(model, emb, lut, eval_frames, vocab, dev, seed=args.seed)
+        ev = eval_4afc(model, eemb, elut, eval_frames, vocab, dev, seed=args.seed)
         rec = {"epoch": ep, "train_loss": round(tl, 4), "val_loss": round(vl, 4),
                "acc_4afc": round(ev["acc"], 4), "n_eval_cats": ev["n_cats"]}
         log.append(rec)

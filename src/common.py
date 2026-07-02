@@ -31,12 +31,20 @@ def frame_path(video_id: str, frame_idx) -> Path:
 
 
 # ---- embedding cache (single memmap + index) ----
+def frame_key(video_id, frame_idx):
+    return f"{video_id}|{int(frame_idx)}"
+
+
 def load_emb_cache(emb_dir: Path = EMB_DIR):
-    """Returns (emb float16 array [N,D], lookup dict (video_id, frame_idx)->row)."""
-    idx = pd.read_parquet(emb_dir / "index.parquet")
-    emb = np.load(emb_dir / "emb.f16.npy", mmap_mode="r")
-    lut = {(v, int(f)): int(r) for v, f, r in
-           zip(idx.video_id, idx.frame_idx, idx.row)}
+    """Returns (emb float16 array [N,D], lookup dict key->row).
+    key is the index's 'key' column if present, else 'video_id|frame_idx'."""
+    idx = pd.read_parquet(Path(emb_dir) / "index.parquet")
+    emb = np.load(Path(emb_dir) / "emb.f16.npy", mmap_mode="r")
+    if "key" in idx.columns:
+        keys = idx.key
+    else:
+        keys = [frame_key(v, f) for v, f in zip(idx.video_id, idx.frame_idx)]
+    lut = {k: int(r) for k, r in zip(keys, idx.row)}
     return emb, lut
 
 
