@@ -157,10 +157,65 @@ power. The pose cues do not: filtering to them trains no better than random. The
 This tightens the chapter's thesis rather than loosening it. The machine-readable social
 signal available here — even whole-body pose, even with the child's own hands cleanly
 separated from a caregiver's — does not recover reference at this corpus's one-frame-per-
-second resolution. That is consistent with what the signal physically is: pointing and gaze
-shifts are sub-second events, and a single frame sampled at an utterance's midpoint will
-usually miss the gesture that disambiguates the referent. Reference in BabyView *is* socially
-cued — but the cue lives at a temporal resolution finer than the data exposes. The target the
-titration defined, a cue worth $\rho \gtrsim 0.3$, is met by no social signal we can
-currently read; closing it would require higher-frame-rate gaze and gesture tracking than
-exists here, or a different source of referential supervision altogether.
+second resolution. But that conclusion rests on the *particular* cues we tried, which were
+all forms of *presence*: is a hand, a face, an extended arm in the frame. A closer reading of
+what actually determines reference in child-directed speech says those are the weak ones.
+
+## Which cues, and do they combine? {#sec-which}
+
+@frank2013social hand-annotated 24 videos of caregiver–child play and measured, for each cue,
+its precision and recall at identifying the object a caregiver was talking about. The ranking
+is instructive: a caregiver's **pointing** is highly precise (.78) but rare (recall .10); the
+cues that carry the most information are the **child's own gaze** (F = .54) and **discourse
+continuity** — whether this utterance continues the topic of the last (F = .53). Hand and
+face *presence* — what we tested above — sit near the bottom (precision ~.42). We had been
+testing the weak cues.
+
+So we built the others. **Discourse continuity** is transcript-only and sidesteps the
+temporal-resolution problem entirely: for each utterance we count the content words it shares
+with the utterances in the preceding 20 seconds. **Prosody** — the energy and pitch dynamics
+of child-directed speech — comes from the audio. **Child gaze** we approximate by the frame
+*centre* (in a head-mounted camera, the centre of the image is where the child is looking).
+And we made a genuine attempt at **pointing**: an adult with an extended, straightened arm.
+
+As correlates of CLIP alignment these are all weak, but in a telling pattern. Prosody (energy
+range $\rho \approx 0.18$) and discourse continuity ($\rho \approx 0.09$) — the *language-side*
+cues — carry real, positive signal. The *vision-side* cues do not: the frame-centre proxy is
+slightly negative ($\rho \approx -0.06$), and pointing is null. A combined cross-validated
+predictor of all of them reaches $\rho \approx 0.21$ — above the best single cue, so the cues
+genuinely add — but still short of the $\rho \approx 0.3$ the titration demands.
+
+Do the language cues select better *learning* moments? Using each as a training filter (three
+seeds, against a CLIP-aligned positive control that trains +5 points over random), discourse
+and prosody each buy a small, real lift — about +1.5 points over random, roughly a quarter of
+what the CLIP control buys — and, exactly as @frank2013social found, the **combination does
+not beat the best single cue**: the cues are redundant, and the null vision cues only dilute
+it. Folded into the bootstrap itself, as a prior on the EM E-step, a discourse cue lifts the
+self-supervised model +1.3 points — the same order as the language prior of @sec-e2e8, and
+still far from ignition.
+
+Two findings deserve to be separated, because they fail for different reasons.
+
+- **Pointing is a *detection* failure, not an informativeness one.** Extended straight arms
+  are about as rare as @frank2013social's points (~10% of frames), but inspecting them shows
+  the detector catching caregivers *leaning and reaching toward the child*, not pointing at a
+  distal object; and the finger-level signature of a true point is unresolvable — at arm's
+  length the hand keypoints are too small to read. The one cue the literature most wants is
+  precisely the one this data's resolution cannot expose.
+- **"Looked-at" and "held" are *heuristic* failures.** The developmental logic is sound —
+  children talk about what they hold and look at — but our proxies measured the wrong thing:
+  a child hand's mere *presence*, and the centre's mere *contrast* with the periphery, rather
+  than an *object at the hand* or *at the centre*. Whether a proper "object-there"
+  operationalisation recovers the signal is the open question this chapter leaves — and,
+  unlike pointing, it is answerable with the data in hand.
+
+The honest summary is a split. **Reference in BabyView is socially cued, but only the
+language-side cues — prosody, discourse continuity — are both present in the stream and
+machine-readable at 1 fps, and even they are weak: a quarter of the CLIP filter, nowhere near
+ignition.** The vision-side cues fail for two separable reasons — the gesture that carries the
+most information (pointing) lives below the data's temporal and spatial resolution, and the
+cues that should work (holding, looking) were measured too crudely to tell. The titration's
+target, a cue worth $\rho \gtrsim 0.3$, remains unmet; but the map of *why* is now specific
+enough to say what would move it: object-grounded cues that ask what is *at* the hand or the
+centre rather than whether a hand is present, higher-frame-rate gaze and gesture tracking, or
+more data to let the rare, precise cues accumulate.
