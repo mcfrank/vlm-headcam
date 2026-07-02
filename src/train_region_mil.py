@@ -73,8 +73,9 @@ class RegionMIL(nn.Module):
 
     def sims(self, R, T):               # R [B,Rn,D], T [M,D] -> [B,M] max over regions
         s = torch.einsum('brd,md->brm', R, T)
-        if self.region_prior is not None:
-            s = s + self.region_prior.view(1, -1, 1)   # bias region SELECTION toward cued regions
+        if self.region_prior is not None:   # prior biases WHICH region is picked; score is raw sim
+            sel = (s + self.region_prior.view(1, -1, 1)).argmax(1, keepdim=True)
+            return s.gather(1, sel).squeeze(1)
         return s.max(1).values
 
     def forward_loss(self, v, t, n, w):
@@ -114,8 +115,10 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
             cr = Rp[[r2i[r] for r in cand]]                                    # [4,R,D]
             sc = torch.einsum('brd,md->brm', cr, tv)                           # [4,R,1]
             if model.region_prior is not None:
-                sc = sc + model.region_prior.view(1, -1, 1)
-            sc = sc.max(1).values.squeeze(-1)                                  # [4]
+                sel = (sc + model.region_prior.view(1, -1, 1)).argmax(1, keepdim=True)
+                sc = sc.gather(1, sel).squeeze(1).squeeze(-1)                   # [4] raw sim at picked region
+            else:
+                sc = sc.max(1).values.squeeze(-1)                              # [4]
             if sc.argmax().item() == 0:
                 correct += 1
         accs.append(correct / n_trials)
@@ -189,8 +192,10 @@ def pair_scores(model, ds, dev, bs=512, mode="max", tbg=None):
         if mode == "distinct":
             sim = sim - (R @ tbg)                                   # subtract generic salience
         if model.region_prior is not None:
-            sim = sim + model.region_prior.view(1, -1)
-        s[idx.numpy()] = sim.max(1).values.cpu().numpy()
+            sel = (sim + model.region_prior.view(1, -1)).argmax(1)
+            s[idx.numpy()] = sim.gather(1, sel.unsqueeze(1)).squeeze(1).cpu().numpy()
+        else:
+            s[idx.numpy()] = sim.max(1).values.cpu().numpy()
     return s
 
 
@@ -205,8 +210,10 @@ def region_argmax_emb(model, ds, dev, bs=512):
         R = model.enc_regions(v.to(dev)); T = model.enc_text(t.to(dev), n.to(dev))
         sim = torch.einsum('brd,bd->br', R, T)              # [B,Rn]
         if model.region_prior is not None:
-            sim = sim + model.region_prior.view(1, -1)
-        mx, arg = sim.max(1)
+            arg = (sim + model.region_prior.view(1, -1)).argmax(1)
+            mx = sim.gather(1, arg.unsqueeze(1)).squeeze(1)
+        else:
+            mx, arg = sim.max(1)
         e = R[torch.arange(len(R)), arg]                    # [B,D]
         E[idx.numpy()] = e.cpu().numpy(); s[idx.numpy()] = mx.cpu().numpy()
     return E, s
