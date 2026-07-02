@@ -229,3 +229,55 @@ INDEPENDENT (prosody = language-side AUC 0.607; vision = AUC 0.539), so a multic
 classifier (prosody emphasis + pose-directional + endogenous language-prior) MIGHT stack
 toward 0.3 even though no single channel gets there. That is the concrete next experiment
 once the pose crosswalk (see above) is in hand.
+
+---
+
+# Ceiling decomposition + pose cues (2026-07-02, session 2)
+
+## Per-category oracle: why 4AFC is "squished" at ~50
+`eval_per_category.py` on the region-MIL oracle (P1_oracle_across). Per-category accuracy is
+a BROAD 10-92% distribution, not bimodal: plant 92/car 84/window 84/couch 84 high; sky 10/
+present 12/purse 13/cat 14 at-or-below chance. Spearman(acc, times-word-said-in-aligned)=0.22
+(necessary, not sufficient): "can" said 1050x -> 28 (modal vs container polysemy), "cat" 92x
+-> 14 (visually hard). Only 2/61 categories never said. Words said >=50x still avg only 46.
+So the ceiling isn't "half-learn every word"; it's some words learned well + a tail of
+visually-hard / lexically-ambiguous ones. oracle_per_category.csv has the table.
+
+## Head-noun ceiling test: text cleaning does NOT raise the ceiling
+Is the ~50 oracle capped by weak text (bag-of-words real utterances) vs clean labels (Ch3
+topline ~72)? Built aligned oracle set (110k pairs, clip>0.24, excl held child, >=1 noun)
+two ways on IDENTICAL pairs: text=full utterance vs text=NOUNS only (corpus noun lexicon,
+surface forms predominantly NOUN/PROPN; utterance_id does NOT align across pipelines so used
+a lexicon not a join). build_headnoun.py.
+| text | 4AFC |
+| full utterance | 50.05 |
+| nouns only     | 50.15 |
+**Identical.** Stripping function words/verbs does nothing — the BoW tower already ignores
+them contrastively. So the ~50 ceiling is NOT function-word dilution. Remaining gap to the
+72 label-topline is (a) noun-referent correspondence (even CLIP-aligned utterances don't
+reliably name the visible object) + (b) visually-hard categories, NOT text verbosity. (Caveat:
+72 was a different eval setup; the robust finding is noun-cleaning doesn't move the oracle.)
+
+## Pose directional cue audit: no better than boxes (vs CLIP)
+Full 133-kpt COCO-WholeBody poses (feb25 pull) validated & joined (55.4% of pairs; second N =
+frame_idx N; pose dense). pose_lib.py (CPU-remap unpickler for CUDA-tensor pickles), reader
+numerically validated (kpts in-frame 99.7%, face-in-bbox 85%, shoulder/bbox 0.46), skeleton
+overlays in runs/pose_sanity/ for HUMAN review. pose_cue_audit.py, largest person, 31.7k
+frames w/ a usable person:
+| cue | rho vs CLIP |
+| face_score / face_frontal / face_symmetry | -0.01 / -0.02 / 0.02 |
+| head_pitch (gaze down) | -0.03 |
+| arm_reach (pointing) | -0.02 |
+| wrist_above_hip (showing) / hand_centrality | -0.03 / -0.00 |
+| person_area / n_person | 0.05 / -0.05 |
+| combined pose logistic | rho 0.044, AUC 0.522 |
+**Directional pose cues carry ~0 signal vs CLIP — WORSE than presence-boxes (0.136/0.539),
+far below the rho~0.3 bar.** CAVEATS before concluding pose is dead: (1) yardstick is CLIP
+(whole-frame img-text), not TRUE reference — a caregiver pointing at a small named object is
+a great referential moment CLIP may score low; (2) egocentric "largest person" may be the
+child's own hands/body, not the caregiver; (3) crude cues — real gaze/point VECTOR-to-referent
+(needs the referent location + 68 dense face landmarks fit) not computed. Sharper follow-up
+before writing pose off: gaze/point vector to a salient region, evaluated vs a held-out
+referent signal rather than CLIP.
+
+Code: eval_per_category.py, build_headnoun.py, pose_lib.py, sanity_pose.py, pose_cue_audit.py.
