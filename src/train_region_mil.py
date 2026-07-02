@@ -219,6 +219,8 @@ def main():
                     help="distinct = subtract each region's generic salience (base-rate correction)")
     ap.add_argument("--proto", action="store_true",
                     help="cross-situational prototype E-step (accumulate word->region prototypes)")
+    ap.add_argument("--vocab-json", default=None, help="load a fixed shared vocab (for curriculum)")
+    ap.add_argument("--init-from", default=None, help="init model from a prior run's model.pt (curriculum)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -227,11 +229,19 @@ def main():
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     emb, lut = load_region_cache(args.region_cache)
     man = pd.read_parquet(args.manifest); ev = pd.read_parquet(args.eval_frames)
-    vocab = build_vocab(man.text, args.min_freq)
+    if args.vocab_json:
+        import json as _json
+        vocab = _json.load(open(args.vocab_json))
+    else:
+        vocab = build_vocab(man.text, args.min_freq)
     ds = RegionPairs(emb, lut, man, vocab)
+    save_json(vocab, out / "vocab.json")
     print(f"pairs {len(ds)} | vocab {len(vocab)} | mode {args.mode}", flush=True)
 
     model = RegionMIL(len(vocab), args.dim).to(dev)
+    if args.init_from:
+        model.load_state_dict(torch.load(args.init_from, map_location=dev))
+        print(f"init from {args.init_from}", flush=True)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.1)
     W = torch.ones(len(ds), device=dev)
     dl = torch.utils.data.DataLoader(ds, batch_size=args.batch, shuffle=True, drop_last=True, collate_fn=collate)
@@ -274,6 +284,7 @@ def main():
         np.savez(out / "weights.npz", w=w, clip=ds.clip, s=s)
 
     save_json(log, out / "log.json")
+    torch.save(model.state_dict(), out / "model.pt")
     print("DONE", out, flush=True)
 
 

@@ -77,6 +77,25 @@ E-step signal directly [Batch 2, launching].
 Batch 2 = region-MIL boot × {lang(E2), distinct(E8), distinct+lang} × {across-140k,
 within-110k, across-60k}. Compares against Batch 1's plain region-MIL boot.
 
+### E9 cross-situational prototype (Batch 3) — also no ignition
+proto_across140 34.4 (ρ0.04); protolang_within110 33.0 (ρ0.085); protolang_across140 34.0
+(ρ0.063). Accumulating word→region prototypes across situations does NOT beat the language
+prior. 4AFC stuck ~34 (=unweighted baseline), far below oracle 49.9.
+
+### Verdict after E0/E1/E2/E8/E9: bootstrap does not ignite
+Five distinct self-supervised alignment signals (cosine, region-MIL max, distinctiveness,
+language prior, cross-situational prototype) all fail to separate aligned pairs at
+BabyView's noise floor. Best ρ(weight,clip) ≈ 0.095 (language prior, within-kid); 4AFC
+never exceeds ~35 vs oracle 49.9. Two consistent faint signals: **language side** > vision
+side, and **within-kid** > across-kid toehold. → E5 curriculum [Batch 4, running]: does
+the within-kid toehold, transferred, seed the across-kid bootstrap?
+
+Implication if E5 also fails: BabyView's raw stream is too referentially sparse for
+UNSUPERVISED bootstrapping with frozen features — a child-plausible learner likely needs
+the extra cues children actually have (gaze/pointing/joint attention, prosody), which this
+stream lacks. That is itself the paper's point: alignment must be *given* by social
+structure, not discovered from co-occurrence alone.
+
 ### E2/E8 results (Batch 2) — modest, no ignition
 | variant | pool | 4AFC | ρ(w,clip) |
 |---------|------|------|-----------|
