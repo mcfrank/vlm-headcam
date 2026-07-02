@@ -96,6 +96,27 @@ the extra cues children actually have (gaze/pointing/joint attention, prosody), 
 stream lacks. That is itself the paper's point: alignment must be *given* by social
 structure, not discovered from co-occurrence alone.
 
+### E5 curriculum (Batch 4) — the one bright spot: transfer helps, filter still doesn't
+| run | 4AFC | warmup | ρ |
+|-----|------|--------|---|
+| scratch across (matched control) | 35.5 | 33.2 | 0.017 |
+| stage1 within | 34.2 | 33.6 | 0.067 |
+| **stage2 across (init from within)** | **37.6** | 36.2 | 0.008 |
+Curriculum transfer (within→across) gives the **best bootstrap of the night, 37.6** vs
+35.5 from-scratch (+2.1). BUT the gain is an **initialization effect** — warmup is already
+36.2 before any EM, and ρ stays ~0. The within-kid model learns transferable word meanings
+unsupervised; the alignment *filter* still never ignites. Best bootstrap 37.6 vs oracle
+49.9 — a ~12pt gap a working filter could still recover.
+
+## OVERNIGHT SUMMARY (E0–E9)
+Six mechanisms. Unsupervised alignment *filtering* does not ignite on BabyView (ρ≤0.1
+everywhere). Positives: (1) region attention raises the representation ceiling (oracle
+46.7→49.9); (2) curriculum transfer within→across is the best bootstrap (37.6). Robust
+directional signals: language > vision, within-kid > across-kid. Conclusion: co-occurrence
+alone is too sparse to discover alignment here; the gains come from better *representation*
+(regions) and *transfer* (curriculum), not from a self-discovered filter — consistent with
+children needing social/attentional structure to supply reference.
+
 ### E2/E8 results (Batch 2) — modest, no ignition
 | variant | pool | 4AFC | ρ(w,clip) |
 |---------|------|------|-----------|

@@ -107,3 +107,59 @@ oracle (49.9). So: **the language side carries more bootstrappable signal than t
 side** — an utterance's words are a better clue to whether a moment is referential than
 the frame's regions are — but neither, instantaneously, is enough to ignite. The next
 experiment gives the signal *memory*: accumulate a word→region prototype across situations.
+
+## E5 — curriculum: bootstrap in one world, then transfer {#sec-e5}
+
+E0 found that within-kid data gives the strongest (if faint) toehold — one child's
+consistent world is easier to bootstrap from. Does that partial knowledge *transfer*? We
+bootstrap on a single child (region-MIL + prototypes + language prior, shared vocabulary),
+then continue the same model on the pooled corpus.
+
+| run | best 4AFC | warm-up (pre-EM) | ρ(weight, CLIP) |
+|-----|-----------|------------------|-----------------|
+| across, from scratch (control) | 35.5 | 33.2 | 0.02 |
+| within-kid (stage 1) | 34.2 | 33.6 | 0.07 |
+| **across, initialised from stage 1** | **37.6** | 36.2 | 0.01 |
+
+Curriculum gives the **best bootstrap of the night — 37.6**, +2.1 over the matched
+from-scratch control. But the benefit is an **initialisation effect, not filter ignition**:
+the pooled model already sits at 36.2 *before any EM rounds*, purely because it inherited
+word meanings learned in the child's consistent world, and the weight–alignment
+correlation stays ~0. The within-kid model learns transferable structure unsupervised; the
+alignment *filter* still never ignites.
+
+## Synthesis: what bootstrapping can and can't do here {#sec-boot-synth}
+
+![Best 4AFC across the bootstrap mechanisms (across-kid, held-out S00360001; chance 25,
+dotted line = region-MIL oracle 49.9). Every self-supervised filter lands in the 32–38
+band near the unweighted baseline; only curriculum transfer (E5) and the region-MIL
+representation move the needle.](figures/fig_bootstrap.png){#fig-boot width=90%}
+
+Across six mechanisms — global cosine (E0), region-MIL (E1), a language prior (E2), a
+base-rate correction (E8), cross-situational prototypes (E9), and a curriculum (E5) — the
+self-supervised alignment *filter* never ignites: the endogenous weight stays essentially
+uncorrelated with true alignment (ρ ≤ 0.1), and bootstrap accuracy stays pinned near the
+unweighted baseline (~34–38), far from the region-MIL oracle (49.9).
+
+Two things *do* help, and neither is a discovered filter:
+
+- **Better representation.** Matching an utterance to its best *region* raises the ceiling
+  (oracle 46.7 → 49.9) and the whole operating range by ~2 points.
+- **Transfer.** Bootstrapping in one child's consistent world and carrying that lexicon to
+  the pooled corpus is the single best recipe (37.6).
+
+Two directional signals recur at every step: the **language side is more bootstrappable
+than the visual side** (an utterance's words are a better cue to referential-ness than the
+frame's regions), and **within-kid consistency beats the pooled corpus** for getting
+started.
+
+The honest conclusion is a negative with teeth. At BabyView's referential floor (~5–13% of
+frame–utterance pairs aligned), **co-occurrence alone is too sparse for a learner to
+*discover* which moments are aligned** — the memorization toehold that self-training relies
+on never forms. This is not a failure of the specific tricks; five independent scoring
+functions agree. It is evidence that the missing ingredient is exactly what a child has and
+this data stream does not: **external structure that supplies reference** — a caregiver's
+gaze and pointing, joint attention, prosodic highlighting. In the FGT framing, the
+referential intent $I_s$ cannot be inferred from $(words, pixels)$ alone at this noise
+level; it has to be *cued*. That reframes the modeling target: not "learn to filter," but
+"learn to read the social signals that make the aligned moments findable."
