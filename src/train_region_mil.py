@@ -114,13 +114,46 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
     return float(np.mean(accs))
 
 
+def rank01(x):
+    r = pd.Series(x).rank().to_numpy()
+    return (r - 1) / max(1, len(r) - 1)
+
+
+def language_prior(ds, s):
+    """Bootstrapped 'nameability': a word is grounded if the model reliably finds a
+    matching region when it's said (mean max-region score over its occurrences). An
+    utterance's prior = its best-grounded word. Function words self-exclude (low score);
+    no POS/external knowledge used. Returns (L per pair, g per word)."""
+    gsum, gcnt = {}, {}
+    for i, toks in enumerate(ds.ids):
+        for t in set(toks):
+            gsum[t] = gsum.get(t, 0.0) + s[i]; gcnt[t] = gcnt.get(t, 0) + 1
+    g = {t: gsum[t] / gcnt[t] for t in gsum}
+    L = np.array([max((g.get(t, 0.0) for t in toks), default=0.0) for toks in ds.ids])
+    return L, g
+
+
 @torch.no_grad()
-def pair_scores(model, ds, dev, bs=512):
+def mean_text(model, ds, dev, bs=512):
+    dl = torch.utils.data.DataLoader(ds, batch_size=bs, shuffle=False, collate_fn=collate)
+    acc = torch.zeros(model.word.embedding_dim, device=dev); nn_ = 0
+    for idx, v, t, n in dl:
+        T = model.enc_text(t.to(dev), n.to(dev)); acc += T.sum(0); nn_ += len(T)
+    return F.normalize(acc / nn_, dim=-1)
+
+
+@torch.no_grad()
+def pair_scores(model, ds, dev, bs=512, mode="max", tbg=None):
+    """max: pair's best region-text cosine. distinct: best region AFTER subtracting that
+    region's match to the average utterance (down-weights ever-present, generic regions)."""
     model.eval(); s = np.zeros(len(ds), np.float32)
     dl = torch.utils.data.DataLoader(ds, batch_size=bs, shuffle=False, collate_fn=collate)
     for idx, v, t, n in dl:
         R = model.enc_regions(v.to(dev)); T = model.enc_text(t.to(dev), n.to(dev))
-        s[idx.numpy()] = torch.einsum('brd,bd->br', R, T).max(1).values.cpu().numpy()
+        sim = torch.einsum('brd,bd->br', R, T)                      # [B,Rn]
+        if mode == "distinct":
+            sim = sim - (R @ tbg)                                   # subtract generic salience
+        s[idx.numpy()] = sim.max(1).values.cpu().numpy()
     return s
 
 
@@ -140,6 +173,10 @@ def main():
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--min-freq", type=int, default=5)
     ap.add_argument("--floor", type=float, default=0.05)
+    ap.add_argument("--lang-prior", action="store_true",
+                    help="fold bootstrapped word-groundedness prior into the E-step weight")
+    ap.add_argument("--score-mode", choices=["max", "distinct"], default="max",
+                    help="distinct = subtract each region's generic salience (base-rate correction)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -174,8 +211,14 @@ def main():
     else:
         epochs(args.warmup, "warmup", -1)
         for r in range(args.rounds):
-            s = pair_scores(model, ds, dev)
-            w = np.clip(gmm2_posterior(s), args.floor, 1.0)
+            tbg = mean_text(model, ds, dev) if args.score_mode == "distinct" else None
+            s = pair_scores(model, ds, dev, mode=args.score_mode, tbg=tbg)
+            if args.lang_prior:
+                L, g = language_prior(ds, s)
+                combined = 0.5 * (rank01(s) + rank01(L))   # need BOTH a matching region and a grounded word
+                w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
+            else:
+                w = np.clip(gmm2_posterior(s), args.floor, 1.0)
             W = torch.tensor(w, dtype=torch.float32, device=dev)
             epochs(args.epochs_per_round, "boot", r)
             y = yardstick(w, ds.clip); log[-1].update(y); print("  yardstick:", y, flush=True)

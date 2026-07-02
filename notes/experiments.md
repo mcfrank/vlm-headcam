@@ -31,3 +31,34 @@ too weak a signal at BabyView's ~5–13% alignment floor.
 |----|------|------|------|-----------|-------|
 | E0 | cosine-EM | across140k | 32.2 | 0.03 | no ignition |
 | E0 | cosine-EM | within110k | 31.2 | 0.06 | no ignition |
+
+## Status (overnight)
+- **E1 region-MIL RUNNING** (on-box orchestrator run_batch1.sh, GPUs 1,6 — node shared
+  with another user's 8-GPU job, so running politely in headroom). Region grid = DINOv2
+  patch tokens → 4×4 + CLS. 10 jobs: oracle/plain/boot × across/within × sizes.
+  Marker: runs/BATCH1_DONE. NOTE: other user occupies all GPUs ~24-31GB; I use only 1,6.
+- **E2 lang-prior READY** (train_region_mil.py --lang-prior): folds a bootstrapped
+  word-groundedness prior (a word is "nameable" if the model reliably finds a matching
+  region when it's said; function words self-exclude — no POS/CLIP). To run after E1,
+  informed by whether region-MIL alone created a toehold.
+- Robustness: each batch self-contained with DONE markers; if a client waiter misfires,
+  resume by checking runs/*_DONE and runs/*/log.json.
+
+## Idea pool (overnight, expanding)
+- **E1 region-MIL** — utterance matches best region (DINOv2 patch grid). [Batch 1, running]
+- **E2 language prior** — weight utterances containing words the model already grounds
+  (bootstrapped nameability; function words self-exclude). [ready, --lang-prior]
+- **E8 distinctiveness / base-rate correction** — subtract each region's generic salience
+  so ubiquitous regions (wall/floor/hands) stop winning; the neural intent-prior from
+  ch.8's diagnosis. [ready, --score-mode distinct]  → Batch 2 with E2.
+- **E5 curriculum within→across** — bootstrap in one child's consistent world (easy
+  toehold, per E0) then continue on the pooled corpus (higher ceiling). Needs shared vocab
+  + checkpoint continuation. [Batch 3 candidate]
+- **E6/E9 cross-situational prototype** — maintain an EMA prototype per word from its
+  confidently-matched regions; alignment = does the region match the running prototype?
+  Cross-situational accumulation / propose-but-verify flavor. [Batch 3 candidate]
+- **E4 co-teaching** — two peers select confident pairs for each other (once a toehold
+  exists). [later]
+
+Batch 2 = region-MIL boot × {lang(E2), distinct(E8), distinct+lang} × {across-140k,
+within-110k, across-60k}. Compares against Batch 1's plain region-MIL boot.
