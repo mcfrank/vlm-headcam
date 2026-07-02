@@ -281,3 +281,23 @@ before writing pose off: gaze/point vector to a salient region, evaluated vs a h
 referent signal rather than CLIP.
 
 Code: eval_per_category.py, build_headnoun.py, pose_lib.py, sanity_pose.py, pose_cue_audit.py.
+
+## Sharper pose cue: child/adult hand split + CLIP-independent filter test (DECISIVE NULL)
+Child's-own vs adult hands ARE separable (characterize_persons.py): orphan hands (no attached
+face/torso, bbox on frame bottom, wrist y~0.85) = child; hands on a visible face/torso
+(y~0.52) = adult. But split still null vs CLIP (child_hand rho -0.007, adult -0.025; mean clip
+identical w/ vs w/o child hand). THREE cue families now orthogonal to CLIP -> tested the
+"CLIP is blind" hypothesis directly: use each cue as a TRAINING FILTER, measure downstream
+4AFC vs a clip>0.24 positive control (all matched 8k from the pose-covered pool, 3 seeds):
+| training filter | 4AFC (mean±sd) |
+| CLIP-aligned (control) | 37.9 ± 0.6 |
+| random | 28.5 ± 0.3 |
+| child-hand present | 27.8 ± 1.0 |
+| adult-face present | 27.3 ± 1.2 |
+CLIP control +9.4 over random (test has power); child-hand & adult-face = random within noise.
+**REJECTS "CLIP is blind": pose cues genuinely don't select better learning moments, not just
+invisible to CLIP.** Scope: this is a null for COARSE presence-style cues at 1FPS (utterance-
+midpoint frame). Pointing/gaze are sub-second; 1fps sampling misses the gesture. Reference is
+socially cued but the cue lives below this data's temporal resolution. => pose RERUN not
+justified for this project (would yield more of a null signal). Code: pose_cues_full.py,
+build_pose_filter_manifests.py, PF_* runs.

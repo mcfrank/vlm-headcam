@@ -290,8 +290,36 @@ The gap is specific, and it points somewhere concrete. Every cue that failed mea
 says matters is *direction*: the vector from a caregiver's gaze or pointing arm to the
 object being named. Bounding boxes cannot represent a direction; that is exactly the
 information they discard. Whole-body pose — face landmarks for head orientation,
-shoulder–elbow–wrist for a pointing ray — can, and pose estimates already exist for roughly
-55% of this corpus's training pairs. Whether a gaze- or point-derived cue crosses the $\rho
-\approx 0.3$ line is the one measurement this chapter leaves open — and the titration turns
-it from a hope into a precise, falsifiable target: not "add social cues," but "find a cue
-worth $\rho \geq 0.3$, or show that none exists in this stream."
+shoulder–elbow–wrist for a pointing ray — can, and 133-keypoint pose estimates exist for
+roughly 55% of this corpus's training pairs. So we tested it.
+
+Three families of pose cue — hand presence, *directional* cues (head orientation, arm
+extension, showing height), and hands split into **the child's own** (orphan hands entering
+low from the frame bottom, no attached body) versus **a partner's** (hands on a person with
+a visible face and torso) — are all essentially uncorrelated with CLIP alignment ($\rho \le
+0.05$). Because CLIP scores the whole frame, that null is ambiguous — a caregiver pointing at
+a small named object is a moment CLIP might miss — so we ran the decisive test: use each cue
+as a *training filter* and measure the downstream 4AFC against a CLIP-aligned positive
+control (all matched to 8k pairs from the pose-covered pool, three seeds).
+
+| training filter | 4AFC |
+|-----------------|------|
+| CLIP-aligned (positive control) | 37.9 ± 0.6 |
+| random | 28.5 ± 0.3 |
+| child's-own hand present | 27.8 ± 1.0 |
+| partner's face present | 27.3 ± 1.2 |
+
+The control behaves — CLIP-aligned pairs train **+9 points** over random — so the test has
+power. The pose cues do not: filtering to them trains no better than random. The cues are
+**not merely invisible to CLIP; they genuinely do not select better learning moments.**
+
+This tightens the chapter's thesis rather than loosening it. The machine-readable social
+signal available here — even whole-body pose, even with the child's own hands cleanly
+separated from a caregiver's — does not recover reference at this corpus's one-frame-per-
+second resolution. That is consistent with what the signal physically is: pointing and gaze
+shifts are sub-second events, and a single frame sampled at an utterance's midpoint will
+usually miss the gesture that disambiguates the referent. Reference in BabyView *is* socially
+cued — but the cue lives at a temporal resolution finer than the data exposes. The target the
+titration defined, a cue worth $\rho \gtrsim 0.3$, is met by no social signal we can
+currently read; closing it would require higher-frame-rate gaze and gesture tracking than
+exists here, or a different source of referential supervision altogether.
