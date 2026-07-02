@@ -358,3 +358,18 @@ Utterance cues (rho vs clip, on their coverage): prosody rms_range ~0.18, caregi
 caregiver-close (adult size upper-frame) -0.01 (NULL). Boot ext-prior (across-140k): caregiver
 35.6 (best), discourse 35.5, prosody 35.0, lang 35.0 vs plain 34.3 -- all small, no ignition.
 Full independent+combined matrix (BXM_*) running.
+
+### Utterance-cue matrix — SEEDED (the honest verdict)
+On the TRUE across-140k pool (12.9% aligned; NOT the enriched region-cache pool where cues
+looked ~2-4x stronger), single-cue rho vs clip is only 0.02-0.05. Boot ext-prior, 3 seeds:
+| E-step | 4AFC mean±sd | vs plain |
+| plain | 34.4 ± 0.6 | — |
+| + caregiver speech | 34.5 ± 1.0 | +0.1 (noise; single-seed 35.6 was a lucky draw) |
+| + child-hand | 35.2 ± 1.2 | +0.8 (noisy) |
+| + combined (unsup mean-of-ranks) | 35.4 ± 0.8 | +1.0 (~1.5 sigma) |
+Only the COMBINED is marginally above plain; individual cues within noise. Nothing ignites
+(rho(w,clip) ~0.05). CENTER region prior HURTS (50->46). Caregiver-close, child-hand, pointing:
+null. VERDICT: at 1fps on the real pool the social/language cues are too weak to matter — best
+combined +1 (marginal), «curriculum 37.6 «oracle 49.9. Ch5 negative stands. One principled
+mechanism still untested: discourse as a STRUCTURAL prior (temporal runs of high endogenous
+weight, non-cheating) — cheap, but unlikely to change the verdict given everything above.
