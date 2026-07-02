@@ -135,3 +135,97 @@ Variants: proto, proto+lang, across/within. If this also fails, the strong concl
 that no instantaneous/accumulated self-supervised score separates aligned pairs at this
 noise floor — motivating curriculum (E5) or minimal external cues (social/prosodic, which
 children actually have).
+
+---
+
+# Chapter 5 follow-up: social cues + information titration (2026-07-02)
+
+Two tracks in response to "the alignment floor is too low to bootstrap — can social
+information (hands/faces/gaze) + a titration of how-much-info-we-need get it off the ground."
+
+## Track B — TITRATION: how much aligned-ness information does the loop need to ignite?
+`train_region_mil.py --titrate-rho R --titrate-cov C --prior-mode {fixed,gate,seed,blend}`
+injects a synthetic cue = Gaussian-copula corruption of the held-out CLIP truth with target
+Spearman R on a fraction C of pairs. Plain region-MIL boot recipe, across-140k, so the cue
+is the ONLY added signal. Validated: --prior-mode gate --titrate-rho 1.0 reconstructs the
+CLIP filter exactly (precision_vs_clip = 1.0).
+
+**Soft-weighting (fixed): a graded prior barely helps even at perfect quality.**
+| target ρ | 0.0 | 0.05 | 0.1 | 0.2 | 0.3 | 0.5 | 0.7 | 1.0 |
+| 4AFC (mean 2 seeds) | 33.7 | 33.7 | 35.5 | 34.5 | 35.5 | 36.2 | 37.5 | 37.8 |
+A cue with ρ=1.0, used as a per-pair soft weight, reaches only 37.8 — nowhere near oracle
+49.9. So *how* the cue is used dominates *how good* it is. Coverage layout (sparse-strong
+vs dense-weak, matched info) is irrelevant in soft mode (all 35–36). Seed mode (cue weights
+warmup, then endogenous EM) decays back to ~34.8 = baseline: **EM does not amplify a toehold.**
+
+**Hard-gate (gate, keep top 12% as positives — the faithful analog of the ch.3 filter):**
+| target ρ | filter precision vs CLIP | 4AFC (mean 2 seeds) |
+| 0.1 | 0.155 | 32.5 |  (below baseline — training on a near-random subset hurts)
+| 0.2 | 0.195 | 34.1 |
+| 0.3 | 0.240 | 34.6 |
+| 0.5 | 0.347 | 38.0 |
+| 0.7 | 0.490 | 39.5 |
+| 1.0 | 1.000 | 41.7 |  (this regime's ceiling; < plain-oracle 49.9 due to floor=0.05 on negatives + boot regime)
+
+**IGNITION THRESHOLD ≈ ρ 0.3–0.5** (filter precision ~0.25–0.35, i.e. 2–3× base-rate
+enrichment over the 12% floor). Below ρ≈0.3 a cue is worthless or actively harmful; you need
+ρ≳0.4 for a clear lift. This is the quantitative topline: **a bootstrappable cue must reach
+ρ≳0.3–0.4 / precision≳0.25–0.35.**
+
+## Track A — CUE AUDIT: does any machine-readable social cue clear that bar?
+`cue_audit.py` builds per-pair cues on across-140k and reports ρ(cue, clip_score_max) +
+prec@10% (same yardstick as E0–E9). Sources: YOLOE 'cdi' detections (37.6% pair coverage),
+head-stability = temporal cosine of adjacent 1fps DINOv2 CLS embeddings (69% coverage).
+| cue | ρ vs CLIP | prec@10% (base 0.119) |
+| hand present / count / conf / hand-obj contact | ~0.005 | 0.125 |
+| person present / area | −0.04 / −0.00 | 0.12 |
+| person count / n_obj / n_det | −0.06 / −0.06 / −0.10 | 0.10 |
+| head stability | **−0.156** | 0.072 |
+| combined logistic (det subset) | **0.136** (AUC 0.539) | 0.124 |
+**Hands carry ~zero alignment signal** — hand presence is near-ubiquitous in infant
+egocentric video, so it can't discriminate; hand-object contact from coarse boxes at 1fps is
+too crude. Only real signal is head-stability, and it's NEGATIVE (stiller world → less
+aligned) and weak. Combined real-cue ρ=0.136 does edge above the best endogenous signal
+(0.095) — real cues beat self-supervision — but sits WELL BELOW the ρ≈0.3–0.4 ignition
+threshold. **Verdict: box/stability cues deliver ~⅓–½ of the information needed to ignite a
+filter. A ~2–3× gap remains.**
+
+## Where the missing information likely is: POSE (directional joint attention)
+Boxes answer "is a hand present"; the joint-attention literature says what matters is the
+*direction* of a point/gaze *toward the named referent* — which boxes can't represent.
+Full 133-kpt COCO-WholeBody poses exist (babyview-project/pose-detection):
+/ccn2/dataset/babyview/outputs_20250312/pose/4M_frames_old/ (pickles + 4M_with_NA_bbox_limbs.csv,
+face+hand+body limb boxes & scores). Gives face landmarks (head-orientation/gaze-cone proxy)
+and shoulder-elbow-wrist+hand kpts (pointing vector). **BLOCKER:** pose uses gcp-name hashes
+(`00370001_2024-09-27_1_d1010cd9a9`, older frame pull) vs our Airtable `rec` ids; the
+child_date_session prefix is NOT unique (rotated/multi-file). Need a rec-id↔gcp-name crosswalk
+(babyview metadata, `superseded_gcp_name_feb25`) — ask Mira. Then join on (video, second).
+Plan: recompute directional cues (gaze cone hit on a salient region; wrist-vector pointing;
+face-toward-object), audit ρ vs CLIP; if any clears ρ≈0.3, plug in as gate prior on the
+winning recipe (region-MIL + lang-prior + curriculum).
+
+Code: src/cue_audit.py, src/run_titration.sh, src/run_titration_gate.sh, train_region_mil.py
+(--titrate-*/--prior-mode/--gate-frac). Runs: T_q_*/T_seed_*/T_cov_*/G_r*/ on ccn2.
+
+### Track A addendum — PROSODY (128,808 utts, 900 sampled videos; ffmpeg+scipy, no librosa)
+| cue | ρ vs CLIP | prec@10% (base 0.119) |
+| f0_range (pitch dynamics) | 0.107 | 0.177 |
+| rms_range (energy dynamics) | 0.103 | 0.152 |
+| f0_std / rms_cv / cent_std | 0.06–0.10 | — |
+| dur (utterance length) | 0.168 | 0.221 | ← CONFOUNDED: clip_score_max is a MAX over the
+|   |   |   | utterance's frames, so longer utts get a higher max mechanically. Discount.
+| combined prosody logistic | **0.147** (AUC **0.607**) | — |
+Prosody is the **best cue CHANNEL**: all cues POSITIVE (vs vision ~0/negative), AUC 0.607 >
+vision's 0.539. The honest prosodic signal (pitch/energy emphasis, child-directed-speech
+proxy) is ρ≈0.10 — an INDEPENDENT, language-side channel, ~ the best endogenous signal
+(0.095). Consistent with the recurring language>vision theme. **But still << the ρ≈0.3–0.4
+ignition bar.**
+
+### COMBINED VERDICT (Tracks A+B)
+No single available cue channel reaches the ignition bar alone: vision boxes ρ≈0.14 (hands 0,
+stability −0.16), prosody ρ≈0.15 (emphasis ~0.10). Titration says need ρ≳0.3–0.4 (hard gate).
+Open question worth the pose work + a final "stack everything" run: the channels look PARTLY
+INDEPENDENT (prosody = language-side AUC 0.607; vision = AUC 0.539), so a multichannel
+classifier (prosody emphasis + pose-directional + endogenous language-prior) MIGHT stack
+toward 0.3 even though no single channel gets there. That is the concrete next experiment
+once the pose crosswalk (see above) is in hand.

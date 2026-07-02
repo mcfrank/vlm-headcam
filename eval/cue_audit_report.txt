@@ -1,0 +1,30 @@
+
+=== TRACK A: social-cue audit ===
+pairs=140000  aligned base rate (clip>0.24)=11.9%
+detection coverage=37.6%  stability coverage=69.3%
+
+cue                    rho        n  prec@10%  (base rate below)
+hand_present         0.005    52671     0.125
+hand_count           0.005    52671     0.125
+hand_conf            0.006    52671     0.125
+hand_obj_contact     0.005    52671     0.125
+person_present      -0.039    52671     0.121
+person_area         -0.002    52671     0.126
+person_count        -0.064    52671     0.105
+n_obj               -0.063    52671     0.108
+n_det               -0.096    52671     0.103
+stability           -0.156    97000     0.072
+(base rate)                             0.119
+
+combined logistic (det subset, 52671 pairs, cues=['hand_present', 'hand_count', 'hand_obj_contact', 'person_area', 'n_obj', 'stability']):
+  CV AUC=0.539  rho(score,clip)=0.136  prec@10%=0.124
+
+--- prosody (128808 utterances, 900 videos) ---
+rms_range            0.103   128808     0.152
+rms_cv               0.099   128808     0.150
+cent_std             0.061   128808     0.143
+f0_range             0.107   128585     0.177
+f0_std               0.064   128585     0.128
+f0_mean              0.029   128708     0.108
+dur                  0.168   128808     0.221
+combined prosody logistic: CV AUC=0.607  rho=0.147

@@ -119,6 +119,33 @@ def rank01(x):
     return (r - 1) / max(1, len(r) - 1)
 
 
+def _norm_ppf(u):
+    """Inverse standard-normal CDF via torch.erfinv (avoids a scipy dependency)."""
+    u = np.clip(u, 1e-6, 1 - 1e-6)
+    return (np.sqrt(2.0) * torch.erfinv(torch.tensor(2.0 * u - 1.0)).numpy())
+
+
+def make_cue(clip, rho, cov, rng, neutral=0.5):
+    """Synthetic 'social cue' of controlled quality: a Gaussian-copula corruption of the
+    held-out CLIP truth. `rho` sets the target Spearman with clip; `cov` is the fraction of
+    pairs on which the cue is revealed (the rest get a neutral weight). Returns a per-pair
+    soft weight in [0,1] aligned to ds order, plus the ACHIEVED Spearman on revealed pairs.
+    This is the titration knob for 'how much aligned-ness information does the loop need'."""
+    ok = ~np.isnan(clip)
+    zt = _norm_ppf(rank01(clip[ok]))                      # latent gaussian of truth
+    noise = rng.standard_normal(ok.sum())
+    z = rho * zt + np.sqrt(max(0.0, 1 - rho * rho)) * noise
+    c_ok = rank01(z)                                      # copula -> uniform, spearman≈rho
+    cue = np.full(len(clip), neutral, np.float64)
+    cue[ok] = c_ok
+    hide = rng.random(len(cue)) > cov                     # coverage: hide (1-cov) of pairs
+    cue[hide] = neutral
+    shown = ok & ~hide
+    ach = float(np.corrcoef(pd.Series(cue[shown]).rank(), pd.Series(clip[shown]).rank())[0, 1]) \
+        if shown.sum() > 50 else float("nan")
+    return cue.astype(np.float32), ach
+
+
 def language_prior(ds, s):
     """Bootstrapped 'nameability': a word is grounded if the model reliably finds a
     matching region when it's said (mean max-region score over its occurrences). An
@@ -221,6 +248,18 @@ def main():
                     help="cross-situational prototype E-step (accumulate word->region prototypes)")
     ap.add_argument("--vocab-json", default=None, help="load a fixed shared vocab (for curriculum)")
     ap.add_argument("--init-from", default=None, help="init model from a prior run's model.pt (curriculum)")
+    ap.add_argument("--titrate-rho", type=float, default=None,
+                    help="TRACK B: inject a synthetic cue with this target Spearman vs CLIP truth")
+    ap.add_argument("--titrate-cov", type=float, default=1.0,
+                    help="TRACK B: fraction of pairs on which the synthetic cue is revealed")
+    ap.add_argument("--prior-mode", choices=["fixed", "seed", "blend", "gate"], default="fixed",
+                    help="fixed: soft cue IS the weight every round (graded titration curve); "
+                         "gate: HARD-threshold the cue to keep the top --gate-frac as positives "
+                         "(weight 1) and drop the rest (this mirrors the ch.3 CLIP filter); "
+                         "seed: cue weights warmup only, then endogenous EM (amplification test); "
+                         "blend: combine cue with the model's own score each round")
+    ap.add_argument("--gate-frac", type=float, default=0.12,
+                    help="gate mode: fraction of pairs kept as hard positives (default ~ base rate)")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
@@ -257,31 +296,57 @@ def main():
         rec = {"phase": phase, "round": rnd, "acc_4afc": round(acc, 4), "eff": int(W.gt(0.5).sum().item())}
         log.append(rec); print(rec, flush=True); return acc
 
+    cue = None
+    if args.titrate_rho is not None:
+        cue, ach = make_cue(ds.clip, args.titrate_rho, args.titrate_cov,
+                            np.random.default_rng(args.seed))
+        print(f"titrate: target_rho={args.titrate_rho} cov={args.titrate_cov} "
+              f"achieved_rho={ach:.3f} mode={args.prior_mode}", flush=True)
+        log.append({"phase": "titrate", "target_rho": args.titrate_rho, "cov": args.titrate_cov,
+                    "achieved_rho": round(ach, 3), "prior_mode": args.prior_mode})
+
     if args.mode == "plain":
         for e in range(args.epochs):
             epochs(1, "plain", e)
     else:
+        # a hard gate keeps only the top --gate-frac of the cue as positives (mirrors the filter)
+        cue_gate = None
+        if cue is not None and args.prior_mode == "gate":
+            thr = np.quantile(cue, 1.0 - args.gate_frac)
+            cue_gate = np.where(cue >= thr, 1.0, args.floor).astype(np.float32)
+            print(f"gate: keep frac={float((cue_gate > args.floor).mean()):.3f} thr={thr:.3f}", flush=True)
+        # cue weights the warm-up for fixed/seed/gate modes (a seeded toehold before EM)
+        if cue is not None and args.prior_mode in ("fixed", "seed", "gate"):
+            wfx = cue_gate if cue_gate is not None else np.clip(cue, args.floor, 1.0)
+            W = torch.tensor(wfx, dtype=torch.float32, device=dev)
         epochs(args.warmup, "warmup", -1)
         conf = np.ones(len(ds), np.float32)   # for proto accumulation
         for r in range(args.rounds):
-            if args.proto:
-                E, _ = region_argmax_emb(model, ds, dev)
-                s, coh = cross_situational_scores(ds, E, conf, len(vocab))
+            if cue is not None and args.prior_mode in ("fixed", "gate"):
+                w = (cue_gate if cue_gate is not None
+                     else np.clip(cue, args.floor, 1.0)).astype(np.float32)   # cue IS the weight, no model update
             else:
-                tbg = mean_text(model, ds, dev) if args.score_mode == "distinct" else None
-                s = pair_scores(model, ds, dev, mode=args.score_mode, tbg=tbg)
-            if args.lang_prior:
-                L, g = language_prior(ds, s)
-                combined = 0.5 * (rank01(s) + rank01(L))   # need BOTH a matching region and a grounded word
-                w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
-            else:
-                w = np.clip(gmm2_posterior(s), args.floor, 1.0)
-            w = w.astype(np.float32)
+                if args.proto:
+                    E, _ = region_argmax_emb(model, ds, dev)
+                    s, coh = cross_situational_scores(ds, E, conf, len(vocab))
+                else:
+                    tbg = mean_text(model, ds, dev) if args.score_mode == "distinct" else None
+                    s = pair_scores(model, ds, dev, mode=args.score_mode, tbg=tbg)
+                if cue is not None and args.prior_mode == "blend":
+                    combined = 0.5 * (rank01(s) + rank01(cue))   # cue + endogenous score
+                    w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
+                elif args.lang_prior:
+                    L, g = language_prior(ds, s)
+                    combined = 0.5 * (rank01(s) + rank01(L))   # need BOTH a matching region and a grounded word
+                    w = np.clip(gmm2_posterior(combined), args.floor, 1.0)
+                else:
+                    w = np.clip(gmm2_posterior(s), args.floor, 1.0)
+                w = w.astype(np.float32)
             conf = w                                # refine prototype confidence next round
             W = torch.tensor(w, dtype=torch.float32, device=dev)
             epochs(args.epochs_per_round, "boot", r)
             y = yardstick(w, ds.clip); log[-1].update(y); print("  yardstick:", y, flush=True)
-        np.savez(out / "weights.npz", w=w, clip=ds.clip, s=s)
+        np.savez(out / "weights.npz", w=w, clip=ds.clip, cue=(cue if cue is not None else []))
 
     save_json(log, out / "log.json")
     torch.save(model.state_dict(), out / "model.pt")
