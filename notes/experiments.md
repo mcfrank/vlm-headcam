@@ -419,3 +419,15 @@ dinov2-base vs their unfrozen child-DINO ViT) + EVAL (YOLOE-gold temporal holdou
 NEXT to isolate single-child-vs-pooled at fixed data: train pooled oracle on matched 15k aligned.
 Vong 2026 also rules out: Whisper fine (57 vs 62), better LM doesn't help (CVCL≈+GPT2≈+LM), more data
 minimal, CLIP-L only 67% on their eval. => don't chase LM/transcripts; encoder+eval are the levers.
+
+## Pair-count funnel vs Vong (answer: we did NOT lose pairs — we have MORE)
+S00510002 funnel: Whisper utts 100.5k -> CLIP-scored 119.4k (finer segmentation) -> region-embedded
+113k (95%, only 5% lost) -> aligned(clip>0.24) 18,683 (15.6%). Whole 2025.2: 1.28M utts, 165.8k
+aligned (12.9%). Vong baby S: ~122k pairs, 9,320 aligned (7.6%). => our single child has 2x the
+aligned pairs AND 2x the alignment rate of Vong's baby S, and we barely lose any in the pipeline.
+So the 33-vs-51 within-child gap to Vong is NOT pair count. Combined with Mike's encoder skepticism
+(adjusted-DINO got worse; generic dinov2 is strong), the leading suspect for the cross-paper gap is
+the EVAL: our YOLOE-gold, temporal-holdout, 60-cat CDI eval (incl hard/ambiguous words) vs Vong's
+curated Labeled-S (22-41 clean cats). NB: within OUR setup count still helps (pooled-110k 41 >
+single-15k 33); we're just capped at a lower ceiling by the eval. Note (Mike): 2026.1 has 200+h from
+several kids -> could rerun pipeline for deeper single-child work at compute cost.
