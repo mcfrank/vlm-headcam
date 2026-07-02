@@ -1,0 +1,125 @@
+# How much data, and whose {#sec-data-whose}
+
+The previous two chapters are a negative: alignment cannot be self-discovered from
+co-occurrence (@sec-bootstrap), and the social cues that might supply it are, at 1 fps, too
+weak to read (@sec-social). That invites a step back. Our natural numbers sit around 35–50
+4AFC; a clean-label topline reaches ~72; chance is 25. *Why* are the numbers where they are —
+and is the pipeline even competitive with published work on similar data? @vonglake2026, a
+close analogue of our setup (a frozen ViT plus a bag-of-words language encoder, trained on
+automatically transcribed child speech), lets us answer this by elimination, because it
+ablates most of the usual suspects on the SAYCam corpus.
+
+## What is *not* the problem
+
+Four candidate explanations for a low number can be ruled out before running anything of our
+own, from @vonglake2026's ablations:
+
+- **Automatic transcription is fine.** Whisper transcripts reach 56.9% versus 61.6% for
+  manual — a few points, not a chasm. Our Whisper pipeline is not the leak.
+- **A better language model does not help.** A bag-of-words encoder, a GPT-2 transformer, and
+  a transformer with an added language-modelling loss all land within a point or two. The
+  classification eval measures vision–language *alignment*, which every language encoder
+  optimises equally.
+- **More data plateaus quickly.** 3.5× the training data buys ~6 points.
+- **What matters is the absolute *count* of well-aligned pairs, not their average quality**
+  (their Finding 5): across children, the number of CLIP-aligned pairs — not the mean CLIP
+  similarity — tracks accuracy.
+
+And the eval itself caps low: a strong CLIP ViT-L/14 scores only 66.7% zero-shot on their
+labelled test, failing on ambiguous categories like *floor* and *hand*. So the achievable
+ceiling on a looking-while-listening eval of naturalistic frames is ~70%, not 100% — our ~72
+topline is, if anything, strong.
+
+## We are not pair-starved
+
+Finding 5 makes pair count the thing to check first, and here BabyView is comfortable. Tracing
+the funnel for one well-resourced child (S00510002): 100.5k Whisper utterances → 119.4k
+CLIP-scored → 113.0k with a region embedding (only 5% lost in our pipeline) → **18,683 aligned
+pairs** at clip > 0.24 (a 15.6% alignment rate). The comparable single child in @vonglake2026
+(baby S) has ~9,320 aligned pairs at a 7.6% rate. **Our single child has twice the aligned
+data, at twice the alignment rate, and we barely lose any of it downstream.** Whatever explains
+our numbers, it is not a shortage of aligned pairs.
+
+## Within-child is harder, not easier
+
+@vonglake2026 evaluate *within* child — train on baby S, test on held-out frames of baby S's
+own videos. Every result in this book, by contrast, holds out an entire child. If a child's
+consistent world is what makes CVCL work, our cross-child setup should be strictly harder, and
+adding a within-child comparison should raise the number. We built one: for each of the three
+best-resourced children, split *videos* (not frames — frames within a video are contiguous and
+would leak) into an earlier-80% train and a latest-20% test, train region-MIL on the child's
+own pairs, and evaluate on a 4AFC built from CDI detections in that child's held-out videos,
+matched to the same categories as the cross-child eval.
+
+| child (within-child oracle) | aligned train pairs | 4AFC |
+|-----------------------------|---------------------|------|
+| S00510002 | 15.0k | 33.1 |
+| S00320001 | 10.6k | 29.7 |
+| S00400001 | 10.6k | 36.1 |
+
+The result is the opposite of the prediction: within-child sits at **30–36**, *well below* the
+cross-child pooled oracle (~48–50). Training on a single child's own data — even to predict
+that same child's held-out videos — is worse than training on the pool. (The oracle filter
+barely helps within a single child, because with only ~10–15k aligned pairs there is too
+little for it to concentrate.)
+
+## Diversity, not just count
+
+Why is a single child worse, when Finding 5 says count is king and this child has *more*
+aligned pairs than @vonglake2026's? Because two things are conflated — how *much* aligned data,
+and *whose*. We can separate them by matching the count. Training a pooled model on exactly the
+same 15k aligned pairs as the single child, and evaluating all models on the *same*
+(S00510002) held-out eval:
+
+| training set | aligned pairs | 4AFC |
+|--------------|---------------|------|
+| single child (S00510002) | 15k | 33.1 |
+| **pooled (many children)** | **15k** | **38.3** |
+| pooled (many children) | 110k | 41.2 |
+
+At *identical* count, **pooling across children beats a single child by +5.2** — that is
+diversity, not amount. Count then adds a further +2.9 (15k → 110k, with diminishing returns).
+So the single-child deficit is roughly **two-thirds diversity, one-third count**. A pool that
+has seen *chair*, *cup*, and *book* across many homes builds a concept that generalises — even
+to a single child's own held-out chairs — better than that child's own repeated exposure does.
+The consistency of one child's world, which gave the bootstrap its only faint toehold
+(@sec-e0), actively *hurts* generalisable word learning. **Whose** the data is matters more
+than how much of it there is.
+
+## The gap that wasn't
+
+This also dissolves the apparent gap to @vonglake2026. Their within-child model reaches ~51;
+our *within-child* models reach ~33 — but that comparison pits our data-starved single child
+against their setup. Our *pooled* oracle reaches ~48–50, which sits right beside their 51.
+Allowing for the different evals and architectures, there is no large unexplained gap: the
+supervised, pooled pipeline is competitive with published work on comparable data.
+
+A final check confirms the eval is not secretly the culprit. Restricting the eval to a curated
+subset of 45 unambiguous concrete-object categories — dropping places (*kitchen*), body parts
+(*hand*), polysemes (*can*, *present*), and superordinates (*toy*) on linguistic grounds — does
+*not* raise accuracy (pooled 48.1 → 48.6; within-child 33.1 → 31.2). In a 4-alternative task a
+hard category is also an easy distractor, so pruning the hard ones cancels out. The number is
+robust to which words are on the test.
+
+## Synthesis
+
+Set against @vonglake2026, our numbers are where they should be, and the low spots are
+accounted for, not mysterious.
+
+- The pipeline is **not pair-starved** (twice the aligned data of a comparable single child)
+  and **not eval-limited by category difficulty** (robust to curation); the **pooled
+  supervised model is competitive** with published results.
+- The genuinely low numbers trace to two things, both established rather than broken. First,
+  the **bootstrap does not ignite** (@sec-bootstrap, @sec-social): alignment cannot be
+  self-discovered here. Second, a **single child is data-limited** — and not only in amount:
+  the larger cost is a **lack of diversity**, because generalisable word learning is driven by
+  seeing each thing across many contexts.
+
+The developmental reading is worth stating plainly. A model of *one* child's experience is the
+natural target for a theory of how *that* child learns — but it inherits that child's narrow
+slice of the world, and a narrow slice generalises poorly. Pooling across children is not
+biologically faithful, yet it is what buys the diversity that makes word–object mappings
+transfer. The tension between fidelity to a single developmental stream and the diversity that
+learning seems to need is, we think, the more interesting question these experiments leave
+open — and the one a corpus like BabyView, with many children each recorded at length, is
+built to study.

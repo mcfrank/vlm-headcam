@@ -30,6 +30,7 @@ referential noise, does concentrating the aligned moments rescue learning?*
 | [Alignment experiments](03-experiments.qmd) | Five controlled experiments: robustness of the alignment gap, filtering vs. brute scale, the count-vs-quality frontier, object crops vs. whole scenes, and an injected-alignment topline. |
 | [Bootstrapping the filter](04-bootstrapping.qmd) | Can a naive learner *self-discover* alignment, with no CLIP? Six self-supervised mechanisms — region attention, a language prior, distinctiveness, cross-situational prototypes, curriculum — and why none ignites. |
 | [Reading social cues](05-social-cues.qmd) | If the filter must be *supplied*, how good would a cue have to be (a titration), and can we read the cues children actually use — hands, pose, gaze, prosody, discourse — from this stream? |
+| [How much data, and whose](06-data-and-whose.qmd) | Why the numbers are where they are. We are not pair-starved, and the pooled pipeline is competitive; a single child is data-limited, and the larger cost is *diversity* — whose data matters more than how much. |
 
 ## The question in one figure
 
