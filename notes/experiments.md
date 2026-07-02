@@ -301,3 +301,31 @@ midpoint frame). Pointing/gaze are sub-second; 1fps sampling misses the gesture.
 socially cued but the cue lives below this data's temporal resolution. => pose RERUN not
 justified for this project (would yield more of a null signal). Code: pose_cues_full.py,
 build_pose_filter_manifests.py, PF_* runs.
+
+## FTF-2013 rescue: language cues weak-real, vision cues null, pointing undetectable
+Motivated by Frank/Tenenbaum/Fernald 2013 (Table 3: pointing precision .78 but recall .10;
+child-eyes F .54; discourse F .53) — we had tested the LOW-precision presence cues, not these.
+New cues, each per-pair for the filter->4AFC test (CB_* runs; pool = region-cache-restricted,
+40.6% aligned, so compressed headroom):
+- prosody rms_range rho +0.18 (best single), discourse continuity rho +0.09, frame-center
+  (center-vs-periphery DINOv2, the "child eyes = frame center" proxy) rho -0.06 (does NOT
+  capture gaze), pose/pointing ~0. COMBINED CV-logistic rho=0.213, AUC 0.619 (beats best
+  single -> cues DO combine, but < 0.3 bar).
+Filter->4AFC (3 seeds, mean±sd):
+| filter | 4AFC | aligned% |
+| CLIP-aligned (control) | 37.5 ± 0.8 | 100% |
+| discourse | 33.5 ± 0.6 | 51% |
+| prosody | 33.5 ± 2.0 | 52% |
+| combined | 33.0 ± 0.4 | 55% |
+| random | 32.1 ± 0.7 | 41% |
+Language cues beat random by ~1-1.5 (discourse steadiest, +1.4 ~2sigma; prosody noisy);
+combination does NOT add (FTF redundancy reproduced); all ~1/4 of the CLIP control's +5.4.
+Weak-real, but nowhere near ignition.
+POINTING: sparsity mapped (extended straight arm ~11%, ~ FTF recall .10) BUT viewing strict
+candidates (local pull, authorized) shows the detector catches caregivers LEANING/reaching
+toward the child, not distal points; index-finger tell undetectable at arm's length (L3=0).
+=> pointing is NOT recoverable from 1fps pose (detection limit, not informativeness).
+VERDICT: the rescue lives on the LANGUAGE side (prosody, discourse: weak but real, consistent
+with the project-wide language>vision asymmetry); vision-side social cues (pose, pointing,
+gaze-as-center) are null or undetectable at 1fps. Code: prosody_for_pairs / discourse_for_pairs
+/ pose_pointing / frame_center_for_pairs / build_combined_cues.
