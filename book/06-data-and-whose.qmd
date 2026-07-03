@@ -123,3 +123,35 @@ transfer. The tension between fidelity to a single developmental stream and the 
 learning seems to need is, we think, the more interesting question these experiments leave
 open — and the one a corpus like BabyView, with many children each recorded at length, is
 built to study.
+
+## The gap was the eval {#sec-konkle}
+
+One thread has run under all of this: our numbers sit around 35–50, and it is natural to read
+that as the model falling short. The resolution is more mundane, and more reassuring — the
+limit was largely the *evaluation*. Our 4AFC scores each word against frames that a YOLOE
+detector labelled on held-out videos: naturalistic scenes, a noisy detector for ground truth,
+and ambiguous words. When we instead evaluate on the exact benchmark CVCL and @vonglake2026
+use — the Konkle object set [@konkle2010], the same 60 clean-object categories on white
+backgrounds they selected — the pooled model scores **72.4%**, not 48. That lands precisely on
+the clean-label topline of @sec-topline: two independent "clean" tests — inject the detected
+label, or show a clean object photo — agree on what the model actually knows (~72), while the
+naturalistic detector eval reports a floor (~48), not a ceiling.
+
+![The bootstrap ladder on the clean Konkle eval (bars) versus the naturalistic BabyView
+detector eval (line). Everything is higher on the clean eval, but the oracle rises most, so the
+alignment gap *widens*; and a language-side cue on the E-step buys +5 on Konkle where the noisy
+eval saw nothing.](figures/fig_waterfall_bootstrap.png){#fig-waterfall width=92%}
+
+This does two things. It confirms the chapter's claim by demonstration rather than inference:
+the pooled supervised pipeline is not underperforming — on the field's own benchmark it is
+strong. (We resist reading the absolute 72 against CVCL's ~50: BabyView's higher resolution and
+a full DINOv2 encoder both favour clean-object transfer, so the cross-paper number is
+confounded, and the honest comparisons are all within-project.) And re-running every model on
+the clean eval shows the noisy one had been *masking* differences. The oracle rises far more
+than the bootstrap — the alignment gap of @sec-bootstrap widens from ~13 to ~27 points, so that
+negative is *starker* on a clean eval, not softer. But a signal invisible at ~35 on the detector
+eval emerges: a language, discourse, or prosody prior on the E-step each buys **+4–5** over the
+plain bootstrap on Konkle, where on the noisy eval they were indistinguishable from it. So the
+honest verdict on @sec-social is not that the cues do nothing, but that the *language* cues do a
+little — and only a clean enough eval can measure it. The language-over-vision asymmetry, one
+last time.

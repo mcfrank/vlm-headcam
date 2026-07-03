@@ -230,3 +230,9 @@ is not a cleverer cue but a different regime: higher-frame-rate gaze and gesture
 1 fps exposes, an unfrozen visual encoder tuned to the child's own world rather than a general
 one, and more of the child's *own* consistent data — the conditions under which a model like
 CVCL, on a single child's stream, does learn.
+
+One qualification, developed in @sec-konkle: this verdict is measured against a *naturalistic*
+eval whose detector-based ground truth is itself noisy. On a clean object benchmark, the
+language-side cues (language, discourse, prosody) each turn out to buy a real +4–5 points that
+this eval was too noisy to see. The cues are weak, but not quite nothing — and the vision side
+stays null even there.
