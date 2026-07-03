@@ -465,3 +465,21 @@ not igniting (ch5, fundamental) and (b) within-child data-starvation (diversity+
 The supervised pooled pipeline performs comparably to the field. Konkle not in wkvong/multimodal-baby
 (eval code only); a true apples-to-apples cross-paper eval would need the Konkle stimulus set pulled
 to ccn2 (Konkle lab / Databrary) — optional future.
+
+## Temporal frame-sampling (Vong replication) — REFUTED
+Hypothesis: Vong's unfiltered ~50 (vs our within-child ~31) comes from sampling a random frame
+from each utterance's window every epoch (free within-window alignment via the memorization
+effect); our fixed midpoint throws it away. Embedded 133k window frames for S00510002 (append to
+emb_reg), trained within-child all-pairs with random per-epoch window sampling vs a midpoint
+control on the SAME 94.6k utterances, 3 seeds, within-child matched eval:
+| condition | 4AFC mean±sd |
+| window sampling | 32.9 ± 0.4 |
+| midpoint control | 32.0 ± 0.8 |
+Only +0.9 (within noise). NOT the temporal-sampling ingredient. Likely why: our utterances are
+SHORT at 1fps (mean 3.6 frames/window, many 1-2), so little temporal spread to exploit — vs
+Vong's up to 16 frames from higher-fps SAYCam. The within-child ceiling is ROBUST at ~32-33
+across all-pairs, oracle, window-sampling, and midpoint — nothing internal moves it; only POOLING
+(diversity) reaches 48. Remaining suspects for the within-child 33-vs-Vong-50 gap: eval (YOLOE-gold
+held-out-video vs curated Labeled-S) and/or encoder (generic dinov2 vs child-DINO) and/or genuine
+SAYCam-vs-BabyView single-child data consistency — none isolated; encoder is Mike-doubted. Denser
+sub-1fps frame extraction could give a bit more spread but unlikely to close 17 points.
