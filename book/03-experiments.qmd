@@ -190,6 +190,11 @@ separable, which caps *any* model's achievable accuracy on this eval.
 
 ## Summary
 
+![The two levers of this chapter as a contributions waterfall: filtering to aligned pairs buys
+the most (+13), region grounding a little more (+2), against a clean-label ceiling of ~72. The
+next chapters ask whether a naive learner can climb the same ladder *without* being handed the
+alignment.](figures/fig_waterfall_alignment.png){#fig-waterfall-align width=88%}
+
 | Experiment | Finding |
 |------------|---------|
 | B | Alignment filtering: **+12.2 pts** cross-child, size-matched, 3 seeds. |

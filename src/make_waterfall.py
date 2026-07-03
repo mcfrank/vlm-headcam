@@ -29,9 +29,12 @@ def waterfall(steps, out, title, ceiling=None, ceiling_label=None, chance=25,
         if i:
             ax.plot([i - 1 + 0.31, i - 0.31], [prev, prev], color=SUB, lw=0.8, ls=(0, (3, 3)), zorder=2)
         prev = pv
-    # reference series as dots + faint line
+    # optional reference series as dots + faint line (skipped if all None)
     rvs = [s[2] for s in steps]
-    ax.plot(list(xs), rvs, "o-", color=DOT, ms=6, lw=1.4, zorder=5)
+    has_ref = any(r is not None for r in rvs)
+    if has_ref:
+        rx = [i for i, r in enumerate(rvs) if r is not None]
+        ax.plot(rx, [rvs[i] for i in rx], "o-", color=DOT, ms=6, lw=1.4, zorder=5)
     ax.axhline(chance, color=SUB, lw=1.2, ls=(0, (5, 4)))
     ax.text(-0.45, chance + 0.6, "chance", color=SUB, fontsize=10, va="bottom")
     if ceiling:
@@ -44,10 +47,11 @@ def waterfall(steps, out, title, ceiling=None, ceiling_label=None, chance=25,
     ax.spines["left"].set_color(GRID); ax.spines["bottom"].set_color(GRID)
     ax.tick_params(colors=SUB, length=0); ax.set_axisbelow(True)
     ax.yaxis.grid(True, color=GRID, lw=0.7)
-    # legend
-    ax.scatter([], [], color=GAIN, marker="s", s=60, label=primary)
-    ax.plot([], [], "o-", color=DOT, label=ref)
-    ax.legend(loc="upper left", bbox_to_anchor=(0.0, 0.90), frameon=False, fontsize=9.5)
+    # legend (only show the reference entry if a reference series is drawn)
+    if has_ref:
+        ax.scatter([], [], color=GAIN, marker="s", s=60, label=primary)
+        ax.plot([], [], "o-", color=DOT, label=ref)
+        ax.legend(loc="upper left", bbox_to_anchor=(0.0, 0.90), frameon=False, fontsize=9.5)
     fig.tight_layout(); fig.savefig(out, bbox_inches="tight"); plt.close(fig)
     print("wrote", out)
 
@@ -60,3 +64,21 @@ waterfall(
     OUT / "fig_waterfall_bootstrap.png",
     "What the interventions buy, and what the eval hid",
     ceiling=72, ceiling_label="clean-label ceiling", ylim=(20, 80))
+
+# ch3: the alignment levers that WORK (single series, detector eval)
+waterfall(
+    [("naive\n(random pairs)", 34, None),
+     ("+ alignment\nfilter", 47, None),
+     ("+ region\ngrounding", 49, None)],
+    OUT / "fig_waterfall_alignment.png",
+    "The levers that work: alignment and grounding",
+    ceiling=72, ceiling_label="clean-label ceiling", ylim=(20, 80))
+
+# ch6: how much data, and whose (data-matched, same held-out eval)
+waterfall(
+    [("single\nchild", 33, None),
+     ("+ diversity\n(pool children)", 38, None),
+     ("+ more data\n(15k → 110k)", 41, None)],
+    OUT / "fig_waterfall_data.png",
+    "How much data, and whose: diversity beats amount",
+    ylim=(20, 52))

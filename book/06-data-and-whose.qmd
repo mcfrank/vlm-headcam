@@ -86,6 +86,10 @@ The consistency of one child's world, which gave the bootstrap its only faint to
 (@sec-e0), actively *hurts* generalisable word learning. **Whose** the data is matters more
 than how much of it there is.
 
+![The single-child deficit as a contributions waterfall (data-matched, same held-out eval):
+pooling across children at the *same* count buys +5 (diversity), and raising the count 15k→110k
+buys a further +3. Whose the data is matters more than how much.](figures/fig_waterfall_data.png){#fig-waterfall-data width=88%}
+
 ## The gap that wasn't
 
 This also dissolves the apparent gap to @vonglake2026. Their within-child model reaches ~51;
