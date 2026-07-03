@@ -79,7 +79,10 @@ same 15k aligned pairs as the single child, and evaluating all models on the *sa
 
 At *identical* count, **pooling across children beats a single child by +5.2** — that is
 diversity, not amount. Count then adds a further +2.9 (15k → 110k, with diminishing returns).
-So the single-child deficit is roughly **two-thirds diversity, one-third count**. A pool that
+So the single-child deficit is roughly **two-thirds diversity, one-third count**. The same
+ordering holds on the clean Konkle eval (single child ~45, pooled ~54; @sec-konkle) — though
+single-child models learn smaller vocabularies and so cover fewer of the 60 Konkle categories,
+which is why we keep the primary comparison on the fixed, held-out detector eval here. A pool that
 has seen *chair*, *cup*, and *book* across many homes builds a concept that generalises — even
 to a single child's own held-out chairs — better than that child's own repeated exposure does.
 The consistency of one child's world, which gave the bootstrap its only faint toehold

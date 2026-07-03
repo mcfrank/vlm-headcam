@@ -76,7 +76,10 @@ unweighted baseline — matching an utterance to its best region is a better rep
 consistent with the object-crop result of @sec-d. **But the bootstrap still does not
 ignite:** the max-region alignment score is no better than the whole-frame cosine at
 telling aligned pairs from misaligned ones (ρ ≈ 0.03–0.07, unchanged). A stronger
-*representation* did not buy a stronger *self-supervision signal*.
+*representation* did not buy a stronger *self-supervision signal*. This gap is *starker* on
+the clean Konkle eval (@sec-konkle): the oracle reaches **69.3** there while the best
+bootstrap only ~43 — a 26-point gap where the noisy detector eval showed 15. The bootstrap's
+failure to recover alignment is not an artefact of the eval; a clean eval makes it plainer.
 
 The lesson: the toehold problem is about the **scoring function**, not the visual
 features. The gap between the unweighted region model (34.8) and its oracle (49.9) — ~15
@@ -115,14 +118,16 @@ consistent world is easier to bootstrap from. Does that partial knowledge *trans
 bootstrap on a single child (region-MIL + prototypes + language prior, shared vocabulary),
 then continue the same model on the pooled corpus.
 
-| run | best 4AFC | warm-up (pre-EM) | ρ(weight, CLIP) |
-|-----|-----------|------------------|-----------------|
-| across, from scratch (control) | 35.5 | 33.2 | 0.02 |
-| within-kid (stage 1) | 34.2 | 33.6 | 0.07 |
-| **across, initialised from stage 1** | **37.6** | 36.2 | 0.01 |
+| run | best 4AFC (detector / Konkle) | warm-up (pre-EM) | ρ(weight, CLIP) |
+|-----|------------------------------|------------------|-----------------|
+| across, from scratch (control) | 35.5 / 38.7 | 33.2 | 0.02 |
+| within-kid (stage 1) | 34.2 / 37.8 | 33.6 | 0.07 |
+| **across, initialised from stage 1** | **37.6 / 43.7** | 36.2 | 0.01 |
 
 Curriculum gives the **best bootstrap of the night — 37.6**, +2.1 over the matched
-from-scratch control. But the benefit is an **initialisation effect, not filter ignition**:
+from-scratch control — and **+5.0** over that control on the clean Konkle eval (43.7 vs 38.7):
+the transfer effect, like the alignment and grounding effects of @sec-topline, was partly
+compressed by the noisy detector eval. But the benefit is an **initialisation effect, not filter ignition**:
 the pooled model already sits at 36.2 *before any EM rounds*, purely because it inherited
 word meanings learned in the child's consistent world, and the weight–alignment
 correlation stays ~0. The within-kid model learns transferable structure unsupervised; the

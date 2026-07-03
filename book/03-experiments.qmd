@@ -17,16 +17,22 @@ children and three seeds each:
 ![Aligned vs. size-matched random, three held-out children (±sd over 3 seeds).
 The gap is present and consistent everywhere.](figures/fig_results_B.png){#fig-b width=75%}
 
-| Held-out child | aligned (>0.24) | random (matched) | gap |
-|----------------|-----------------|------------------|-----|
-| S00360001 | 46.9 ± 0.2 | 32.6 ± 1.6 | **+14.3** |
-| S00240001 | 43.8 ± 0.6 | 33.6 ± 0.3 | **+10.1** |
-| S00370002 | 44.5 ± 0.7 | 32.4 ± 0.3 | **+12.2** |
-| **mean** | | | **+12.2** |
+Each cell gives the naturalistic detector eval and, after the slash, the clean Konkle
+object benchmark (@sec-konkle) — the same score computed on clean object photos rather than
+noisy held-out frames.
+
+| Held-out child | aligned (detector / Konkle) | random (detector / Konkle) | gap |
+|----------------|------------------------------|-----------------------------|-----|
+| S00360001 | 46.9 / 64.3 | 32.6 / 42.2 | **+14.3 / +22.1** |
+| S00240001 | 43.8 / 59.7 | 33.6 / 47.1 | **+10.1 / +12.6** |
+| S00370002 | 44.5 / 64.2 | 32.4 / 40.8 | **+12.2 / +23.4** |
+| **mean gap** | | | **+12.2 / +19.4** |
 
 At identical data size, concentrating aligned pairs buys **+12 points**,
 cross-child, with tight error bars. Alignment quality — not quantity — is doing
-the work.
+the work. And the effect is *larger* on the clean eval (+19 vs +12): the noisy detector
+gold was compressing the real alignment gap, not inflating it. (Detector numbers are
+3-seed means ± sd; Konkle is a seed-0 point estimate on the same models.)
 
 ## A — Filtering beats brute scale {#sec-a}
 
@@ -37,11 +43,11 @@ random arms from @sec-b at that child.
 ![The full unfiltered stream (8× more data) underperforms the aligned subset it
 contains.](figures/fig_results_A.png){#fig-a width=60%}
 
-| Training set | pairs | best 4AFC |
-|--------------|-------|-----------|
-| aligned (clip>0.24) | 137k | **46.7** |
-| unfiltered (everything) | 1.14M | 43.2 |
-| random (size-matched) | 137k | 34.6 |
+| Training set | pairs | 4AFC (detector / Konkle) |
+|--------------|-------|--------------------------|
+| aligned (clip>0.24) | 137k | **46.7 / 64.3** |
+| unfiltered (everything) | 1.14M | 43.2 / 53.5 |
+| random (size-matched) | 137k | 34.6 / 39.8 |
 
 **Eight times more data is worse than the filtered subset it contains.** The
 aligned pairs live *inside* the unfiltered stream; drowning them in ~1M
@@ -69,11 +75,15 @@ at held-out S00360001. Higher thresholds mean cleaner but fewer pairs.
 ![Raising the threshold from 0.24 to 0.26 helps despite 6× fewer pairs; pushing
 to 0.28 (only ~3.8k pairs) hurts.](figures/fig_results_C.png){#fig-c width=65%}
 
-| min-clip | pairs | best 4AFC |
-|----------|-------|-----------|
-| 0.24 | 137,179 | 46.9 ± 0.2 |
-| **0.26** | **21,877** | **48.4 ± 0.8** |
-| 0.28 | 3,799 | 43.4 ± 0.7 |
+| min-clip | pairs | 4AFC (detector / Konkle) |
+|----------|-------|--------------------------|
+| 0.24 | 137,179 | 46.9 / 64.3 |
+| **0.26** | **21,877** | **48.4 / 67.3** |
+| 0.28 | 3,799 | 43.4 / 64.8 |
+
+(The Konkle points for the higher thresholds are on progressively smaller vocabularies —
+0.24/0.26/0.28 cover 58/48/29 of the 60 categories — so they sit on smaller, easier subsets
+and are not cleanly comparable across rows; the detector column, on a fixed eval set, is.)
 
 The curve is **non-monotonic**: there is an optimum around 22k clean pairs.
 Raising quality helps until it starves the model of data — at which point too few
@@ -103,7 +113,11 @@ Reading across rows, **crop-training beats frame-training on the same eval**
 object is a better learning signal than pairing with the scene. Evaluating on
 crops also beats evaluating on frames (isolating the object at test time helps
 too). The best cell — crop-train/crop-eval, **48.7** — is the highest number in
-the study, on only 50k pairs.
+the study, on only 50k pairs. On the clean Konkle benchmark — where the "eval
+representation" axis no longer applies, since the objects are already isolated — the
+crop-training advantage holds and *widens*: crop-trained models score 54.5, frame-trained
+43.2, a +11 gap versus +3 here. Grounding to the object, like filtering to aligned pairs, is
+worth more than the noisy eval could show.
 
 (The frame-train/frame-eval baseline here, 39.2, is below the full aligned model
 of @sec-b because it uses the smaller detection-video subset and pairs with the
@@ -141,6 +155,11 @@ noisy utterance adds nothing on top of the label.](figures/fig_results_topline.p
 | control | natural utterance, detection frames | 35.5 ± 1.2 |
 | +label | utterance + detected labels | **71.4 ± 0.5** |
 | label-only | detected labels only | 71.7 ± 0.4 |
+
+This ~72 ceiling is corroborated by a wholly independent clean eval: on the Konkle object
+benchmark — clean object photos, no injected labels (@sec-konkle) — the pooled model reaches
+~72. Injected clean labels and clean object images agree on what the frozen features can
+express, which is one reason to trust the number.
 
 Three things fall out:
 
@@ -202,8 +221,11 @@ alignment.](figures/fig_waterfall_alignment.png){#fig-waterfall-align width=88%}
 | C | Count-vs-quality **sweet spot** at ~22k pairs (clip>0.26): 48.4. |
 | D | Object crops beat whole scenes **+3–4 pts**; best overall 48.7. |
 | E | Injected-alignment topline **71.4** on fixed frames; frame-quality confound only +2.9; ceiling ~71.7 → large headroom. |
+| clean eval | On the Konkle object benchmark every effect is *larger* (align gap +19 vs +12, grounding +11 vs +3) and the aligned model reaches ~64–72 — the noisy detector eval compressed real signal (@sec-konkle). |
 
 Two cheap, composable levers move word–object accuracy well above chance on a
 corpus where naive training fails — and the topline shows the effect is
 alignment *per se*, with substantial room left before the frozen features
-become the limit. The next chapter takes stock.
+become the limit. Throughout, we now report each result on both the naturalistic detector
+eval and the clean Konkle benchmark; the clean eval consistently shows the same conclusions,
+only sharper. The next chapter takes stock.

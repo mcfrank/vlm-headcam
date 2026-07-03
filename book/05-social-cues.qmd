@@ -152,7 +152,11 @@ control (all matched to 8k pairs from the pose-covered pool, three seeds).
 
 The control behaves — CLIP-aligned pairs train **+9 points** over random — so the test has
 power. The pose cues do not: filtering to them trains no better than random. The cues are
-**not merely invisible to CLIP; they genuinely do not select better learning moments.**
+**not merely invisible to CLIP; they genuinely do not select better learning moments.** The
+same null holds on the clean Konkle eval (@sec-konkle): the CLIP control reaches 43.8 there
+while child-hand and random both sit at ~36–38 — so the vision-cue null is not an artefact of
+the noisy detector eval either. (These pose-restricted models train on a small pool and cover
+only ~22–38 of the 60 Konkle categories, so read the columns within-row, not across.)
 
 This tightens the chapter's thesis rather than loosening it. The machine-readable social
 signal available here — even whole-body pose, even with the child's own hands cleanly
