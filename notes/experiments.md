@@ -499,3 +499,26 @@ on our ch3 clean-label topline (~72). => the model was never underperforming; ou
 number by ~24. On the SAME eval Vong uses, we're strong. RESOLVES the whole "why are our numbers
 low" thread: it was the eval, not the pipeline. (within-child 44.9 is on only 36/60 cats — single-
 child vocab is smaller — so less comparable; pooled 58/60 is the clean number.)
+
+## FULL KONKLE RE-EVAL (paired CDI / Konkle) — masked signal + starker oracle gap
+Clean full-vocab set (region-MIL, across-140k, 56-60/60 Konkle cats scored):
+| model | CDI-YOLOE | Konkle | note |
+| boot plain (BX_plain) | 34.3 | 43.4 | baseline |
+| + caregiver prior | 35.6 | 43.3 | null (both evals) |
+| + prosody prior | 35.0 | 47.5 | +4 on Konkle (masked on CDI) |
+| + discourse prior | 35.5 | 48.1 | +5 on Konkle |
+| + language prior | 34.9 | 48.6 | +5 on Konkle |
+| curriculum scratch ctrl (R4_scratch) | 35.5 | 38.7 | |
+| curriculum transfer (R4_stage2) | 37.6 | 43.7 | +5 vs ctrl on Konkle (was +2 on CDI) |
+| oracle (P1_oracle_across) | 49.9 | 69.3 | |
+| oracle (HN_full) | 48.1 | 72.4 | |
+| oracle (HN_noun) | 50.2 | 67.0 | |
+FINDINGS: (1) everything rises on the clean eval; the ORACLE rises most (+20-24) so the
+oracle-vs-bootstrap gap WIDENS 13->~27 -> "bootstrap doesn't ignite" is CONFIRMED, starker.
+(2) MASKED SIGNAL revealed: the LANGUAGE-side priors (lang/discourse/prosody) all +4-5 over
+plain on Konkle (3 cues agree) but were ~0 on CDI; curriculum +5 vs +2. The noisy CDI-YOLOE
+eval compressed real language-cue signal into noise. Consistent w/ the project-wide language>
+vision theme, now clearer. Vision/caregiver/pose cues still null on Konkle too.
+CAVEAT (Mike): cross-paper 72 vs Vong 50 is CONFOUNDED (BabyView higher-res + full dinov2 >
+their child-DINO) -> within-project comparisons only. Subset-trained models (CB/PF/WC) score
+few Konkle cats (22-48/60, small vocab) -> less comparable; excluded from the clean table.
