@@ -119,6 +119,51 @@ class TwoTower(nn.Module):
 Defaults: joint dim 512, batch 256, AdamW at lr $3\times10^{-4}$, 20 epochs,
 vocabulary of words appearing $\ge 5$ times.
 
+It is worth being explicit about how *little* is trained. The vision encoder is
+frozen, so the entire learned image→joint map is one `LayerNorm` plus a single
+$768\times512$ linear — about **0.4M parameters**. Everything else is the word
+table (vocabulary $\times\,512$: a few million parameters for a vocabulary of a
+few thousand words) and one scalar temperature. There are **no learned vision
+parameters**; "alignment" here is literally a linear projection of frozen DINOv2
+features, a bag-of-words lookup table, and a temperature. That thinness is
+deliberate — it isolates the alignment *signal* from encoder capacity — and it is
+what makes the topline of @sec-topline interpretable: when this map reaches ~72%
+under injected labels, the ceiling we are measuring is the frozen features', not
+the probe's.
+
+## Training dynamics: what the loss does {#sec-training-dynamics}
+
+Because the model is so small and the features are precomputed, training is fast
+and its dynamics are clean. All arms drive the *training* loss down at similar
+rates — the linear map and word table can always fit the pairs they are given.
+What separates them is the **held-out contrastive loss**, and it separates them
+sharply (held-out child S00360001, seed 0):
+
+| training arm | pairs | train loss (ep 0→19) | val loss | best 4AFC (epoch) | val-loss behavior |
+|--------------|-------|----------------------|----------|-------------------|-------------------|
+| aligned (clip>0.24) | 137k | 5.38 → 3.70 | 5.21 → **4.97** (min ep 6) → 5.10 | 46.7 (ep 7) | dips, then drifts up mildly |
+| unfiltered (everything) | 1.14M | 5.46 → 4.48 | 5.39 → **5.13**, then flat | 43.2 (ep 7) | falls, never rises |
+| random (size-matched) | 137k | 5.56 → 4.40 | 5.46 → **5.79** | ~34 (flat) | climbs steadily — overfits |
+
+Three things follow, and they recur throughout the book:
+
+1. **The held-out loss, not the training loss, is the quality signal.** Random
+   pairs overfit hard — train loss falls normally while val loss climbs
+   monotonically — because there is no generalizable frame↔text structure to
+   find, so the model memorizes. Aligned pairs generalize: val loss dips and then
+   only drifts up slightly. The gap between these two curves *is* the alignment
+   effect, visible before any 4AFC number.
+2. **Accuracy converges in well under ten passes.** 4AFC peaks around epoch 6–8
+   everywhere and the val-loss minimum roughly coincides, so we report the best
+   epoch; early stopping would not change any conclusion. Twenty epochs is
+   generous headroom, not a tuned stopping point.
+3. **Our frozen probe does not reproduce end-to-end "divergence."** The unfiltered
+   1.14M arm's val loss *falls* and flattens (5.39 → 5.13) — it never rises. The
+   loss-climbing reported for full end-to-end BabyView contrastive training is
+   therefore an optimization/capacity effect layered on top of the alignment
+   problem; the probe deliberately strips it away, so our claim is "filtered >
+   unfiltered," not "unfiltered diverges" (@sec-a).
+
 ## Evaluating: the 4AFC test
 
 We want a metric that (a) measures word→object mapping directly, (b) is

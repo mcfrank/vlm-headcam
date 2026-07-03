@@ -60,11 +60,12 @@ concentrates signal; scale alone dilutes it.
 
 Prior reports of BabyView contrastive training describe the *loss climbing*
 during end-to-end training. Our frozen-feature probe does **not** reproduce that:
-its validation loss falls and then flattens (5.39 → 5.13, never rising). The
-probe is too small to overfit 1.14M pairs, so the "loss goes up" phenomenon is an
-optimization/capacity effect stacked on top of the alignment problem. Our probe
-deliberately strips that away to isolate the alignment effect; the claim it
-supports is "filtered > unfiltered," not "unfiltered diverges."
+its validation loss falls and then flattens (5.39 → 5.13, never rising; see the
+training-dynamics table in @sec-training-dynamics). The probe is too small to
+overfit 1.14M pairs, so the "loss goes up" phenomenon is an optimization/capacity
+effect stacked on top of the alignment problem. Our probe deliberately strips that
+away to isolate the alignment effect; the claim it supports is "filtered >
+unfiltered," not "unfiltered diverges."
 :::
 
 ## C — A count-vs-quality sweet spot {#sec-c}
