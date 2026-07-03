@@ -483,3 +483,19 @@ across all-pairs, oracle, window-sampling, and midpoint — nothing internal mov
 held-out-video vs curated Labeled-S) and/or encoder (generic dinov2 vs child-DINO) and/or genuine
 SAYCam-vs-BabyView single-child data consistency — none isolated; encoder is Mike-doubted. Denser
 sub-1fps frame extraction could give a bit more spread but unlikely to close 17 points.
+
+## KONKLE EVAL — the eval WAS the gap (+24 points)
+Vong supplement S/A.2 + Appendix D: their Konkle eval = 60 categories (CVCL's 64-subset present
+in all 3 SAYCam kids' vocab), from Konkle 2010 (200 cats, clean objects on white). Local set in
+data/ObjectCategories/{N}-objects/{category}/*.jpg — all 60 Vong words map DIRECTLY to folders
+(60/60). Extracted 60 cats x 17 exemplars = 1020 images -> ccn2, embedded region grid (emb_konkle),
+built a Konkle 4AFC eval (embed_konkle.py, eval_model.py generalized to any cache).
+| model | KONKLE 4AFC | our CDI-YOLOE 4AFC |
+| pooled oracle HN_full | 72.4 (58/60 cats) | 48.1 |
+| within-child oracle S00510002 | 44.9 (36/60) | 33.1 |
+Pooled model jumps +24 on the CLEAN eval -> 72.4, ABOVE Vong's ~50 and CLIP-L's 66.7, and right
+on our ch3 clean-label topline (~72). => the model was never underperforming; our CDI-YOLOE eval
+(noisy detector gold + held-out-video generalization + ambiguous frames) suppressed the measured
+number by ~24. On the SAME eval Vong uses, we're strong. RESOLVES the whole "why are our numbers
+low" thread: it was the eval, not the pipeline. (within-child 44.9 is on only 36/60 cats — single-
+child vocab is smaller — so less comparable; pooled 58/60 is the clean number.)
