@@ -27,24 +27,37 @@ def load_region_cache(d):
 
 class RegionPairs(torch.utils.data.Dataset):
     def __init__(self, emb, lut, man, vocab, max_len=16):
+        # multiframe: a 'frames' column (space-joined frame_idxs) => store all embedded window
+        # frames per utterance and sample ONE per __getitem__ (random per epoch, Vong-style).
+        self.multiframe = "frames" in man.columns
         self.rows, self.ids, self.clip, self.vf = [], [], [], []
         for r in man.itertuples(index=False):
-            k = frame_key(r.video_id, r.frame_idx)
-            if k not in lut:
-                continue
             toks = encode(r.text, vocab, max_len)
             if not toks:
                 continue
-            self.rows.append(lut[k]); self.ids.append(toks)
+            if self.multiframe:
+                cand = [lut[frame_key(r.video_id, int(f))] for f in str(r.frames).split()
+                        if frame_key(r.video_id, int(f)) in lut]
+                if not cand:
+                    continue
+                self.rows.append(cand); self.vf.append((r.video_id, int(str(r.frames).split()[0])))
+            else:
+                k = frame_key(r.video_id, r.frame_idx)
+                if k not in lut:
+                    continue
+                self.rows.append(lut[k]); self.vf.append((r.video_id, int(r.frame_idx)))
+            self.ids.append(toks)
             self.clip.append(float(getattr(r, "clip_score_max", np.nan)))
-            self.vf.append((r.video_id, int(r.frame_idx)))
         self.emb = emb; self.max_len = max_len; self.clip = np.array(self.clip)
 
     def __len__(self):
         return len(self.ids)
 
     def __getitem__(self, i):
-        v = torch.from_numpy(np.asarray(self.emb[self.rows[i]], dtype=np.float32))  # [R,768]
+        row = self.rows[i]
+        if self.multiframe:
+            row = row[np.random.randint(len(row))]   # sample one window frame this epoch
+        v = torch.from_numpy(np.asarray(self.emb[row], dtype=np.float32))  # [R,768]
         t = torch.zeros(self.max_len, dtype=torch.long)
         t[:len(self.ids[i])] = torch.tensor(self.ids[i])
         return i, v, t, len(self.ids[i])
