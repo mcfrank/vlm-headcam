@@ -56,10 +56,12 @@ SYSTEM = (
 # Kept terse on purpose: short output = low output-token cost over ~1M calls.
 PROMPT = (
     "Return JSON with:\n"
-    '- "alignment": 0.0-1.0. 1.0 = the utterance clearly names/refers to a prominent '
-    "object plainly visible in the frame; 0.0 = no visible referent (small talk, the "
-    "object is absent or unidentifiable, or the utterance is not about a concrete "
-    "object). Be strict: partial or ambiguous visibility is low.\n"
+    '- "alignment": integer 0-100 for how strongly the utterance refers to a concrete '
+    "object VISIBLE in the frame. 100 = clearly names a prominent, plainly-visible, "
+    "central object; ~50 = the named object is present but small, partial, or one of "
+    "many; 0 = no visible referent (small talk, the object is absent or unidentifiable, "
+    "or the utterance is not about a concrete object). Use the full range, not just the "
+    "ends.\n"
     '- "referent": the single visible object referred to, as a lowercase common noun '
     '(e.g. "cup", "dog"); "" if alignment is low or none applies.\n'
     "Utterance: "
@@ -67,7 +69,7 @@ PROMPT = (
 
 
 class Align(BaseModel):
-    alignment: float
+    alignment: int
     referent: str
 
 
@@ -106,7 +108,7 @@ def score_one(client, model, row, max_px, thinking):
         try:
             r = client.models.generate_content(model=model, contents=contents, config=cfg)
             a = r.parsed if r.parsed is not None else Align(**json.loads(r.text))
-            al = max(0.0, min(1.0, float(a.alignment)))
+            al = max(0, min(100, int(round(a.alignment))))
             return {**base, "alignment": al, "referent": (a.referent or "").strip().lower(),
                     "error": None}
         except Exception as e:
