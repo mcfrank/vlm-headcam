@@ -32,3 +32,6 @@ scored/
 *service-account*.json
 *-sa.json
 .env
+
+# Local pose skeleton review panels (faces — never commit)
+skeletons/
