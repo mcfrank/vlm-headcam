@@ -522,3 +522,23 @@ vision theme, now clearer. Vision/caregiver/pose cues still null on Konkle too.
 CAVEAT (Mike): cross-paper 72 vs Vong 50 is CONFOUNDED (BabyView higher-res + full dinov2 >
 their child-DINO) -> within-project comparisons only. Subset-trained models (CB/PF/WC) score
 few Konkle cats (22-48/60, small vocab) -> less comparable; excluded from the clean table.
+
+## Gemini (Vertex) referential-alignment scoring — validation
+src/gemini_align.py scores (utterance,frame) pairs with Gemini on Vertex (IRB-approved;
+service account on ccn2 ~/.secrets, no secrets in repo). Returns alignment 0-100 (ordinal,
+anchored) + referent noun. Concurrent, resumable JSONL checkpoint. src/plot_gemini_val.py
+does histograms + CLIP correlation.
+VALIDATION (400 pairs from unfiltered_S00360001, same sample both models):
+| model | mean | frac0 | frac100 | vs CLIP pearson/spearman |
+| Flash | 9.6 | 0.88 | 0.04 | 0.26 / 0.22 |
+| Flash-Lite | 9.4 | 0.86 | 0.00 | 0.24 / 0.19 |
+Flash vs Lite: 0.77 / 0.73.
+FINDINGS: (1) 0-100 scale fixed the float->{0,1} collapse; Flash uses full range, Flash-Lite
+piles at 70 / never 100 -> USE FLASH. (2) ~88% score 0 on unfiltered = appropriately selective
+(most speech not about a visible object), not rubber-stamping. (3) weak-pos corr w/ CLIP
+(rho~0.22, attenuated by 88% ties at 0) = lots of INDEPENDENT signal vs CLIP. (4) disagreements
+favor Gemini: catches book-reading + toy referents CLIP rates low (Llama Llama->book, Puppy->
+puppy, There's a car->car), rejects CLIP keyword false-positives (abstract "high chair" talk,
+deictic "get it"). Gemini leans on referent="book" in reading frames (ok for filter, weak label).
+NEXT (not yet run): decisive test = score a pool, retrain at matched count on Gemini-top-k vs
+CLIP-top-k, compare 4AFC + Konkle. Fig: book_figs/gemini_val.png (ccn2).
