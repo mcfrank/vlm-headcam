@@ -20,22 +20,40 @@ import cv2
 FRAMES = Path("/ccn2a/dataset/babyview/2025.2/extracted_frames_1fps")
 
 
-def make_model(mode, det_thr=0.8):
+def make_model(mode="performance", detector="yolo", yolo_conf=0.7, yolo_model="yolo11m.pt"):
+    """rtmlib RTMW for pose. Detector is swappable: the bundled YOLOX-humanart has its
+    threshold baked into the ONNX (untunable, over-fires on person-like home clutter);
+    a stock YOLO11 person detector exposes a tunable confidence, so a high threshold cuts
+    the moderate-confidence false-positive boxes RTMW would otherwise fill with skeletons."""
     from rtmlib import Wholebody
     m = Wholebody(mode=mode, backend="onnxruntime", device="cuda")
-    # Default YOLOX score_thr (0.7) lets person-like clutter through in home scenes;
-    # raise it to suppress false-positive person boxes (each box → a full skeleton).
-    m.det_model.score_thr = det_thr
+    if detector == "yolo":
+        from ultralytics import YOLO
+        y = YOLO(yolo_model)
+        def _det(img):
+            r = y(img, classes=[0], conf=yolo_conf, verbose=False)[0]
+            return r.boxes.xyxy.cpu().numpy()
+        m._det = _det
+    else:
+        m._det = m.det_model
     return m
 
 
 def infer(m, img):
     """Detect persons, then pose only on real boxes. Bypasses rtmlib's whole-frame
-    fallback (which fits a skeleton to every empty frame). Returns ([P,133,2],[P,133])."""
-    bboxes = m.det_model(img)
+    fallback (which fits a skeleton to every empty frame). Zeroes the confidence of
+    keypoints predicted OUTSIDE the image — RTMW extrapolates occluded joints off-screen
+    (e.g. a full body below a pair of on-screen hands), and a point outside the frame is
+    not a real observation. Returns ([P,133,2],[P,133])."""
+    bboxes = m._det(img)
     if len(bboxes) == 0:
         return np.zeros((0, 133, 2), np.float32), np.zeros((0, 133), np.float32)
-    return m.pose_model(img, bboxes=bboxes)
+    kps, scs = m.pose_model(img, bboxes=list(bboxes))
+    kps = np.asarray(kps, np.float32); scs = np.asarray(scs, np.float32).copy()
+    H, W = img.shape[:2]
+    oob = (kps[..., 0] < 0) | (kps[..., 0] >= W) | (kps[..., 1] < 0) | (kps[..., 1] >= H)
+    scs[oob] = 0.0
+    return kps, scs
 
 
 def anatomy_ok(kp):

@@ -57,7 +57,7 @@ def panel_for(model, gcp, sec, old_ppl, old_thr, new_thr, out):
     new_ppl = list(zip(np.asarray(kps, np.float32), np.asarray(scs, np.float32)))
     new_img = label(draw(img.copy(), new_ppl, new_thr), f"NEW RTMW  n={len(new_ppl)}")
     cv2.imwrite(str(Path(out) / f"{gcp}_{sec:05d}.jpg"), np.hstack([old_img, new_img]))
-    return True
+    return len(new_ppl)
 
 
 def diverse_videos(seed=0):
@@ -106,6 +106,7 @@ def main():
 
     # diverse: one frame per video, across children; mix person-present + old-empty
     np_person = np_empty = 0
+    person_hit = empty_hit = 0            # frames where NEW fired >=1 detection
     rng = random.Random(1)
     for gcp in diverse_videos():
         if np_person >= args.want_person and np_empty >= args.want_empty:
@@ -122,12 +123,19 @@ def main():
                 continue
             ppl, has = r
             if has and np_person < args.want_person:
-                chosen = (sec, ppl); np_person += 1; break
+                chosen = (sec, ppl, True); np_person += 1; break
             if not has and np_empty < args.want_empty:
-                chosen = (sec, ppl); np_empty += 1; break
+                chosen = (sec, ppl, False); np_empty += 1; break
         if chosen:
-            panel_for(model, gcp, chosen[0], chosen[1], args.old_thr, args.new_thr, od)
+            newn = panel_for(model, gcp, chosen[0], chosen[1], args.old_thr, args.new_thr, od)
+            if newn >= 0:
+                if chosen[2]:
+                    person_hit += newn > 0
+                else:
+                    empty_hit += newn > 0
     print(f"wrote {np_person} person + {np_empty} empty panels -> {od}")
+    print(f"NEW recall on old-person frames: {person_hit}/{np_person} = {person_hit/max(np_person,1)*100:.0f}%")
+    print(f"NEW fires on old-empty frames:   {empty_hit}/{np_empty} = {empty_hit/max(np_empty,1)*100:.0f}%  (FP proxy)")
 
 
 if __name__ == "__main__":
