@@ -20,9 +20,30 @@ import cv2
 FRAMES = Path("/ccn2a/dataset/babyview/2025.2/extracted_frames_1fps")
 
 
-def make_model(mode):
+def make_model(mode, det_thr=0.8):
     from rtmlib import Wholebody
-    return Wholebody(mode=mode, backend="onnxruntime", device="cuda")
+    m = Wholebody(mode=mode, backend="onnxruntime", device="cuda")
+    # Default YOLOX score_thr (0.7) lets person-like clutter through in home scenes;
+    # raise it to suppress false-positive person boxes (each box → a full skeleton).
+    m.det_model.score_thr = det_thr
+    return m
+
+
+def infer(m, img):
+    """Detect persons, then pose only on real boxes. Bypasses rtmlib's whole-frame
+    fallback (which fits a skeleton to every empty frame). Returns ([P,133,2],[P,133])."""
+    bboxes = m.det_model(img)
+    if len(bboxes) == 0:
+        return np.zeros((0, 133, 2), np.float32), np.zeros((0, 133), np.float32)
+    return m.pose_model(img, bboxes=bboxes)
+
+
+def anatomy_ok(kp):
+    """Frac of person-rows with plausible layout (nose above shoulder midline)."""
+    if len(kp) == 0:
+        return 0.0
+    import numpy as np
+    return float(np.mean(kp[:, 0, 1] < kp[:, [5, 6], 1].mean(1)))
 
 
 def frames_of(video_id):
@@ -42,7 +63,7 @@ def run_video(model, video_id, limit=0):
         if img is None:
             continue
         fi = int(p.stem)
-        kps, scs = model(img)                       # [P,133,2], [P,133]
+        kps, scs = infer(model, img)                       # [P,133,2], [P,133]
         fidx.append(fi); npers.append(len(kps))
         for j in range(len(kps)):
             kp_all.append(kps[j]); sc_all.append(scs[j]); pf_all.append(fi)
@@ -64,9 +85,11 @@ def main():
     ap.add_argument("--shard")
     ap.add_argument("--outdir", default="/data2/mcfrank/pose_2025_2")
     ap.add_argument("--overlays", default="/data2/mcfrank/vlm-headcam/pose_bench_overlays")
+    ap.add_argument("--det-thr", type=float, default=0.8, help="YOLOX person-detection score threshold")
+    ap.add_argument("--kpt-thr", type=float, default=0.6, help="keypoint draw threshold (RTMW scale ~[0,3])")
     args = ap.parse_args()
 
-    model = make_model(args.mode)
+    model = make_model(args.mode, det_thr=args.det_thr)
 
     if args.benchmark:
         vid = args.benchmark
@@ -81,24 +104,29 @@ def main():
         dt = time.time() - t0
         cov = float(np.mean(out["n_person"] > 0)) if nf else 0.0
         ppf = float(out["n_person"].mean()) if nf else 0.0
-        print(f"BENCHMARK {vid}")
+        print(f"BENCHMARK {vid}  (det_thr={args.det_thr}, kpt_thr={args.kpt_thr})")
         print(f"  frames={nf}  time={dt:.1f}s  throughput={nf/dt:.1f} fps")
-        print(f"  coverage(>=1 person)={cov*100:.1f}%  mean persons/frame={ppf:.2f}")
+        print(f"  coverage(>=1 person)={cov*100:.1f}%  mean persons/frame={ppf:.2f}  max={out['n_person'].max()}")
+        print(f"  anatomy-sane (nose>shoulders): {anatomy_ok(out['kp'].astype('float32'))*100:.1f}%")
         # overlays for human review (faces present — reviewer looks, not us)
         from rtmlib import draw_skeleton
         od = Path(args.overlays); od.mkdir(parents=True, exist_ok=True)
-        saved, i = 0, 0
         paths = frames_of(vid)
-        while saved < 8 and i < len(paths):
-            im = cv2.imread(str(paths[i]))
-            if im is not None:
-                kps, scs = model(im)
-                if len(kps):
-                    vis = draw_skeleton(im.copy(), kps, scs, kpt_thr=0.4)
-                    cv2.imwrite(str(od / f"{vid}_{paths[i].stem}.jpg"), vis)
-                    saved += 1
-            i += 1
-        print(f"  wrote {saved} overlays -> {od}")
+        # spread samples across the whole video (not the first N detections)
+        stride = max(1, len(paths) // 200)
+        saved = 0
+        for k in range(0, len(paths), stride):
+            if saved >= 12:
+                break
+            im = cv2.imread(str(paths[k]))
+            if im is None:
+                continue
+            kps, scs = infer(model, im)
+            if len(kps):
+                vis = draw_skeleton(im.copy(), kps, scs, kpt_thr=args.kpt_thr)
+                cv2.imwrite(str(od / f"{vid}_{paths[k].stem}.jpg"), vis)
+                saved += 1
+        print(f"  wrote {saved} overlays (spread across video) -> {od}")
         return
 
     if args.shard:
