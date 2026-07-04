@@ -542,3 +542,25 @@ puppy, There's a car->car), rejects CLIP keyword false-positives (abstract "high
 deictic "get it"). Gemini leans on referent="book" in reading frames (ok for filter, weak label).
 NEXT (not yet run): decisive test = score a pool, retrain at matched count on Gemini-top-k vs
 CLIP-top-k, compare 4AFC + Konkle. Fig: book_figs/gemini_val.png (ccn2).
+
+## Gemini-filter vs CLIP-filter retrain (matched pool + count)
+Pool: 350k random from unfiltered_S00360001, Gemini-2.5-Flash scored (scored/pool_flash.parquet;
+9.2% >=50, 6% >=80). build_gemini_arms.py -> top-N by alignment vs top-N by clip, SAME pool.
+Diversity audit (N=22k): overlap only 25% (they pick different pairs); gemini arm 2409 distinct
+referents / 5028 videos / 36 kids (MORE diverse, not book-collapsed); CLIP arm alignment
+median=0 (>half of CLIP's top pairs have NO visible referent per Gemini). Trained whole-frame
+train.py on emb_full (NB: must use emb_full not emb, else gemini arm gutted 22k->7.8k since it
+rescues low-clip frames). GPU7.
+| N | arm | detector 4AFC | Konkle 4AFC |
+| 22k | Gemini | 38.1±1.4 | 57.3±2.3 |
+| 22k | CLIP   | 41.7±0.6 | 56.5±1.9 |
+| 15k | Gemini | 38.2 | 58.2 |
+| 15k | CLIP   | 41.6 | 55.3 |
+VERDICT: WASH. Matched pool+count, Gemini filter does NOT beat CLIP. Konkle = statistical TIE
+(seeds overlap); detector favors CLIP +3.6 but that's partly circular (CLIP cosine & YOLOE both
+favor big centered objects = detector-eval style; bias gone on clean Konkle -> tie). Gemini
+likely cancelled by storybook confound (rescues referent=book/llama on 2D pages: referentially
+right, visually unhelpful for real-object recog). Both arms ~57 < CLIP's existing best (64-67
+from full-stream threshold) bc 350k random pool weaker start. Does NOT test quality-at-scale
+(needs full-stream). NEXT: pivot to Gemini referent as LABEL (topline: clean labels->72), not
+filter. Have referents for 350k pool free.
