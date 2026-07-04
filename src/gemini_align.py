@@ -86,9 +86,7 @@ def load_jpeg(video_id, frame_idx, max_px):
 
 def score_one(client, model, row, max_px, thinking):
     """Score a single pair. Returns a result dict (never raises)."""
-    key = f"{row.video_id}|{int(row.frame_idx)}"
-    base = {"key": key, "video_id": row.video_id, "frame_idx": int(row.frame_idx),
-            "text": row.text}
+    base = {"video_id": row.video_id, "frame_idx": int(row.frame_idx), "text": row.text}
     try:
         jpg = load_jpeg(row.video_id, row.frame_idx, max_px)
     except Exception as e:
@@ -145,15 +143,17 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
     ckpt = out.with_suffix(".jsonl")
 
+    # key on the (frame, utterance) triple: a frame can pair with >1 utterance.
+    # Recompute keys from record fields so older checkpoints (any key format) are reused.
+    def keys_of(df):
+        return (df.video_id.astype(str) + "|" + df.frame_idx.astype(int).astype(str)
+                + "|" + df.text.astype(str))
     done = set()
     if ckpt.exists():
-        with open(ckpt) as f:
-            for line in f:
-                try:
-                    done.add(json.loads(line)["key"])
-                except Exception:
-                    pass
-    todo = man[~man.apply(lambda r: f"{r.video_id}|{int(r.frame_idx)}" in done, axis=1)]
+        recs = [json.loads(l) for l in open(ckpt)]
+        if recs:
+            done = set(keys_of(pd.DataFrame(recs)))
+    todo = man[~keys_of(man).isin(done)]
     print(f"{len(man)} pairs | {len(done)} already scored | {len(todo)} to do", flush=True)
 
     client = genai.Client()  # Vertex config comes from env
@@ -176,9 +176,9 @@ def main():
 
     # consolidate checkpoint -> parquet, merged with passthrough columns (clip_score_max)
     recs = [json.loads(l) for l in open(ckpt)]
-    scored = pd.DataFrame(recs).drop_duplicates("key", keep="last")
-    merged = man.merge(scored.drop(columns=[c for c in ("text",) if c in scored]),
-                       on=["video_id", "frame_idx"], how="left")
+    scored = pd.DataFrame(recs).drop_duplicates(["video_id", "frame_idx", "text"], keep="last")
+    scored = scored.drop(columns=[c for c in ("key",) if c in scored.columns])
+    merged = man.merge(scored, on=["video_id", "frame_idx", "text"], how="left")
     merged.to_parquet(out, index=False)
     ok = merged["alignment"].notna().sum()
     err = merged["error"].notna().sum() if "error" in merged else 0
