@@ -564,3 +564,26 @@ right, visually unhelpful for real-object recog). Both arms ~57 < CLIP's existin
 from full-stream threshold) bc 350k random pool weaker start. Does NOT test quality-at-scale
 (needs full-stream). NEXT: pivot to Gemini referent as LABEL (topline: clean labels->72), not
 filter. Have referents for 350k pool free.
+
+## Konkle-eval grid: all-data, 80/20 video split, Gemini gold (1 seed, test-60)
+Train on 80% of videos (911k pairs), eval Konkle. no-MIL = whole-frame TwoTower; MIL = region-MIL.
+Topline-1 = Gemini alignment>=thr filter; Topline-2 = singularized Gemini referent as label.
+| condition            | no-MIL test60 | region-MIL test60 | MIL dev117 (cats) |
+| baseline (911k)      | 53.1 | 63.7 | 41.6 (116/117) |
+| T1 >=50 (83k)        | 62.5 | 67.2 | 58.3 (68) |
+| T1 >=70 (67k)        | 59.8 | 68.1 | 58.7 (62) |
+| T1 >=80 (54k)        | 60.4 | 68.2 | 57.0 (59) |
+| T1 >=90 (33k)        | 61.3 | 68.5 | 64.3 (44) |
+| T1 =100 (19k)        | 62.6 | 68.1 | 65.5 (31) |
+| T2 labels (84k)      | 74.5 | 84.0 | 61.8 (71) |
+FINDINGS: (1) MIL HELPS, doesn't hurt: +10.6 at baseline (53.1->63.7), +9.5 at label topline.
+Region max-pool does implicit referent selection. (2) KEY: region-MIL baseline (63.7) already
+~= whole-frame FILTER topline (62.5) -> MIL recovers most of the alignment benefit w/o any
+filter. So filtering headroom on MIL is only ~+4.5 (63.7->68, flat across thresholds); LABEL
+headroom is ~+20 (63.7->84). The prize is LABELS not filtering -> cue work should target
+what's-named more than which-frames. (3) Topline-2 MIL=84 is the true clean-label ceiling
+(55/60 cats, 5 uncovered -> real ceiling a bit higher). (4) dev-117 harder+broader (baseline
+41.6); coverage drops at high thr (fewer training words overlap dev cats) so cross-thr dev
+reads need matched-cat care; use test-60 for clean comparisons. CAVEAT: 1 seed (bars pending).
+Setup: gemini_full (1.145M all 36 kids), emb_full (whole-frame), emb_reg (1.08M region), 
+dev cats emb_konkle_dev (117). Scripts: build_grid_manifests, run_grid_wf, run_grid_mil.
