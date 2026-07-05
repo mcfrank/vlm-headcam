@@ -4,17 +4,22 @@ project:
 
 book:
   title: "Learning Words from a Child's-Eye View"
-  subtitle: "Alignment filtering and region grounding for word–object learning on BabyView"
+  subtitle: "Bootstrapping word–object learning from a child's-eye view"
   author: "Michael C. Frank"
   search: true
   chapters:
     - index.qmd
     - 01-background.qmd
-    - 02-pipeline.qmd
-    - 03-experiments.qmd
+    - 02-data.qmd
+    - 03-pipeline.qmd
     - 04-bootstrapping.qmd
-    - 05-social-cues.qmd
-    - 06-data-and-whose.qmd
+    - 05-cues.qmd
+    - 06-scaling.qmd
+  appendices:
+    - app-a-prelim-alignment.qmd
+    - app-b-prelim-bootstrapping.qmd
+    - app-c-social-cues.qmd
+    - app-d-whose.qmd
 
 bibliography: references.bib
 

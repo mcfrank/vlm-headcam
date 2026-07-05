@@ -1,0 +1,28 @@
+# Cues {#sec-cues}
+
+::: {.callout-note}
+## Stub — planned work
+This chapter is not yet run. It is scoped here so the plan is on record.
+:::
+
+The decomposition of @sec-bootstrapping relocates the prize. The old social-cue work
+(@sec-social) aimed accessible cues — prosody, discourse, pose — at *filtering frames*, and
+found little. But filtering is the small rung (~+6, and region-MIL already takes most of it).
+The large, open headroom is in the **referent label** (~+19), which splits into *word selection*
+(+4.7, recoverable from speech ~63% of the time) and *vision-binding* (+8.1, the referent when it
+isn't spoken at all).
+
+So this chapter re-aims cues at **referent identification**, not frame selection:
+
+- **Word selection (speech-side).** When the referent *is* spoken, which word is it? Test whether
+  prosodic stress, discourse newness/topicality, and the concrete-noun bias can up-weight the
+  referent word inside the utterance — approaching the "referent-where-spoken" oracle (73.2).
+  Prior evidence is weak (cue↔Gemini ρ ≈ 0.14 for discourse, less for prosody), so expectations
+  are tempered; the question is how much of the +4.7 is reachable.
+- **Vision-binding (vision/social-side).** When the referent is *not* spoken, which visible object
+  is being referred to? This is the larger prize (+8.1) and the harder problem — a
+  gaze/hands/salience question, exactly what the pose and social cues should target, now measured
+  against the referent oracle rather than CLIP alignment.
+
+Success is measured as the fraction of each oracle rung an accessible-cue mechanism recovers, on
+Konkle, tuned on the dev categories and reported on the Vong-60 (@sec-pipeline), with error bars.

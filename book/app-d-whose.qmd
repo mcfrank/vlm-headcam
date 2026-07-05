@@ -1,4 +1,11 @@
-# How much data, and whose {#sec-data-whose}
+# How much data, and whose (preliminary) {#sec-data-whose}
+
+::: {.callout-warning}
+## Preliminary — to be redone in @sec-scaling
+This within- vs. across-child analysis uses **CLIP alignment** and the **detector 4AFC** on a
+smaller slice. It will be redone with all-data training, the Gemini gold, and the Konkle eval —
+alongside the data-amount scaling sweep — in @sec-scaling. Kept for the record.
+:::
 
 The previous two chapters are a negative: alignment cannot be self-discovered from
 co-occurrence (@sec-bootstrap), and the social cues that might supply it are, at 1 fps, too

@@ -1,0 +1,75 @@
+# The data {#sec-data}
+
+Everything in this book is learned from **BabyView 2025.2**, a corpus of head-mounted
+camera recordings from young children's daily lives, paired with transcribed speech. This
+chapter describes what the corpus contains, why *referential alignment* is the central
+problem it poses, and the two annotations — CLIP and Gemini — we use to estimate which
+moments of speech are actually about something visible.
+
+## Scale
+
+At 1 frame per second, aligned to transcribed utterances, the corpus gives:
+
+| | |
+|---|---|
+| children | **36** |
+| recordings (videos) | **8,188** |
+| utterance–frame pairs | **1,145,312** |
+| total footage | **~1,390 h** (lower bound) |
+| training vocabulary (≥5 occurrences) | 14,888 words |
+
+This is roughly two orders of magnitude more data than SAYCam-S (the single-child corpus
+behind CVCL), and it spans many homes rather than one — a difference that matters for both
+*amount* and *diversity* (@sec-scaling).
+
+## What the speech looks like
+
+Child-directed speech in the wild is **short and mostly not referential**. Utterances have a
+median of **3 tokens** (mean 4.2; @fig-data), and — as the annotations below quantify — the
+overwhelming majority of them are not naming anything visible on screen at that moment. This
+is the core obstacle: a naive contrastive learner that pairs every utterance with its frame is
+training on a signal that is ~90% noise.
+
+The data is also **extremely uneven across children**: the median child contributes ~19,600
+utterance–frame pairs, but the interquartile range runs from ~2,700 to ~43,500, and the
+extremes span 253 to 134,686. Who contributes how much is itself a variable we return to in
+@sec-scaling.
+
+![Descriptive statistics of BabyView 2025.2 and its annotations. Left to right: utterance–frame
+pairs per child (highly skewed); utterance length in tokens (short, heavy-tailed); the Gemini
+alignment score (log scale — a large spike at 0 and a spread tail); and Gemini alignment vs.
+CLIP's whole-frame score (a near-shapeless cloud — the two disagree substantially).
+](figures/fig_data_descriptives.png){#fig-data width=100%}
+
+## Two annotations of alignment
+
+Because most speech is non-referential, we need a way to estimate, for each (utterance, frame)
+pair, *how strongly the utterance refers to a concrete object visible in the frame*. We use two,
+and the difference between them matters throughout the book.
+
+**CLIP** (`clip_score_max`) scores the whole frame against the utterance with a pretrained
+CLIP model. It is cheap and requires no extra infrastructure, but its distribution is
+**extremely compressed** — mean 0.224, sd **0.015** — so the entire aligned/misaligned
+distinction lives in a razor-thin band, which is why a fixed threshold (e.g. 0.24) is so
+delicate (@sec-experiments). And because it scores the *whole frame*, it is easily fooled — it
+scores on-screen *text* and topical keywords highly even when nothing is depicted.
+
+**Gemini** (`alignment`, 0–100, plus a `referent` noun) is a per-pair judgment from Gemini 2.5
+Flash on Vertex AI: *does this utterance name a concrete object visible in this frame, and which
+one?* It is an IRB-approved annotation pass over the full corpus (frames are human-subjects data
+and never leave the approved pipeline). Its distribution is **bimodal and decisive**: **91%** of
+pairs score 0 (correctly — most speech is not referential), while **9.2%** clear ≥50 and 6.0%
+clear ≥80, each carrying a candidate referent word. This matches the intuition that only a small
+minority of moments are genuine naming events.
+
+**The two annotations substantially disagree** — Spearman ρ ≈ 0.14 over the full corpus (ρ ≈
+0.22 on the referential tail), i.e. a lot of *independent* signal (@fig-data, right). Inspection
+of the disagreements favors Gemini: it recovers referents CLIP misses — shared **book reading**
+("Llama Llama" → `book`), toys, and objects on TV screens — and it rejects CLIP's keyword
+false-positives (abstract talk about a "high chair," deictic "get it"). A direct test confirms
+it: at matched count, training on a Gemini-selected set is at least as good as a CLIP-selected
+one on the clean eval, and its referent labels open a much larger headroom (@sec-bootstrapping).
+
+Throughout the rest of the book, **Gemini is the gold definition of alignment** (and its
+referent the gold label), with CLIP kept as the cheaper, weaker comparison and as the annotation
+behind the preliminary experiments of the appendices.

@@ -1,4 +1,13 @@
-# Alignment experiments {#sec-experiments}
+# Alignment experiments (preliminary) {#sec-experiments}
+
+::: {.callout-warning}
+## Preliminary — superseded by the main chapters
+This work predates the current design. It uses **CLIP alignment** (not the stronger Gemini
+annotation of @sec-data), the **detector-based 4AFC** on a **single held-out child** (not the
+out-of-sample Konkle benchmark of @sec-pipeline), a smaller data slice, and mostly single-seed
+runs. The qualitative conclusions largely survived re-checking on the clean eval, but the
+numbers and design are superseded by Chapters 4–6. Kept for the record.
+:::
 
 Five controlled experiments, all using the frozen two-tower probe of
 @sec-pipeline and the 4AFC metric on held-out children (chance 25%). Together

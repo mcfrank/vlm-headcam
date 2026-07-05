@@ -1,0 +1,24 @@
+# Scaling and data distribution {#sec-scaling}
+
+::: {.callout-note}
+## Stub — planned work
+This chapter is not yet run. It is scoped here so the plan is on record.
+:::
+
+@sec-data showed the corpus is large but **extremely uneven across children** (per-child pairs
+range from 253 to 134,686). Two questions follow, both to be answered in the current design
+(all-data training, Gemini gold, Konkle eval) so they are comparable to the ladder of
+@sec-bootstrapping. This supersedes the preliminary CLIP-era analysis in @sec-data-whose.
+
+**How much data (scaling).** Subsample the 911k training pairs across a range of sizes and re-run
+the ladder, paralleling the count-vs-quality sweep of @sec-experiments. A hypothesis worth stating
+up front: the **free** rungs (pure learning, region MIL) should scale with amount — more pairs,
+cleaner averages — while the **oracle** rungs (filter, word, vision) are about *information we lack*,
+not *amount*, and should stay roughly flat. That contrast would itself be a result: it says the
+bottleneck is signal, not scale.
+
+**Whose data (distribution).** Separate *how much* aligned data from *whose*: at matched pair
+count, does pooling across many children beat a single child (diversity), and how much does raw
+count add on top? The preliminary version (@sec-data-whose) found diversity beats amount at
+matched count; the redo tests whether that holds on the clean eval and at the full corpus scale,
+and whether within-child models can ever match a pooled model on their own held-out data.

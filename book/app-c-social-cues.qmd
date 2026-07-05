@@ -1,4 +1,12 @@
-# Reading social cues {#sec-social}
+# Reading social cues (preliminary) {#sec-social}
+
+::: {.callout-warning}
+## Preliminary — to be redone in @sec-cues
+This social-cue work uses **CLIP alignment** and the **detector 4AFC**, and tests cues as
+*frame/utterance filters*. The current design (@sec-bootstrapping) shows the leverage is in
+*referent identification*, so the cue experiments will be redone against the Gemini gold and
+the Konkle eval — aimed at cues-as-labels — in @sec-cues. Kept for the record.
+:::
 
 The previous chapter ended on a negative with teeth: no self-supervised scoring function
 discovers which frame–utterance pairs are aligned, because at BabyView's referential floor
