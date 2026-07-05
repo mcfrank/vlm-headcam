@@ -48,4 +48,31 @@ external labeler (which is exactly what the Gemini oracle is). So the question i
 region attention at the right object on these deictic pairs lets the learner bind it to words it
 has seen elsewhere.
 
-*(Experiments in progress; results to follow.)*
+We tested the most obvious cue from the developmental literature — the **caregiver's hand** (a
+pointing/holding proxy). From the full pose annotation (per-frame body-part bounding boxes over
+6.5M person-detections), we take the largest person's hand location as a **per-pair region prior**
+that biases region-MIL's cell selection toward the indicated object (referent-bearing pairs, 70%
+with a hand target, 3 seeds):
+
+| | Konkle |
+|---|---|
+| uniform (no prior) | 70.0 |
+| + caregiver-hand region prior | 69.8 (−0.2) |
+
+**Null.** Steering attention to the caregiver's hand does not improve referent identification.
+The reasons are the ones anticipated: region-MIL already selects the best-*matching* cell on its
+own, so forcing it toward the hand adds nothing where the referent *is* nameable; and on the
+deictic pairs — the ones this cue is meant to rescue — there is no content word for the attended
+object to bind to. A location cue cannot supply a name.
+
+## The shape of the result {#sec-cues-conclusion}
+
+Across both halves — every language cue (speaker, noun bias, discourse newness, prosody) and the
+canonical vision cue (caregiver-hand pose) — **no accessible cue recovers any oracle rung.** This
+is not for want of the right signal in the data; the pose is faithful and the prosody is real. It
+is that the two oracle levers are already claimed: **word selection is done implicitly by the
+contrastive objective** (the referent word co-occurs with its object and rises on its own), and
+**vision-binding requires *naming* the unspoken object**, which no location cue provides and which
+is the word-learning problem itself. In this frozen-feature regime, the ~19 points of label
+headroom are real but **not accessible-cue-recoverable** — the honest boundary of what these data
+and this probe can reach.
