@@ -35,3 +35,6 @@ scored/
 
 # Local pose skeleton review panels (faces — never commit)
 skeletons/
+
+# Local human-subjects frame review (faces) — never commit
+vlm_disagree_review/
