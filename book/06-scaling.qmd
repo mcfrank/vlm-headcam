@@ -35,6 +35,35 @@ it is *concentration*: a few tens of thousands of aligned pairs beat a million u
 categories, so the absolute low-N numbers are dragged toward chance and the aligned/random
 comparison there is not category-matched; the ~30-point gap at every count is robust regardless.)
 
+## Across developmental time {#sec-dev-time}
+
+The alignment-efficiency result invites a developmental reading. Converting the x-axis from
+training pairs to *hours of experience* — at roughly 820 utterances per hour in this corpus, and
+the conventional 4,000 hours per year — and extrapolating the fitted saturating curves lets us ask
+what these scaling laws imply across years of a child's life.
+
+![Scaling re-expressed as developmental time. Points are the observed runs (±seed sd) placed at
+their equivalent hours; bands are the seed uncertainty propagated through the fit; the shaded
+region is the range actually observed and everything right of it is extrapolation. Curves
+asymptote to the natural-text ceiling (~74); the clean-label ceiling (81) is the further,
+unavailable headroom.](figures/fig_dev_time.png){#fig-devtime width=90%}
+
+Three things stand out. First, **filtering is worth years of developmental time**: a learner that
+could perfectly concentrate the aligned moments (green) reaches the natural-text ceiling within
+about a year, while the unfiltered learner (red) is still climbing toward it after five. Second,
+**the intrinsic alignment density of a child's environment matters**: a corpus with more
+referential talk (rich, 20%) reaches high accuracy roughly a year ahead of a sparse one (3%).
+Third, everyone converges toward the same **natural-text ceiling (~74)** — noiseless labels (81)
+would add more, but real speech does not provide them.
+
+Two honesty caveats. The curves right of the "observed" region are **extrapolation** from a
+saturating fit, so the year-scale numbers are illustrative, not predictions. And the aligned curves
+are **oracles** — @sec-cues showed a child cannot actually perform this filtering, so they mark the
+*value* of an alignment-selection ability we could not supply; the achievable trajectory is the red
+one. The developmental moral is not that this model learns like a child, but that **referential
+alignment sets the timescale**: how fast word–object mapping comes online is governed less by how
+much a child hears than by how much of it is about something they can see.
+
 ## Whose data
 
 Holding the *amount* fixed, does it matter *whose* data it is?
