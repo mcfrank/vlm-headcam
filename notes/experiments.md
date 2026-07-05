@@ -641,3 +641,23 @@ Uniform control on the SAME manifest (own text) is the valid baseline. Best-epoc
   Newness penalizes repeated referents (caregivers repeat the named object). NULL/negative.
 (noun-bias earlier: +2 transient, 0 at convergence.) Language-side word cues not recovering +4.7.
 Scripts: build_cue_manifest (discourse), train_perword (per-word weighted pool). PROSODY next.
+
+## PROSODY (per-word RMS) + language-cue session synthesis
+Per-word prosodic weight = RMS energy over each word's audio span (mp3 + token times, librosa,
+16-way sharded). Normalized loudest-word->1. add_prosody.py, train_perword --weight-col w_pros.
+RESULT (best-epoch, 3 seeds, referent-bearing set): uniform 71.6 vs prosody 71.0 -> NULL (-0.6).
+
+SESSION SYNTHESIS - recovering the +4.7 word-selection headroom: ALL cues NULL.
+| cue | mechanism | result |
+| caregiver filter | drop child utterances | null (drop-child 63.5 <= random-drop 64.3) |
+| noun-bias | static POS weighting | null at convergence (+2 transient) |
+| discourse-newness | down-weight repeated words | -1.7 (hurts; referents get repeated) |
+| prosody | per-word RMS stress | null (-0.6, within noise) |
+KEY: uniform bag-of-words at BEST epoch = ~71.6, already within ~1.6 of t15 oracle 73.2. The
++4.7 gap was FINAL-epoch (uniform overfits 71.6->68.5; oracle t15 robust). So the contrastive
+objective already extracts the referent word implicitly (referent correlates w/ image across
+pairs, noise words wash out); early-stopping recovers most of the +4.7; no accessible cue
+recovers the residual. => word-selection is NOT a cue-accessible lever. The remaining real
+headroom is the +8.1 VISION-BINDING (unspoken referents) - a vision problem, not language.
+Scripts: add_prosody, build_word_prior, build_cue_manifest, train_wordweight, train_perword,
+build_speaker_manifests.
