@@ -15,6 +15,7 @@ book:
     - 04-bootstrapping.qmd
     - 05-cues.qmd
     - 06-scaling.qmd
+    - 07-conclusion.qmd
   appendices:
     - app-a-prelim-alignment.qmd
     - app-b-prelim-bootstrapping.qmd

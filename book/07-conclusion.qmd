@@ -1,0 +1,69 @@
+# Conclusion {#sec-conclusion}
+
+This book set out to test a simple idea: if word–object learning from a child's-eye view fails
+because speech and vision are only intermittently about the same thing, then *concentrating the
+aligned moments* — or learning to find them — should rescue it. The prototype was deliberately
+small: frozen DINOv2 features, a bag-of-words text tower, and a fast probe that isolates *which
+pairs the model sees* from questions of optimization or capacity. Across dozens of controlled
+experiments on all of BabyView 2025.2, evaluated on out-of-sample Konkle objects, a coherent
+picture emerged.
+
+## The ladder, and what it means
+
+Word–object accuracy climbs a well-defined ladder from chance (25) to a clean-label ceiling of
+~81. The first two rungs are **free** — they need no labels. Naive contrastive learning on noisy
+data reaches ~53; **region-MIL** — matching an utterance to its best-fitting frame cell — adds
++10.5 by doing implicit referent *localization*; **frame-MIL** — the best moment in a ±2 s window —
+adds a further +2.4. That gets an unaided learner to **65**. Everything above is an **oracle**:
+knowing which pairs are aligned (+5.9), which spoken word is the referent (+4.7), and — the
+largest piece — which object is named when it is *not spoken at all* (+8.1).
+
+The central result is that **none of those oracle rungs is recoverable from the signal a child
+plausibly has.** The self-supervised EM bootstrap — reweighting pairs by the model's own alignment
+estimate — is null within noise. And every accessible cue we tested, across both the language and
+the vision literatures, is null: caregiver-vs-child speaker identity, a concrete-noun bias,
+discourse newness, per-word prosodic stress, and the canonical pointing/gaze cue via full-body
+pose. The obvious cues, tested properly against the clean eval, do not move the needle.
+
+## Why the headroom resists
+
+Two reasons, and they are instructive rather than merely disappointing. First, **the contrastive
+objective already claims the word-selection rung on its own**: the referent word co-occurs with its
+object across many situations and rises out of the bag, while function words co-occur with
+everything and wash out — so up-weighting the "right" word by cue adds nothing at convergence.
+Second, **the largest rung, vision-binding, is the word-learning problem in disguise.** Supplying
+the referent when it is never spoken requires *naming* an object from vision, and a cue can only
+supply *location* — where the caregiver points, where the hands are, where the gaze falls. Location
+is not a name. Turning a looked-at object into a word is exactly cross-situational learning, not
+something a pointing vector delivers. This is why the pose cue, faithful and complete, cannot
+climb the rung it is theoretically best suited to.
+
+## The data side
+
+Where the mechanistic levers are exhausted, the data levers are stark and clean. Unfiltered
+egocentric data is genuinely *data-limited* — accuracy keeps climbing with volume and never
+plateaus — but it is enormously *inefficient*: **aligned pairs are worth roughly two orders of
+magnitude of raw ones** (ten thousand aligned pairs match nearly a million random ones). And
+*whose* data matters: at matched count, pooling across many children beats the single biggest
+child's world by several points. The recipe the data endorses is neither "more" nor "one child's
+much," but **concentrated, referential, diverse** experience.
+
+## The honest boundary
+
+The frozen-feature, bag-of-words regime has been mapped. Within it, accessible signal reaches ~65,
+the clean-label ceiling is ~81, and the ~16-point gap between them is *real but not
+accessible-cue-recoverable* — a genuine boundary, not a tuning failure. That is a sobering result
+for the "just feed it aligned egocentric video" program: the social cues children are known to
+use, as they can be read from this stream, do not lift the ceiling.
+
+Three ways the boundary might move, none of which is a cue. **Unfreezing the encoder** could let
+the visual features specialize to a child's world rather than a generic one — the one lever this
+probe deliberately held fixed. **A genuine cross-situational naming mechanism** — propagating names
+from named instances to unnamed ones through visual similarity — attacks the vision-binding rung
+directly, because it is a naming algorithm, not a location cue. And **higher-resolution gaze and
+gesture** than one frame per second exposes might carry the referential signal that coarse,
+midpoint-frame cues wash out. Each is a larger commitment than a frozen probe; each is the natural
+next question. What this study settles is narrower and, we think, worth settling clearly: on this
+corpus, at this resolution, with these features, the limit is referential alignment — and it is a
+limit that concentration and diversity of data, not cleverness about cues, most efficiently pushes
+back.
