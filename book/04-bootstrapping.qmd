@@ -1,83 +1,109 @@
 # Bootstrapping experiments {#sec-bootstrapping}
 
-::: {.callout-note}
-## Draft — results being finalized
-The ladder below is current as of the latest runs (all-data, Gemini gold, Konkle test-60,
-3 seeds). The **frame-MIL** rung and the full error-barred waterfalls are still being computed;
-numbers and figures will be locked when those land.
-:::
-
-The question of this book is whether word–object mapping can be **bootstrapped** from naturalistic
-data — whether a learner can climb from naive contrastive training toward the ceiling using only
-signal it could plausibly have. This chapter maps that climb with a single, systematic design:
-train on **all** of BabyView, evaluate on the out-of-sample **Konkle** benchmark (@sec-pipeline),
-and measure what each mechanism contributes against oracle toplines.
+The question of this book is whether word–object mapping can be **bootstrapped** from
+naturalistic data — whether a learner can climb from naive contrastive training toward the
+ceiling using only signal it could plausibly have. This chapter maps that climb with a single,
+systematic design: train on **all** of BabyView (36 children, 911k pairs on an 80% video split),
+evaluate on the out-of-sample **Konkle** benchmark (@sec-eval), and measure what each mechanism
+contributes against oracle toplines. Everything is 3 seeds; the primary number is Konkle test-60.
 
 ## Three bootstraps
 
 Every mechanism here is a form of *self-supervised selection* — deciding what to attend to
-without being told the answer — at a different grain:
+without being told the answer — at a different grain (@sec-mechanisms):
 
 - **Region** (MIL max over frame cells): *where* in the frame is the referent.
 - **Frame** (MIL max over a ±2 s window): *which moment* shows it best.
 - **Utterance** (EM reweighting of pairs by self-estimated alignment): *which pairs* are aligned.
 
-The oracles that bound them are **alignment** (which pairs are truly referential) and the
-**referent label** (which word names the object) — both from the Gemini annotation of @sec-data.
+The oracles that bound them come from the Gemini annotation of @sec-data: **alignment** (which
+pairs are truly referential) and the **referent label** (which word names the object).
 
 ## The ladder
 
-Region-MIL learner, Konkle test-60, mean ± sd over 3 seeds:
+![The bootstrapping ladder. Green rungs are **free** — achievable with no labels; blue rungs are
+**oracles** — upper bounds that require alignment or referent labels we do not have at training
+time. Bars show absolute achieved accuracy per condition; the oracle rungs are each measured from
+the region-MIL baseline (they are alternative branches, not stacked on frame-MIL). Perfect labels
+cannot exceed ~81 on these frozen features.](figures/fig_waterfall_ladder.png){#fig-ladder width=95%}
 
 | Rung | Konkle | Δ | kind |
 |---|---|---|---|
 | chance | 25 | — | — |
-| pure learning (whole-frame, noisy data) | 52.1 ± 1.9 | +27 | free |
-| **+ region MIL** | 62.6 ± 1.7 | **+10.5** | free (architecture) |
+| pure learning (whole-frame, noisy data) | 52.9 ± 1.7 | +27.9 | free |
+| **+ region MIL** | 62.6 ± 1.7 | **+9.7** | free |
+| **+ frame MIL** | 65.0 ± 1.8 | **+2.4** | free |
 | + alignment filter | 68.5 ± 1.3 | +5.9 | oracle |
 | + word selection | 73.2 ± 1.2 | +4.7 | oracle |
 | + vision-binding | 81.3 ± 2.6 | +8.1 | oracle |
 | ceiling | ~81 | — | +18.7 unlearnable from these features |
 
-Two facts frame everything that follows. **Region MIL is free and large (+10.5):** picking the
-best-matching cell of a frame, with no labels, does implicit referent localization and lands the
-unaided learner at **62.6**. Above that, every rung is currently an **oracle** — it requires
-information (which pairs are aligned; which word is the referent) we do not have at training time.
-The bootstrapping problem is precisely whether accessible signal can climb those rungs.
+Two facts frame everything. **The free gains are large and get you most of the way:** pure
+contrastive learning on noisy data already reaches 52.9, region MIL adds +9.7, and frame MIL a
+further +2.4, landing an **unaided** learner at **65.0**. Above that, every rung is an **oracle** —
+it needs information (which pairs are aligned; which word is the referent) we cannot access at
+training time. **No self-supervised mechanism we tried climbs those oracle rungs.**
 
 ## What the bootstraps buy
 
-**Utterance (EM).** The self-supervised EM loop — reweighting pairs by the model's own
-max-region alignment — is the direct attempt to climb the *filter* rung without the oracle. It
-does almost nothing: **+1.8** without MIL, **+0.9** with it (seed 0; error bars pending). It does
-not ignite, and MIL has already absorbed most of what it targets.
+![The three self-supervised bootstraps. Region and frame selection are real, free gains; the
+utterance EM bootstrap is null within seed noise.](figures/fig_waterfall_mechanisms.png){#fig-mechanisms width=80%}
 
-**Region.** Not really a bootstrap so much as the architecture, but it is the single biggest free
-gain (+10.5), and it is why the filter oracle is worth only ~+6 on top: much of "which pairs are
-aligned" is recovered by "which cell matches."
+**Region MIL (+9.7)** is the single largest free gain. Scoring the utterance against the
+best-matching cell of a frame — with no detector and no labels — does implicit referent
+*localization*, and it lands the unaided learner most of the way to the oracle filter on its own.
 
-**Frame.** *(In progress.)* Does selecting the best frame in a ±2 s window add anything beyond
-region selection? Measured as a region × frame 2×2 on matched data.
+**Frame MIL (+2.4)** is a modest but consistent free gain. A region × frame $2\times2$ isolates it:
+
+| | single frame | + frame MIL (±2 s) |
+|---|---|---|
+| whole-frame | 52.9 ± 1.7 | 55.5 ± 1.7 (+2.6) |
+| region | 62.6 ± 1.7 | **65.0 ± 1.8 (+2.4)** |
+
+Selecting the best *moment* in a short window adds ~+2.4 on top of region selection (positive in
+all three seeds), roughly additive with region's +9.7. Which-moment matters, a little, on top of
+which-region.
+
+**Utterance EM is null.** The self-supervised EM loop — reweighting pairs by the model's own
+max-region alignment, the direct attempt to climb the *filter* rung without the oracle — does
+essentially nothing:
+
+| | −EM | +EM | effect |
+|---|---|---|---|
+| whole-frame | 52.9 ± 1.7 | 53.6 ± 2.3 | +0.7 |
+| region | 62.6 ± 1.7 | 63.8 ± 2.3 | +1.2 |
+
+Both effects sit inside the seed noise (sd ≈ 2). This is a firm version of "the bootstrap does not
+ignite": pair-reweighting by the model's own alignment estimate is indistinguishable from zero —
+and region MIL has already absorbed most of what it targets.
 
 ## The label decomposition
 
-The largest oracle gap is the referent *label* (+18.7 to Topline-2). Holding the pair set fixed,
-it splits cleanly into three comparable pieces (region-MIL, 3 seeds):
+The largest oracle gap is the referent *label* (+18.7 to the 81.3 topline). Holding the pair set
+fixed, it splits into three comparable pieces:
+
+![Where the label headroom lives: filtering to referential pairs, selecting the spoken referent
+word, and — the largest single piece — supplying the referent when it is *not* spoken at all.
+](figures/fig_waterfall_label.png){#fig-label width=80%}
 
 | step | Konkle | Δ | isolates |
 |---|---|---|---|
-| baseline | 62.6 | — | — |
+| region-MIL baseline | 62.6 | — | — |
 | filtered-natural | 68.5 | +5.9 | which pairs |
 | referent word *where spoken* | 73.2 | +4.7 | which word |
 | referent word *always* | 81.3 | +8.1 | referent when unspoken (vision) |
 
-The referent is actually spoken in only ~63% of aligned pairs; supplying it for the **unspoken**
-37% is the single largest lever (+8.1), because those pairs otherwise carry no referential signal
-at all. This is why @sec-cues aims cues at *identifying the referent* — including visually, when
+The referent is actually spoken in only **~63%** of aligned pairs. Supplying it for the *spoken*
+majority (word selection) is worth +4.7; supplying it for the **unspoken 37%** (vision-binding) is
+the single largest piece, +8.1, because those pairs otherwise carry no referential signal at all.
+This is why @sec-cues aims accessible cues at *identifying the referent* — including visually, when
 it isn't said — rather than merely filtering frames.
 
-## Waterfalls
+## Synthesis
 
-*(To be generated.)* The ladder above as a contributions waterfall (free rungs vs. oracle rungs
-shaded differently), the label decomposition as a second waterfall, and a "what each bootstrap
-buys" panel (region / frame / EM side by side).
+The unaided learner reaches **65** — chance-to-65 is bought by pure learning and the two free MIL
+selections (region, frame). Everything above, to the **81** ceiling, is an oracle, and the one
+self-supervised attempt to climb it (utterance EM) is null. So the bottleneck is not optimization
+or scale but **information the learner does not have**: which pairs are referential, and — the
+bigger prize — which object is being named, especially when it is never spoken. The next chapter
+asks whether the cues children actually use can supply any of it.

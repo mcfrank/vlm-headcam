@@ -609,3 +609,14 @@ VERDICT: utterance bootstrap (EM reweight pairs by self max-region alignment) is
 +0.7 and +1.2 within seed noise (sd~2). Firmer "doesn't ignite" than the old detector-eval
 result. -MIL cells run as RegionMIL on CLS-only cache (emb_cls1), evaled on emb_konkle_cls1, so
 the 2x2 is one code path. Scripts: run same train_region_mil --mode boot/plain.
+
+## Frame-MIL 2x2 (3 seeds, Konkle test-60)
+train_frame_mil.py: max over (frame x region) across +-2s window. Unions emb_reg + emb_win_0..3.
+| arch \ frames | single | +frame MIL (+-2s) |
+| whole-frame (cls) | 52.9+/-1.7 | 55.5+/-1.7 (+2.6) |
+| region            | 62.6+/-1.7 | 65.0+/-1.8 (+2.4) |
+VERDICT: frame MIL is a REAL modest free gain (+2.4 over region, positive all 3 seeds), roughly
+additive w/ region's +9.7. "Which moment" helps a bit on top of "where in frame". Runs
+G_framereg_s* (eval emb_konkle), G_framecls_s* (eval emb_konkle_cls1). Window frames: 1.49M new
+region embeds (emb_win_0..3). Ladder now: pure 52.9 -> +region 62.6 -> +frame 65.0 (free) ->
+oracle filter 68.5/word 73.2/vision 81.3. Waterfalls: make_ladder_figs.py.
