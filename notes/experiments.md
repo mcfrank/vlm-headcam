@@ -661,3 +661,17 @@ recovers the residual. => word-selection is NOT a cue-accessible lever. The rema
 headroom is the +8.1 VISION-BINDING (unspoken referents) - a vision problem, not language.
 Scripts: add_prosody, build_word_prior, build_cue_manifest, train_wordweight, train_perword,
 build_speaker_manifests.
+
+## VISION cue: pose region-prior (caregiver hand) - the "obvious" literature cue
+Full pose CSV (/ccn2/.../pose_1fps_bbox_limbs.csv, 6.5M rows, per-person body-part bboxes).
+build_pose_targets: caregiver(largest body) hand bbox -> target grid cell (3.4M frames, 89% hand).
+train_regionprior: per-pair region prior biases MIL cell-selection toward the pose cell
+(select-with-prior, score-raw-sim, strength 0.5). Referent-bearing set (70% have hand target).
+RESULT (best-epoch, 3 seeds): uniform 70.0 vs caregiver-hand-prior 69.8 -> NULL (-0.2).
+Steering region attention to the caregiver's hand doesn't help referent id; region-MIL already
+picks the best-matching cell, and on deictic pairs there's no content word to bind anyway.
+(Not swept: prior strength; deictic-only subset - but pattern is clearly null.)
+FINAL: every cue null - language (caregiver/noun/discourse/prosody) AND vision (pose hand). The
+oracle rungs are not accessible-cue-recoverable in this frozen-feature regime. Scripts:
+build_pose_targets, train_regionprior. Also: ~5G reclaimed (emb_reg_0/1, shards); /data2 shared
+disk at 100% - pm5s frame expansion abandoned (won't fit).
