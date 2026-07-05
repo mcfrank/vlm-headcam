@@ -675,3 +675,13 @@ FINAL: every cue null - language (caregiver/noun/discourse/prosody) AND vision (
 oracle rungs are not accessible-cue-recoverable in this frozen-feature regime. Scripts:
 build_pose_targets, train_regionprior. Also: ~5G reclaimed (emb_reg_0/1, shards); /data2 shared
 disk at 100% - pm5s frame expansion abandoned (won't fit).
+
+## ch6 SCALING + WHOSE DATA (region-MIL, Konkle test-60, 3 seeds)
+Subsamples of 911k train (emb_reg). A: random vs Gemini-aligned scaling. B: diversity + within-child.
+RANDOM: 10k 30.0, 30k 38.3, 100k 40.2, 300k 56.2, 911k 62.6 (climbs, NO plateau -> data-limited).
+ALIGNED (top-N): 10k 63.9, 30k 68.0, 85k 71.4. KEY: 10k aligned (63.9) ~= 911k random (62.6) ->
+alignment ~90x data efficiency; gap ~+30 at every count. (Caveat: low-N coverage confound.)
+DIVERSITY @30k: 1c 31.0, 3c 33.0, 10c 36.9, 36c 34.4 (weak/noisy). WITHIN-CHILD: biggest child
+110k=35.8 vs pooled-110k=42.8 -> +7 diversity at matched count (real, moderate).
+SYNTHESIS: both data- AND signal-limited; fix = concentrate aligned data from many children.
+Figs: make_scaling_figs.py -> fig_scaling_curves, fig_whose_data. Scripts: build_scaling_manifests.
