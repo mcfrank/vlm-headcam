@@ -633,3 +633,11 @@ transient +2 but ~0 at convergence - BoW self-corrects for POS. Static cues won'
 +4.7; need CONTEXT-dependent cues (discourse newness, per-word prosody) that pick the referent
 AMONG several content nouns. Scripts: build_speaker_manifests, build_word_prior, train_wordweight.
 NEXT: per-pair-per-word weights (discourse newness = transcript; prosody = mp3 + token times).
+
+## Word-selection cues on referent-bearing set (recover the +4.7? filtnat 68.5 -> t15 73.2)
+Weighted bag-of-words (per-pair per-word pooling weights), region-MIL, Konkle test-60.
+Uniform control on the SAME manifest (own text) is the valid baseline. Best-epoch, 3 seeds:
+- DISCOURSE-newness (1/(1+recent count), window40): uniform 71.7 vs disc-weighted 70.0 -> HURTS -1.7.
+  Newness penalizes repeated referents (caregivers repeat the named object). NULL/negative.
+(noun-bias earlier: +2 transient, 0 at convergence.) Language-side word cues not recovering +4.7.
+Scripts: build_cue_manifest (discourse), train_perword (per-word weighted pool). PROSODY next.
