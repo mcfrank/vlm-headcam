@@ -7,8 +7,9 @@ many hypotheses about the learning signal rather than one expensive model.
 
 ## Data on the cluster
 
-Everything derives from the BabyView 2025.2 release on ccn2, under
-`/ccn2a/dataset/babyview/2025.2/`:
+@sec-data describes the corpus itself (scale, speech, annotations); this section is just the
+on-cluster asset layout the pipeline reads. Everything derives from the BabyView 2025.2 release
+on ccn2, under `/ccn2a/dataset/babyview/2025.2/`:
 
 | Asset | What it is | Used for |
 |-------|------------|----------|
@@ -24,11 +25,13 @@ its window.
 
 ## The alignment filter
 
-The filter is the central knob. `full_clip_results.csv` already stores, for each
-utterance, the maximum CLIP cosine similarity between the utterance text and any
-frame in its window (`clip_score_max`). Selecting utterances above a threshold
-costs nothing and, as @fig-alignment2 shows, cleanly separates referentially
-grounded moments from ungrounded ones.
+The filter is the central knob. The cheap version — used in the preliminary experiments —
+reads `full_clip_results.csv`, which stores for each utterance the maximum CLIP cosine
+similarity between its text and any frame in its window (`clip_score_max`). Selecting above a
+threshold costs nothing and, as @fig-alignment2 shows, separates grounded from ungrounded
+moments. The main chapters instead use the stronger **Gemini** annotation of @sec-data as the
+gold definition of alignment (and its referent word as the gold label), keeping CLIP as the
+weaker comparison; the mechanics below are identical either way.
 
 ![High-scoring pairs (top) show the named referent on screen; median-scoring
 pairs (bottom) are displaced, abstract, or about something off-camera. This is
@@ -164,44 +167,62 @@ Three things follow, and they recur throughout the book:
    problem; the probe deliberately strips it away, so our claim is "filtered >
    unfiltered," not "unfiltered diverges" (@sec-a).
 
-## Evaluating: the 4AFC test
+## Evaluating: the Konkle 4AFC test {#sec-eval}
 
-We want a metric that (a) measures word→object mapping directly, (b) is
-comparable to CVCL, and (c) needs no human annotation so it can run every epoch.
-The CDI-prompted YOLOE detections provide it. On **held-out children**, a frame
-is labeled with category $C$ when $C$ is the *dominant* detected object (largest,
-confident, and a clear majority of detected object area) — i.e. the frame is
-unambiguously "about" $C$.
+We evaluate on **out-of-sample objects**, not held-out frames. The primary metric is a 4AFC
+test on the **Konkle object benchmark** — clean photographs of everyday objects on white
+backgrounds, entirely disjoint from BabyView. A trial presents a cue word and four object
+images (one from the cue's category, three from other categories); the model picks the image
+whose embedding is closest to the word embedding. Chance is 25%.
 
-A trial presents the model with a cue word and four frames — one from the cue's
-category, three from other categories — and the model picks the frame whose
-image embedding is closest to the word's embedding. Chance is 25%.
+Evaluating on external objects has three virtues. It is **truly out of sample** — no BabyView
+frame appears in it — so we can train on the *entire* corpus, all 36 children, with no leakage,
+and the held-out-child machinery of the appendices becomes unnecessary. It is **clean** — the
+noisy, detector-derived ground truth of the naturalistic eval below compressed real effects into
+noise (the same interventions move ~2–3× more on Konkle). And it mirrors a fact about children:
+they recognize objects they have never seen in that exact form, so generalization to canonical
+exemplars is the right target, not memorization of frames.
 
-![A single 4AFC trial for the cue word "car". The model scores each frame's
-embedding against the word embedding and picks the maximum. *(Regenerated
-locally; not committed.)*](figures/frames/fig_4afc_trial.png){#fig-4afc}
+**Dev/test split.** The full Konkle set has ~200 categories; @vong2024's subset of 60 is our
+**test** set, and the other 118 in-vocabulary categories form a **dev** set on which we tune any
+hyperparameter (filter thresholds, cue weights), reporting final numbers on the Vong-60. A clean,
+out-of-sample split that keeps the sweeps honest.
 
-Because the vision tower is frozen and shared, the labeled eval frames are
-embedded once and reused across every run; only the learned text tower and
-projection differ. Held-out children are excluded from training entirely, so the
-metric measures *generalization of word meanings across children*, not memorized
-frames.
+**The legacy naturalistic eval.** The preliminary experiments (appendices) instead used a 4AFC
+over *held-out BabyView frames*, each labeled by its dominant CDI-prompted YOLOE detection
+(largest, confident, a clear majority of detected object area). It needs no human annotation and
+runs every epoch, and it is retained as a secondary signal — but it is noisy and detector-biased,
+so the clean Konkle eval is primary throughout the main chapters.
 
-## A second lever: region grounding
+![The 4AFC mechanic, shown on the legacy naturalistic eval: the model scores each frame's
+embedding against the cue word and picks the maximum. On Konkle the four candidates are clean
+object photos instead. *(Regenerated locally; not committed.)*](figures/frames/fig_4afc_trial.png){#fig-4afc}
 
-The alignment filter attacks *when* to learn. A complementary idea attacks
-*what* in the frame to learn from. Even in a well-aligned moment, the frame is a
-cluttered scene and the referent is one object in it. Using the YOLOE detections,
-we can replace the whole frame with the **crop** of the dominant detected object
-before embedding it — so the contrastive target is the object, not the scene.
+## The three bootstrapping mechanisms {#sec-mechanisms}
 
-![Region grounding pairs the utterance with the object crop (right) instead of
-the full scene (left). *(Regenerated locally; not committed.)*
-](figures/frames/fig_crop_example.png){#fig-crop}
+The alignment filter attacks *when* to learn. The learner also has to decide *what* to attend to
+within a learning moment — and it can try to do so **without being told the answer**, i.e. by
+self-supervised selection. Three mechanisms operate at different grains; @sec-bootstrapping
+measures what each buys:
 
-This is the same pipeline with a different visual input: crops are embedded by
-the same frozen DINOv2, cached the same way, and trained with the same objective.
-@sec-experiments tests both levers.
+- **Region MIL** — *where in the frame*. Embed a coarse grid of image cells (a $4\times4$ grid
+  plus the whole-frame token, 17 vectors) and score the utterance against its **best-matching
+  cell** — a max over cells, i.e. multiple-instance learning. The frame is a bag of regions; the
+  utterance is assumed to match at least one. This does implicit referent *localization* with no
+  detector, and it is the single largest free gain in the book.
+- **Frame MIL** — *which moment*. Extend the max over the frames in a short window (±2 s) around
+  the utterance, so the model can pick the moment that best shows the referent.
+- **Utterance EM** — *which pairs*. Reweight the training pairs by the model's *own* estimate of
+  alignment (its max-region similarity) in an EM loop: better weights → better model → better
+  weights. This is the self-supervised attempt to recover the alignment filter without an oracle.
+
+![Region grounding, the preliminary hard-coded version: pair the utterance with the object crop
+(right) instead of the full scene (left). Region MIL is its softer, detector-free successor.
+*(Regenerated locally; not committed.)*](figures/frames/fig_crop_example.png){#fig-crop}
+
+All three share the same frozen DINOv2 features and contrastive objective; they differ only in
+*what the utterance is allowed to match*. The preliminary experiments (@sec-experiments) used a
+hard-coded detector **crop** as a stand-in for region grounding; region MIL replaces it.
 
 ## Reproducing
 
