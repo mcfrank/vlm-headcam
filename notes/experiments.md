@@ -620,3 +620,16 @@ additive w/ region's +9.7. "Which moment" helps a bit on top of "where in frame"
 G_framereg_s* (eval emb_konkle), G_framecls_s* (eval emb_konkle_cls1). Window frames: 1.49M new
 region embeds (emb_win_0..3). Ladder now: pure 52.9 -> +region 62.6 -> +frame 65.0 (free) ->
 oracle filter 68.5/word 73.2/vision 81.3. Waterfalls: make_ladder_figs.py.
+
+## Language cues session (Konkle test-60, region-MIL)
+CAREGIVER FILTER (seed 0): baseline(911k)=63.7, drop-child(770k)=63.5, random-drop-ctrl(770k)=
+64.3, careg-only(518k)=64.8. VERDICT: dropping child utterances does NOT help (nochild 63.5 <=
+random-drop 64.3). Child speech ~ as useful as random; Gemini alignment already handles
+referentiality regardless of speaker. (~20% of pairs are child KCHI/OCH via time-overlap join to
+token transcript.) filtnat-nochild 67.3 <= filtnat 68.5 too.
+NOUN-BIAS word-weighting (weighted bag-of-words, static content-noun prior from spacy_pos):
+on referent-bearing set, filtnat uniform 68.5 -> noun-bias best 70.6 / FINAL 68.5. VERDICT:
+transient +2 but ~0 at convergence - BoW self-corrects for POS. Static cues won't recover the
++4.7; need CONTEXT-dependent cues (discourse newness, per-word prosody) that pick the referent
+AMONG several content nouns. Scripts: build_speaker_manifests, build_word_prior, train_wordweight.
+NEXT: per-pair-per-word weights (discourse newness = transcript; prosody = mp3 + token times).
