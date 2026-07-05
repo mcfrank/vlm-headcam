@@ -600,3 +600,12 @@ honest = 81.3+/-2.6. Whole-frame dev-117 (s0): baseline 41.5 (116/117, harder+br
 toplines cover fewer cats (T1=100 -> 71.1 on 31 cats) so cross-cond dev needs matched-cat care;
 use test-60. STRATEGIC: cue work should target what's-named (label, +19) not which-frames
 (filter, +6). Scripts: run_seeds.sh, grid_agg.py.
+
+## EM utterance-bootstrap 2x2 (3 seeds, Konkle test-60)
+| arch \ EM | -EM | +EM | effect |
+| -MIL (whole-frame, emb_cls1) | 52.9+/-1.7 | 53.6+/-2.3 | +0.7 |
+| +MIL (region, emb_reg)       | 62.6+/-1.7 | 63.8+/-2.3 | +1.2 |
+VERDICT: utterance bootstrap (EM reweight pairs by self max-region alignment) is NULL - both
++0.7 and +1.2 within seed noise (sd~2). Firmer "doesn't ignite" than the old detector-eval
+result. -MIL cells run as RegionMIL on CLS-only cache (emb_cls1), evaled on emb_konkle_cls1, so
+the 2x2 is one code path. Scripts: run same train_region_mil --mode boot/plain.
