@@ -587,3 +587,16 @@ what's-named more than which-frames. (3) Topline-2 MIL=84 is the true clean-labe
 reads need matched-cat care; use test-60 for clean comparisons. CAVEAT: 1 seed (bars pending).
 Setup: gemini_full (1.145M all 36 kids), emb_full (whole-frame), emb_reg (1.08M region), 
 dev cats emb_konkle_dev (117). Scripts: build_grid_manifests, run_grid_wf, run_grid_mil.
+
+## Grid with error bars (3 seeds, Konkle test-60)
+| condition        | no-MIL       | region-MIL   |
+| baseline (911k)  | 52.1 +/- 1.9 | 62.6 +/- 1.7 |
+| T1 >=50 (aligned)| 61.6 +/- 1.2 | 68.2 +/- 1.1 |
+| T2 (Gemini labels)| 75.0 +/- 0.7 | 81.3 +/- 2.6 |
+CONFIRMED w/ bars: (1) MIL helps +10.5 (~5sigma), not hurting. (2) filter gain on MIL only
++5.6 (63->68, ~3-4sigma) - MIL's region-select already does implicit alignment. (3) LABEL
+headroom +18.7 (63->81) is the prize. NB last turn's single-seed MIL-T2=84 was high seed;
+honest = 81.3+/-2.6. Whole-frame dev-117 (s0): baseline 41.5 (116/117, harder+broader);
+toplines cover fewer cats (T1=100 -> 71.1 on 31 cats) so cross-cond dev needs matched-cat care;
+use test-60. STRATEGIC: cue work should target what's-named (label, +19) not which-frames
+(filter, +6). Scripts: run_seeds.sh, grid_agg.py.
