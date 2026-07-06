@@ -64,6 +64,28 @@ Selecting the best *moment* in a short window adds ~+2.4 on top of region select
 all three seeds), roughly additive with region's +9.7. Which-moment matters, a little, on top of
 which-region.
 
+### How wide should the window be?
+
+Frame MIL has one free parameter — how much time around the utterance the learner is allowed to
+look over. Widening it trades off two things: a longer window is more likely to *contain* the
+referential moment, but it also dilutes the selection with more off-target frames. We can just
+measure it, holding region MIL fixed and stretching the window from a single frame to ±2 s to ±5 s
+(at 1 fps, 5 and 11 candidate frames):
+
+| window | candidate frames | Konkle test-60 (3 seeds) | Δ vs. prev |
+|---|---|---|---|
+| single frame | 1 | 62.6 ± 1.7 | — |
+| ±2 s | 5 | 65.0 ± 1.8 | +2.4 |
+| ±5 s | 11 | **66.8 ± 0.6** | +1.8 |
+
+The gain is **monotone with diminishing returns**: each widening still helps, by a little less. At
+±5 s the containment benefit is still winning over the dilution cost — the referential moment is
+often just outside a ±2 s window, and letting the max reach for it recovers another ~+1.8. But the
+curve is clearly bending, and ±5 s is already 11 frames of a 1 fps stream; there is no regime change
+waiting at a wider window, only a slow approach to whatever the region-MIL selection can extract.
+We keep ±2 s as the representative "+ frame MIL" rung above — it is the conservative value — and
+note that pushing the temporal context to ±5 s buys a further ~+1.8 from the same mechanism.
+
 **Utterance EM is null.** The self-supervised EM loop — reweighting pairs by the model's own
 max-region alignment, the direct attempt to climb the *filter* rung without the oracle — does
 essentially nothing:
