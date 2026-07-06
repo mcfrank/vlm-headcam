@@ -40,6 +40,22 @@ twice as strongly, is **training frequency (ρ = 0.41)**: the model learns the w
 aligned often and misses the rare ones — for **most categories** the object is fully separable in
 the features yet the model scores far below what a prototype would.
 
+## What it confuses
+
+When the model errs, what does it pick? For each word we asked which categories' images it scores
+highest (@fig-confusion). The failures are neither random nor cleanly systematic. The strongest
+*individual* confusions are **coherent** — *socks* prefers *pants* images, *meat* prefers
+*sandwich*, *cookie* prefers *apple*, *bagel* prefers *shoe* — semantically or visually adjacent
+categories that the frozen features place near each other and an under-trained word cannot pull
+apart. But taken as a group, the most-confused categories **scatter**: a barely-learned word lands
+diffusely across many competitors rather than on one systematic rival. That diffuseness is itself
+the frequency story restated — these are words the model *barely learned*, not words it learned
+*wrongly*.
+
+![Confusion among the 24 most-confused categories (row-normalized score of each word against each
+category's images). The strongest cells are coherent adjacencies, but the overall pattern is
+diffuse — the hallmark of under-training rather than systematic error.](figures/fig_confusion.png){#fig-confusion width=70%}
+
 ## The bottleneck is the signal, not the encoder
 
 This settles a question the conclusion of the mechanistic chapters left open. The frozen vision
