@@ -12,8 +12,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from common import tokenize, frame_key
 
+import sys
 W = "/data2/mcfrank/vlm-headcam"
-acc = pd.read_parquet(f"{W}/book_figs/item_acc_G_framereg_s0.parquet")   # category, acc, set
+run = sys.argv[1] if len(sys.argv) > 1 else "G_framereg_s0"
+acc = pd.read_parquet(f"{W}/book_figs/item_acc_{run}.parquet")   # category, acc, set
 
 # frequency: # training pairs whose utterance contains the category word
 G = pd.read_parquet(f"{W}/scored/gemini_full.parquet")

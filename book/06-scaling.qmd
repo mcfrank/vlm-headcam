@@ -21,10 +21,13 @@ orders of magnitude.](figures/fig_scaling_curves.png){#fig-scaling width=85%}
 | 85k | — | 71.4 ± 1.6 |
 | 100k | 40.2 ± 3.1 | — |
 | 300k | 56.2 ± 2.6 | — |
-| 911k | **62.6 ± 1.7** | — |
+| 911k | 62.6 ± 1.7 | — |
+| 1.14M (full corpus) | **65.6 ± 2.2** | — |
 
 Two findings. First, contrary to the natural guess, **the random baseline does not plateau** — it
-climbs from chance-ish to 62.6 across the range and is still rising at 911k. Unfiltered training
+climbs from chance-ish to 65.6 across the range and is still rising even at the full corpus (adding
+the held-out 20% to the 911k lifts it another +3). This full-corpus model is the definitive
+best-organic learner interpreted in @sec-what-learned. Unfiltered training
 is genuinely *data-limited*: because most pairs are non-referential noise, the model needs a great
 deal of data to average out. Second, and this is the headline, **alignment is worth ~2 orders of
 magnitude of data**: **10k aligned pairs (63.9) already match ~900k random ones (62.6)**, and the

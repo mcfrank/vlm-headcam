@@ -1,9 +1,9 @@
 # What got learned {#sec-what-learned}
 
 The chapters so far measured *how much* a learner reaches (the ladder) and *why it cannot reach
-further* (cues, scaling). This one opens the best organically-bootstrapped model — region+frame
-MIL trained on all data, no oracle — and asks *what* it actually learned, and where its failures
-come from. The answer sharpens the whole story: the bottleneck is the referential learning signal,
+further* (cues, scaling). This one opens the best organically-bootstrapped model — region-MIL
+trained on the **full corpus** (all 1.14M pairs, including the held-out 20%; the definitive model
+of @sec-scaling), no oracle — and asks *what* it actually learned, and where its failures come from. The answer sharpens the whole story: the bottleneck is the referential learning signal,
 not the vision encoder.
 
 ## The item landscape
@@ -15,12 +15,12 @@ Broken down by category, accuracy is a broad, continuous distribution from perfe
 below chance.](figures/fig_item_acc.png){#fig-item width=100%}
 
 What the model learns are the **visually distinctive, common, unambiguous concrete nouns** —
-*apple, bike, cat, chair, ball, train, clock, pizza, umbrella, butterfly, laptop, microwave* — all
-at or near 100%. What it fails are the **rare** (*bongo, trumpet, domino, binoculars*), the
-**small or visually diffuse** (*bill, lipstick, glove, feather, cheese, quilt*), and the
-**polysemous** (*frame, grill*). This is the pattern @vong2024 report for CVCL. One sanity check
-worth noting: *cat* scores ~100% here, versus 14% on the old noisy detector eval of @sec-experiments
-— the clean benchmark confirms the model genuinely learned it, and the old number was eval noise.
+*apple, bike, butterfly, turtle, umbrella, microwave, fan, crib* — all at or near 100%. What it
+fails are the **rare** (*domino, lei, trophy*), the **small or visually diffuse** (*glove, feather,
+coin, cigarette, candy*), and the **polysemous or ambiguous** (*flag, bullet, microphone*). This is the pattern @vong2024 report for CVCL. One sanity check
+worth noting: many words the old noisy detector eval of @sec-experiments scored near chance (it
+put *cat* at 14%) sit high here — the clean benchmark confirms the model genuinely learned them,
+and the old numbers were eval noise.
 
 ## What predicts an item's accuracy
 
@@ -34,11 +34,11 @@ tracks training frequency, not vision.](figures/fig_item_analysis.png){#fig-item
 The result is stark. A **vision-only prototype** — classifying each Konkle image by nearest
 category-centroid in the frozen DINOv2 space, using no language at all — scores **median 100%,
 minimum 99%**: the frozen features separate *every one* of the 176 categories near-perfectly. So
-visual distinctiveness cannot explain the model's failures, and indeed it doesn't — model accuracy
-correlates with the vision prototype at **ρ = 0.03**. What it does correlate with is **training
-frequency (ρ = 0.39)**: the model learns the words it hears aligned often, and misses the rare
-ones — for **111 of 176 categories** the object is fully separable in the features yet the model
-scores far below what a prototype would.
+visual distinctiveness cannot explain the model's failures, and indeed it barely does — model
+accuracy correlates with the vision prototype at only **ρ = 0.19**. What it does correlate with,
+twice as strongly, is **training frequency (ρ = 0.41)**: the model learns the words it hears
+aligned often and misses the rare ones — for **most categories** the object is fully separable in
+the features yet the model scores far below what a prototype would.
 
 ## The bottleneck is the signal, not the encoder
 

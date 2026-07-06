@@ -11,7 +11,8 @@ INK, SUB, GRID = "#2c2c2a", "#6b6a66", "#e1e0d9"
 RAND, ALIGN = "#b0655a", "#1d9e75"
 
 # --- scaling curves (N, mean, sd) ---
-rand = [(10000, 30.0, 3.5), (30000, 38.3, 0.8), (100000, 40.2, 3.1), (300000, 56.2, 2.6), (911000, 62.6, 1.7)]
+rand = [(10000, 30.0, 3.5), (30000, 38.3, 0.8), (100000, 40.2, 3.1), (300000, 56.2, 2.6),
+        (911000, 62.6, 1.7), (1145000, 65.6, 2.2)]   # 1.14M = full corpus (held-out 20% added)
 align = [(10000, 63.9, 5.5), (30000, 68.0, 1.3), (85000, 71.4, 1.6)]
 fig, ax = plt.subplots(figsize=(7.6, 4.6), dpi=150)
 for data, col, lab in [(rand, RAND, "random (unfiltered)"), (align, ALIGN, "Gemini-aligned")]:

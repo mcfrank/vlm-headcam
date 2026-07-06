@@ -710,3 +710,10 @@ limited; 111/176 learnable-by-vision-but-model-missed. => BOTTLENECK IS THE LEAR
 Also: launched region-MIL 100% refit (held-out 20% embedded to emb_reg_ho_0..7, train_frame_mil
 --window 0 on grid_baseline_full 1.14M) = top scaling point + definitive model. Book now 8 ch
 (added ch7 What got learned; conclusion->ch8). Scripts: make_item_plot, make_item_analysis.
+
+## Region-MIL 100% refit (definitive model + top scaling point)
+Held-out 20% embedded (emb_reg_ho_0..7, 154k frames); train_frame_mil --window 0 on
+grid_baseline_full (1.14M pairs). Region-MIL 100% = 65.6+/-2.2 (s0 68.1/s1 65.1/s2 63.7) vs 80%
+911k=62.6 -> +3.0, curve still climbing (no plateau, confirms data-limited). Item plot + analysis
+re-run on definitive model (G_base_mil_full_s0): vision-proto min 99 (features separate all),
+freq rho 0.41 >> vision rho 0.19. ch6 scaling curve + ch7 updated to definitive model.
