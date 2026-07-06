@@ -21,28 +21,43 @@ pairs are truly referential) and the **referent label** (which word names the ob
 
 ## The ladder
 
-![The bootstrapping ladder. Green rungs are **free** — achievable with no labels; blue rungs are
-**oracles** — upper bounds that require alignment or referent labels we do not have at training
-time. Bars show absolute achieved accuracy per condition; the oracle rungs are each measured from
-the region-MIL baseline (they are alternative branches, not stacked on frame-MIL). Perfect labels
-cannot exceed ~81 on these frozen features.](figures/fig_waterfall_ladder.png){#fig-ladder width=95%}
+![The bootstrapping ladder. Green rungs are **free** — achievable with no labels — and chain
+cumulatively; blue rungs are **oracles** — upper bounds that require alignment or referent labels we
+do not have at training time. The oracle rungs are an **alternative branch** out of the region-MIL
+baseline (62.6), *not* stacked on frame-MIL: the guide line marks where they leave the free chain,
+so the alignment filter's +5.9 is measured from region-MIL, not from the frame-MIL rung just below
+it. Perfect labels cannot exceed ~81 on these frozen features.](figures/fig_waterfall_ladder.png){#fig-ladder width=95%}
 
-| Rung | Konkle | Δ | kind |
-|---|---|---|---|
-| chance | 25 | — | — |
-| pure learning (whole-frame, noisy data) | 52.9 ± 1.7 | +27.9 | free |
-| **+ region MIL** | 62.6 ± 1.7 | **+9.7** | free |
-| **+ frame MIL** | 65.0 ± 1.8 | **+2.4** | free |
-| + alignment filter | 68.5 ± 1.3 | +5.9 | oracle |
-| + word selection | 73.2 ± 1.2 | +4.7 | oracle |
-| + vision-binding | 81.3 ± 2.6 | +8.1 | oracle |
-| ceiling | ~81 | — | +18.7 unlearnable from these features |
+The Δ column below reads the same way: free rungs are measured from the rung above, the oracle
+branch from region-MIL. The **from** column makes the base explicit.
+
+| Rung | Konkle | Δ | from | kind |
+|---|---|---|---|---|
+| chance | 25 | — | — | — |
+| pure learning (whole-frame, noisy data) | 52.9 ± 1.7 | +27.9 | chance | free |
+| **+ region MIL** | 62.6 ± 1.7 | **+9.7** | pure learning | free |
+| **+ frame MIL (±2 s)** | 65.0 ± 1.8 | **+2.4** | region MIL | free |
+| **+ frame MIL (±5 s)** | 66.8 ± 0.6 | **+1.8** | frame ±2 s | free |
+| + alignment filter | 68.5 ± 1.3 | +5.9 | region MIL | oracle |
+| + word selection | 73.2 ± 1.2 | +4.7 | filter | oracle |
+| + vision-binding | 81.3 ± 2.6 | +8.1 | word selection | oracle |
+| ceiling | ~81 | — | — | unlearnable from these features |
 
 Two facts frame everything. **The free gains are large and get you most of the way:** pure
 contrastive learning on noisy data already reaches 52.9, region MIL adds +9.7, and frame MIL a
-further +2.4, landing an **unaided** learner at **65.0**. Above that, every rung is an **oracle** —
-it needs information (which pairs are aligned; which word is the referent) we cannot access at
-training time. **No self-supervised mechanism we tried climbs those oracle rungs.**
+further +2.4 at a ±2 s window (+4.2 at ±5 s), landing an **unaided** learner at **66.8**. Above
+that, every rung is an **oracle** — it needs information (which pairs are aligned; which word is the
+referent) we cannot access at training time. **No self-supervised mechanism we tried climbs those
+oracle rungs.**
+
+But the free route comes remarkably close to the first one. The alignment-filter oracle and the
+free frame-MIL are **two branches out of the same region-MIL node**, both doing the same job —
+isolating the referential moment — one with the Gemini alignment label, one for free by max-pooling
+over space and a ±5 s window. The oracle reaches 68.5; the **free route reaches 66.8, a gap of only
+1.7**. Region max-pooling already does implicit alignment selection (@sec-mechanisms), and widening
+the frame window lets it reach for moments a ±2 s window misses, so self-supervised selection
+recovers most of what the oracle filter provides — the referential *moment* is largely learnable
+without the label. It is the referential *word*, the two rungs above, that stays out of reach.
 
 ## What the bootstraps buy
 
@@ -83,8 +98,9 @@ The gain is **monotone with diminishing returns**: each widening still helps, by
 often just outside a ±2 s window, and letting the max reach for it recovers another ~+1.8. But the
 curve is clearly bending, and ±5 s is already 11 frames of a 1 fps stream; there is no regime change
 waiting at a wider window, only a slow approach to whatever the region-MIL selection can extract.
-We keep ±2 s as the representative "+ frame MIL" rung above — it is the conservative value — and
-note that pushing the temporal context to ±5 s buys a further ~+1.8 from the same mechanism.
+This ±5 s value — **66.8**, the top of the free chain in the ladder — is what closes most of the
+gap to the alignment-filter oracle (68.5): the extra temporal reach is exactly the free mechanism
+catching moments the oracle filter would have kept.
 
 **Utterance EM is null.** The self-supervised EM loop — reweighting pairs by the model's own
 max-region alignment, the direct attempt to climb the *filter* rung without the oracle — does
@@ -123,9 +139,13 @@ it isn't said — rather than merely filtering frames.
 
 ## Synthesis
 
-The unaided learner reaches **65** — chance-to-65 is bought by pure learning and the two free MIL
-selections (region, frame). Everything above, to the **81** ceiling, is an oracle, and the one
-self-supervised attempt to climb it (utterance EM) is null. So the bottleneck is not optimization
-or scale but **information the learner does not have**: which pairs are referential, and — the
-bigger prize — which object is being named, especially when it is never spoken. The next chapter
-asks whether the cues children actually use can supply any of it.
+The unaided learner reaches **66.8** — bought by pure learning and the two free MIL selections
+(region, and frame at a ±5 s window). That lands it within **1.7** of the alignment-filter oracle:
+free spatial + temporal selection nearly matches what the oracle *which-pairs* label provides,
+because region max-pooling over a wide window already isolates the referential moment on its own.
+The oracle rungs that stay out of reach are the two above it — **which word** names the object, and
+**which object** is named when no word is spoken. Everything from there to the **81** ceiling is an
+oracle, and the one self-supervised attempt to climb it (utterance EM) is null. So the bottleneck is
+not optimization or scale, and it is no longer really *which moment* either — it is **which
+referent**: the object being named, especially when it is never spoken. The next chapter asks
+whether the cues children actually use can supply any of it.

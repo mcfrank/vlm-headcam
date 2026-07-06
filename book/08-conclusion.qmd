@@ -13,10 +13,12 @@ picture emerged.
 Word–object accuracy climbs a well-defined ladder from chance (25) to a clean-label ceiling of
 ~81. The first two rungs are **free** — they need no labels. Naive contrastive learning on noisy
 data reaches ~53; **region-MIL** — matching an utterance to its best-fitting frame cell — adds
-+10.5 by doing implicit referent *localization*; **frame-MIL** — the best moment in a ±2 s window —
-adds a further +2.4. That gets an unaided learner to **65**. Everything above is an **oracle**:
-knowing which pairs are aligned (+5.9), which spoken word is the referent (+4.7), and — the
-largest piece — which object is named when it is *not spoken at all* (+8.1).
++10.5 by doing implicit referent *localization*; **frame-MIL** — the best moment in a window —
+adds a further +2.4 at ±2 s, +4.2 at ±5 s. That gets an unaided learner to **66.8** — within 1.7 of
+the alignment-filter oracle (68.5), because free spatial + temporal selection nearly matches what
+that *which-pairs* label provides. Everything above stays an **oracle**: knowing which spoken word
+is the referent (+4.7), and — the largest piece — which object is named when it is *not spoken at
+all* (+8.1).
 
 The central result is that **none of those oracle rungs is recoverable from the signal a child
 plausibly has.** The self-supervised EM bootstrap — reweighting pairs by the model's own alignment
@@ -50,8 +52,8 @@ much," but **concentrated, referential, diverse** experience.
 
 ## The honest boundary
 
-The frozen-feature, bag-of-words regime has been mapped. Within it, accessible signal reaches ~65,
-the clean-label ceiling is ~81, and the ~16-point gap between them is *real but not
+The frozen-feature, bag-of-words regime has been mapped. Within it, accessible signal reaches ~67,
+the clean-label ceiling is ~81, and the ~14-point gap between them is *real but not
 accessible-cue-recoverable* — a genuine boundary, not a tuning failure. That is a sobering result
 for the "just feed it aligned egocentric video" program: the social cues children are known to
 use, as they can be read from this stream, do not lift the ceiling.
