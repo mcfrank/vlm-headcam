@@ -16,8 +16,23 @@ without being told the answer — at a different grain (@sec-mechanisms):
 - **Frame** (MIL max over a ±2 s window): *which moment* shows it best.
 - **Utterance** (EM reweighting of pairs by self-estimated alignment): *which pairs* are aligned.
 
-The oracles that bound them come from the Gemini annotation of @sec-data: **alignment** (which
-pairs are truly referential) and the **referent label** (which word names the object).
+The oracles that bound them come from the Gemini annotation of @sec-data — a per-pair **alignment**
+score and, where a visible object is named, its **referent** word. Three successively stronger
+interventions build on those two labels, and it helps to state up front what each one physically
+does to the training data (the mechanics and exact numbers are in @sec-label). All three operate on
+the **~9% of pairs Gemini marks as referentially aligned** (~84k of 911k):
+
+1. **Alignment filter** — throw away the other 91% and train only on the aligned pairs, keeping
+   their natural utterances. This isolates *which pairs*.
+2. **Word selection** — on those same aligned pairs, replace the whole utterance with just the
+   referent noun, for the **~63%** of them where that noun is actually spoken in the utterance.
+   This isolates *which word* names the object.
+3. **Vision-binding** — additionally supply the referent noun for the remaining **~37%**, where it
+   is never said aloud and so could only be recovered by *seeing* the object. This isolates the
+   referent *when it is unspoken*.
+
+Each is an oracle because it uses a label — alignment, or the referent word — that a learner has no
+access to at training time.
 
 ## The ladder
 
@@ -115,10 +130,26 @@ Both effects sit inside the seed noise (sd ≈ 2). This is a firm version of "th
 ignite": pair-reweighting by the model's own alignment estimate is indistinguishable from zero —
 and region MIL has already absorbed most of what it targets.
 
-## The label decomposition
+## The label decomposition {#sec-label}
 
-The largest oracle gap is the referent *label* (+18.7 to the 81.3 topline). Holding the pair set
-fixed, it splits into three comparable pieces:
+Here are the mechanics behind the three oracle interventions previewed at the start of the chapter.
+They are built to be *nested*, so their gains add up cleanly. We start from the **83,794 referentially-aligned pairs**
+— the ~9% of the 910,975 training pairs to which Gemini assigned a visible referent — and hold that
+pair set fixed. The only thing that changes across the three rungs is the **text** each pair is
+trained against:
+
+- **filtered-natural** — the aligned pairs with their *natural utterance* unchanged ("*look, is
+  that a doggie?*"). This is the alignment filter of the main ladder, restated on the
+  referent-bearing set.
+- **referent word *where spoken*** — for each pair, if the referent noun actually appears in the
+  utterance, we throw the rest of the sentence away and train on the bare noun ("*dog*"); otherwise
+  we leave the utterance untouched. The referent turns out to be spoken in **63%** of these aligned
+  pairs, so this rewrites 63% of them and leaves 37% as natural text.
+- **referent word *always*** — we supply the bare referent noun for **all** the pairs, including the
+  37% where it was never said.
+
+The three differ only in text, on identical frames and identical pairs, so each Δ isolates one thing
+(@fig-label).
 
 ![Where the label headroom lives: filtering to referential pairs, selecting the spoken referent
 word, and — the largest single piece — supplying the referent when it is *not* spoken at all.
@@ -131,11 +162,23 @@ word, and — the largest single piece — supplying the referent when it is *no
 | referent word *where spoken* | 73.2 | +4.7 | which word |
 | referent word *always* | 81.3 | +8.1 | referent when unspoken (vision) |
 
-The referent is actually spoken in only **~63%** of aligned pairs. Supplying it for the *spoken*
-majority (word selection) is worth +4.7; supplying it for the **unspoken 37%** (vision-binding) is
-the single largest piece, +8.1, because those pairs otherwise carry no referential signal at all.
-This is why @sec-cues aims accessible cues at *identifying the referent* — including visually, when
-it isn't said — rather than merely filtering frames.
+Why is the referent spoken in as many as **63%** of aligned pairs, when only ~9% of *all* pairs are
+aligned in the first place? Because the 63% is conditional on alignment: it is 63% *of the ~9%*, not
+63% overall. And it is high for exactly the reason those pairs were kept — Gemini calls a pair
+aligned when the caregiver is talking about a visible object, and most of the time naming that
+object is *why* they are talking about it, so its noun is right there in the transcript. The other
+37% are still genuinely aligned — the caregiver is attending to the visible object — but they refer
+to it without the noun: deixis and pronouns ("*look at **that**!*", "*pick **it** up*"), or a
+description ("*is it yummy?*"). Those pairs carry a real referential moment but no referential
+*word*.
+
+That split is what makes the last two rungs mean different things. Supplying the noun for the
+*spoken* 63% (word selection, +4.7) mostly buys **disambiguation** — pulling the referent out of a
+sentence that also contains other content words. Supplying it for the *unspoken* 37%
+(vision-binding, +8.1) is the single largest piece, because for those pairs the noun is *new
+information*: it cannot be read off the language at all, only off the image. This is why @sec-cues
+aims accessible cues at *identifying the referent* — including visually, when it isn't said — rather
+than merely filtering frames.
 
 ## Synthesis
 
