@@ -685,3 +685,15 @@ DIVERSITY @30k: 1c 31.0, 3c 33.0, 10c 36.9, 36c 34.4 (weak/noisy). WITHIN-CHILD:
 110k=35.8 vs pooled-110k=42.8 -> +7 diversity at matched count (real, moderate).
 SYNTHESIS: both data- AND signal-limited; fix = concentrate aligned data from many children.
 Figs: make_scaling_figs.py -> fig_scaling_curves, fig_whose_data. Scripts: build_scaling_manifests.
+
+## Cue-vs-alignment, extended (Condition 0, full pose CSV/pkls, ch5)
+Tested pose on UTTERANCE axis (not just region) + new cues, vs Gemini alignment:
+- pose GESTURE (pointing=hand extended from body, showing=hand raised; from CSV bboxes): spearman
+  0.028, AUC 0.526, mean-align by quartile 7.4/8.7/8.5/9.2 -> NULL (no better than presence).
+- PERSON present (any detection): AUC 0.554, mean-align 8.5(present) vs 5.1(absent) -> BEST social
+  cue, weak. FACE present (caregiver face_score>0.3): AUC 0.508 -> null.
+- GAZE direction (caregiver head pitch/yaw from raw 133-kpt pkls, 52k pairs w/ valid face): pitch
+  AUC 0.505, yaw 0.454, looking-down mean-align 6.3 vs 7.8 -> NULL (slightly negative).
+VERDICT: no accessible cue predicts alignment; best=discourse rho 0.14, best-social=person-present
+AUC 0.55, all << titration bar rho~0.3/AUC~0.65. Utterance filter would be ~random (AUC 0.53).
+Added ch5 "Condition 0" table. Scripts: build_pose_gesture, build_pose_face, build_pose_gaze.

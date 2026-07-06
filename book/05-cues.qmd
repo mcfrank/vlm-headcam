@@ -11,6 +11,36 @@ oracle on Konkle (dev-tuned, Vong-60 test), with error bars.
 The mechanism throughout is a **weighted bag-of-words** or a **region prior**: instead of pooling
 uniformly, weight each word (or region) by a per-item cue so the referent dominates.
 
+## Condition 0: do the cues even predict alignment? {#sec-cues-cond0}
+
+Before asking whether a cue can *recover* a rung, a blunter question: does any accessible cue
+*predict* referential alignment at all — does it correlate with the Gemini gold? The titration of
+@sec-social set the bar at ρ ≈ 0.3 (a selection AUC ~0.65) for a cue to ignite a bootstrap. Nothing
+we can read comes close.
+
+| cue | grain | predicts alignment |
+|---|---|---|
+| discourse continuity | utterance | ρ = 0.14 *(best overall)* |
+| combined language predictor | utterance | ρ = 0.11 |
+| prosody (energy range) | word | ρ = 0.05 |
+| person present | utterance | AUC 0.55 *(best social)* |
+| caregiver speaking | utterance | AUC 0.54 |
+| pose gesture (point / show) | utterance | AUC 0.53 |
+| child's hand present | utterance | AUC 0.53 |
+| visible face | utterance | AUC 0.51 |
+| caregiver gaze direction (pitch/yaw) | utterance | AUC ~0.50 |
+| adult hand / reach / pointing | utterance | AUC ~0.50 |
+
+The best single cue — discourse continuity — reaches only ρ ≈ 0.14, about half the ignition bar.
+The best *social* cue is merely "is a person present" (AUC 0.55; mean alignment 8.5 with a person
+vs 5.1 without) — a real whisper, but nowhere near useful; a *visible face*, a *pointing gesture*,
+and *gaze direction* add nothing beyond it, and the sharper we make them (gesture geometry, head
+direction from raw keypoints) the more clearly the ceiling holds. This is the foundation of every
+null below: **the cues do not predict which moments are referential**, so — on any axis, whether
+used to select pairs, weight words, or steer region attention — they cannot do better than chance.
+At 1 fps, in this stream, the signal that would tell a learner *when* reference is happening is
+simply not legible.
+
 ## Language cues: word selection {#sec-cues-lang}
 
 Can an accessible speech cue pick the referent *word* inside the utterance, recovering the +4.7
@@ -64,6 +94,14 @@ The reasons are the ones anticipated: region-MIL already selects the best-*match
 own, so forcing it toward the hand adds nothing where the referent *is* nameable; and on the
 deictic pairs — the ones this cue is meant to rescue — there is no content word for the attended
 object to bind to. A location cue cannot supply a name.
+
+The region axis is where the pose cue had the *least* room, so we also tested it on the axis where
+it might have had the most — the **utterance filter** (does a gesture mark a referential pair?).
+It fails there too, for the deeper reason of @sec-cues-cond0: a sharper pointing/showing gesture
+predicts Gemini alignment at ρ ≈ 0.03 (AUC 0.53), and caregiver gaze direction at AUC ~0.50 — both
+chance. A cue that does not predict *when* reference happens cannot filter for it, pick the frame
+for it, or steer attention to it. The one social signal with any purchase is bare *person presence*
+(AUC 0.55), and it is far too weak to bootstrap.
 
 ## The shape of the result {#sec-cues-conclusion}
 
