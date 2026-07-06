@@ -17,11 +17,6 @@ book:
     - 06-scaling.qmd
     - 07-what-learned.qmd
     - 08-conclusion.qmd
-  appendices:
-    - app-a-prelim-alignment.qmd
-    - app-b-prelim-bootstrapping.qmd
-    - app-c-social-cues.qmd
-    - app-d-whose.qmd
 
 bibliography: references.bib
 

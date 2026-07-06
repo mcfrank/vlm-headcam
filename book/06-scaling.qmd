@@ -3,7 +3,7 @@
 @sec-data showed the corpus is large but extremely uneven across children. This chapter asks
 why the numbers are where they are along two axes — **how much** data, and **whose** — using
 the region-MIL learner on subsamples of the 911k training pairs, all evaluated on Konkle
-test-60 (3 seeds). This supersedes the preliminary CLIP-era analysis of @sec-data-whose.
+test-60 (3 seeds), redoing on the clean eval an analysis we first ran with CLIP-era tooling.
 
 ## How much data
 

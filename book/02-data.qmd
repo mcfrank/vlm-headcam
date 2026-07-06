@@ -51,7 +51,7 @@ and the difference between them matters throughout the book.
 CLIP model. It is cheap and requires no extra infrastructure, but its distribution is
 **extremely compressed** — mean 0.224, sd **0.015** — so the entire aligned/misaligned
 distinction lives in a razor-thin band, which is why a fixed threshold (e.g. 0.24) is so
-delicate (@sec-experiments). And because it scores the *whole frame*, it is easily fooled — it
+delicate. And because it scores the *whole frame*, it is easily fooled — it
 scores on-screen *text* and topical keywords highly even when nothing is depicted.
 
 **Gemini** (`alignment`, 0–100, plus a `referent` noun) is a per-pair judgment from Gemini 2.5

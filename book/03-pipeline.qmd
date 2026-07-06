@@ -65,7 +65,7 @@ experiments clean:
 - **Clean.** Because capacity and optimization are held fixed, differences
   between runs reflect *which pairs the model sees*, not how hard the vision
   problem is. (This also means our probe cannot reproduce the training-loss
-  *divergence* reported for end-to-end pixel models — see @sec-experiments — but
+  *divergence* reported for end-to-end pixel models — but
   it isolates the alignment effect that divergence obscures.)
 
 ## The text tower: bag of words
@@ -130,8 +130,8 @@ few thousand words) and one scalar temperature. There are **no learned vision
 parameters**; "alignment" here is literally a linear projection of frozen DINOv2
 features, a bag-of-words lookup table, and a temperature. That thinness is
 deliberate — it isolates the alignment *signal* from encoder capacity — and it is
-what makes the topline of @sec-topline interpretable: when this map reaches ~72%
-under injected labels, the ceiling we are measuring is the frozen features', not
+what makes the label topline of @sec-bootstrapping interpretable: when this map reaches its
+ceiling under clean labels, what we are measuring is the frozen features', not
 the probe's.
 
 ## Training dynamics: what the loss does {#sec-training-dynamics}
@@ -165,7 +165,7 @@ Three things follow, and they recur throughout the book:
    loss-climbing reported for full end-to-end BabyView contrastive training is
    therefore an optimization/capacity effect layered on top of the alignment
    problem; the probe deliberately strips it away, so our claim is "filtered >
-   unfiltered," not "unfiltered diverges" (@sec-a).
+   unfiltered," not "unfiltered diverges."
 
 ## Evaluating: the Konkle 4AFC test {#sec-eval}
 
@@ -221,7 +221,7 @@ measures what each buys:
 *(Regenerated locally; not committed.)*](figures/frames/fig_crop_example.png){#fig-crop}
 
 All three share the same frozen DINOv2 features and contrastive objective; they differ only in
-*what the utterance is allowed to match*. The preliminary experiments (@sec-experiments) used a
+*what the utterance is allowed to match*. Earlier experiments used a
 hard-coded detector **crop** as a stand-in for region grounding; region MIL replaces it.
 
 ## Reproducing

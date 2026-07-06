@@ -1,7 +1,7 @@
 # Cues {#sec-cues}
 
-The decomposition of @sec-bootstrapping relocates the prize. The old social-cue work
-(@sec-social) aimed accessible cues at *filtering frames*, and found little — but filtering is
+The decomposition of @sec-bootstrapping relocates the prize. Earlier social-cue work aimed
+accessible cues at *filtering frames*, and found little — but filtering is
 the small rung (~+6, and region-MIL already takes most of it). The open headroom is in the
 **referent label** (~+19), split into **word selection** (+4.7, the referent when it *is* spoken)
 and **vision-binding** (+8.1, the referent when it is *not*). This chapter re-aims cues at
@@ -14,9 +14,9 @@ uniformly, weight each word (or region) by a per-item cue so the referent domina
 ## Condition 0: do the cues even predict alignment? {#sec-cues-cond0}
 
 Before asking whether a cue can *recover* a rung, a blunter question: does any accessible cue
-*predict* referential alignment at all — does it correlate with the Gemini gold? The titration of
-@sec-social set the bar at ρ ≈ 0.3 (a selection AUC ~0.65) for a cue to ignite a bootstrap. Nothing
-we can read comes close.
+*predict* referential alignment at all — does it correlate with the Gemini gold? A cue needs to
+correlate with alignment at roughly ρ ≈ 0.3 (a selection AUC ~0.65) to drive a useful filter —
+below that, any reweighting is swamped by noise. Nothing we can read comes close.
 
 | cue | grain | predicts alignment |
 |---|---|---|

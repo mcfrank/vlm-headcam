@@ -18,7 +18,7 @@ What the model learns are the **visually distinctive, common, unambiguous concre
 *apple, bike, butterfly, turtle, umbrella, microwave, fan, crib* — all at or near 100%. What it
 fails are the **rare** (*domino, lei, trophy*), the **small or visually diffuse** (*glove, feather,
 coin, cigarette, candy*), and the **polysemous or ambiguous** (*flag, bullet, microphone*). This is the pattern @vong2024 report for CVCL. One sanity check
-worth noting: many words the old noisy detector eval of @sec-experiments scored near chance (it
+worth noting: many words the old noisy detector eval scored near chance (it
 put *cat* at 14%) sit high here — the clean benchmark confirms the model genuinely learned them,
 and the old numbers were eval noise.
 

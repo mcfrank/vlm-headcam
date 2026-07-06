@@ -29,11 +29,10 @@ referential noise, does concentrating the aligned moments rescue learning?*
 | [The data](02-data.qmd) | BabyView 2025.2 — scale (36 children, ~1,390 h, 1.1M utterance–frame pairs), what the speech looks like, and the CLIP vs. Gemini annotations of alignment. |
 | [The pipeline](03-pipeline.qmd) | The modeling infrastructure — the frozen two-tower model, the three bootstrapping mechanisms (region / frame / utterance), and the out-of-sample Konkle evaluation. |
 | [Bootstrapping experiments](04-bootstrapping.qmd) | The systematic ladder: what region-, frame-, and utterance-bootstraps buy against oracle toplines, on all data, with error bars. |
-| [Cues](05-cues.qmd) | *(planned)* Re-aiming the cues children actually use — prosody, discourse, gaze, pose — at *referent identification*, where the headroom is. |
-| [Scaling and data distribution](06-scaling.qmd) | *(planned)* How each rung scales with amount of data, and within- vs. across-child (whose data matters more than how much). |
-
-The appendices keep the earlier, **preliminary** experiments (CLIP alignment and the
-detector-based eval, on a smaller slice) for the record, superseded by the chapters above.
+| [Cues](05-cues.qmd) | Re-aiming the cues children actually use — prosody, discourse, gaze, pose — at *referent identification*; every one is null, for a concrete reason. |
+| [Scaling and data distribution](06-scaling.qmd) | How each rung scales with amount of data, and within- vs. across-child: alignment is ~90× the data, diversity buys more. |
+| [What got learned](07-what-learned.qmd) | The best organic model, item by item: distinctive common nouns; the bottleneck is the learning signal, not the vision encoder. |
+| [Conclusion](08-conclusion.qmd) | What referential alignment sets a ceiling on, and the three ways the boundary might move. |
 
 ## The question in one figure
 
