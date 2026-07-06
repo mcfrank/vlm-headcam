@@ -1,0 +1,56 @@
+# What got learned {#sec-what-learned}
+
+The chapters so far measured *how much* a learner reaches (the ladder) and *why it cannot reach
+further* (cues, scaling). This one opens the best organically-bootstrapped model — region+frame
+MIL trained on all data, no oracle — and asks *what* it actually learned, and where its failures
+come from. The answer sharpens the whole story: the bottleneck is the referential learning signal,
+not the vision encoder.
+
+## The item landscape
+
+Broken down by category, accuracy is a broad, continuous distribution from perfect to below chance
+(@fig-item), not a uniform level.
+
+![Per-category 4AFC across 176 Konkle categories (test + dev), sorted. Green ≥ 50%, red near or
+below chance.](figures/fig_item_acc.png){#fig-item width=100%}
+
+What the model learns are the **visually distinctive, common, unambiguous concrete nouns** —
+*apple, bike, cat, chair, ball, train, clock, pizza, umbrella, butterfly, laptop, microwave* — all
+at or near 100%. What it fails are the **rare** (*bongo, trumpet, domino, binoculars*), the
+**small or visually diffuse** (*bill, lipstick, glove, feather, cheese, quilt*), and the
+**polysemous** (*frame, grill*). This is the pattern @vong2024 report for CVCL. One sanity check
+worth noting: *cat* scores ~100% here, versus 14% on the old noisy detector eval of @sec-experiments
+— the clean benchmark confirms the model genuinely learned it, and the old number was eval noise.
+
+## What predicts an item's accuracy
+
+Two candidate explanations: a word is learned because it is *heard often* (frequency), or because
+its referent is *visually distinctive* (the frozen features separate it). We can test both directly.
+
+![Left: the frozen-feature prototype 4AFC — pick the image closest to a category's mean DINOv2
+embedding, with no learned text — is at or above 99% for **every** category. Right: model accuracy
+tracks training frequency, not vision.](figures/fig_item_analysis.png){#fig-item-analysis width=95%}
+
+The result is stark. A **vision-only prototype** — classifying each Konkle image by nearest
+category-centroid in the frozen DINOv2 space, using no language at all — scores **median 100%,
+minimum 99%**: the frozen features separate *every one* of the 176 categories near-perfectly. So
+visual distinctiveness cannot explain the model's failures, and indeed it doesn't — model accuracy
+correlates with the vision prototype at **ρ = 0.03**. What it does correlate with is **training
+frequency (ρ = 0.39)**: the model learns the words it hears aligned often, and misses the rare
+ones — for **111 of 176 categories** the object is fully separable in the features yet the model
+scores far below what a prototype would.
+
+## The bottleneck is the signal, not the encoder
+
+This settles a question the conclusion of the mechanistic chapters left open. The frozen vision
+features are **not** the limit — they already separate every object we test, so **unfreezing the
+encoder would not help**; there is no visual information the model is failing to see. The failures
+are **learning failures**: words the model has not heard, aligned, often enough. The item
+distribution is a frequency-and-alignment distribution wearing a visual mask.
+
+It also closes the loop with @sec-scaling. There we found alignment is worth ~90× the data and the
+baseline never plateaus; here we see *why* at the level of individual words — each word needs
+enough aligned exposures to be learned, the frozen features are always ready to support it, and so
+the growth of the vocabulary across development is gated by how often each referent is named in a
+moment the learner can see. **The child's-eye view contains the information; what is scarce is the
+alignment that would let a learner use it.**

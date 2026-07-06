@@ -697,3 +697,16 @@ Tested pose on UTTERANCE axis (not just region) + new cues, vs Gemini alignment:
 VERDICT: no accessible cue predicts alignment; best=discourse rho 0.14, best-social=person-present
 AUC 0.55, all << titration bar rho~0.3/AUC~0.65. Utterance filter would be ~random (AUC 0.53).
 Added ch5 "Condition 0" table. Scripts: build_pose_gesture, build_pose_face, build_pose_gaze.
+
+## "What got learned" interpretation (ch7, best organic model G_framereg_s0)
+Item plot (make_item_plot): 176 Konkle cats, mean 51.9, 47% >=50%. Learned=distinctive common
+nouns (apple/bike/cat/chair 100); failed=rare(bongo/trumpet)/small(bill/glove)/polysemous(frame/
+grill)/diffuse(cheese/quilt). cat=100 here vs 14 on old detector eval (eval noise confirmed).
+What predicts (make_item_analysis): VISION PROTOTYPE 4AFC (nearest-centroid in frozen DINOv2,
+no text) = median 100, MIN 99, 100% of cats >=90% -> frozen features separate EVERY category.
+model-acc vs vision-proto rho=0.03 (none); model-acc vs log-frequency rho=0.39. 0 cats vision-
+limited; 111/176 learnable-by-vision-but-model-missed. => BOTTLENECK IS THE LEARNING SIGNAL
+(frequency/alignment), NOT the vision encoder -> unfreezing would NOT help (refines conclusion).
+Also: launched region-MIL 100% refit (held-out 20% embedded to emb_reg_ho_0..7, train_frame_mil
+--window 0 on grid_baseline_full 1.14M) = top scaling point + definitive model. Book now 8 ch
+(added ch7 What got learned; conclusion->ch8). Scripts: make_item_plot, make_item_analysis.
