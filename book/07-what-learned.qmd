@@ -68,6 +68,47 @@ confusion pattern. Bright blocks on the diagonal are clusters of mutually-confus
 kitchen items, animals, vehicles, clothing — the model's residual errors respecting category
 boundaries.](figures/fig_confusion.png){#fig-confusion width=95%}
 
+## An external check: the LEVANTE vocabulary benchmark {#sec-levante}
+
+Everything so far is measured on the Konkle photo set, against *proxies* for difficulty
+(frequency, a vision prototype). Does the same story hold on an independent benchmark with **real
+children** to compare against? LEVANTE-bench [@levantebench2026] pairs cognitive tasks from the
+LEVANTE child-assessment project with data from ~1,500 children aged 5–12. Its **vocabulary** task
+is a clean 4AFC — a target word, four candidate pictures, pick the referent — the same shape as our
+Konkle eval, and each item carries an IRT difficulty estimated from the children. We score our
+definitive model on it exactly as @devbench2024 scored contrastive models: embed the word, embed
+the four images, pick the one whose region grid the word matches best. No prompting, no
+retraining.
+
+The bank is a wide-range test running from *carrot* and *turtle* up to *aesthete*, *gesticulate*,
+and *mammalogy*. Of 159 test items the model can even attempt **100** — the rest name concepts that
+simply never occur in a child's-eye corpus. On those 100 it scores **42.3 ± 0.5%** (3 seeds; chance
+25), which places this tiny frozen learner in the range of the *smallest* generative VLMs
+LEVANTE-bench evaluates — models three to four orders of magnitude larger.
+
+The item-by-item comparison to children is the revealing part, and it is a **weak** alignment with
+a clear cause (@fig-lev-vocab). Across the 76 items with a child difficulty estimate, the model's
+per-item confidence is only faintly related to how hard the item is for children (Spearman
+$\rho \approx -0.13$, and unstable across seeds). What it tracks instead — more than twice as
+strongly, and robustly — is the word's **frequency in the model's own BabyView input**
+($\rho = +0.34$; accuracy climbs 25 → 40 → 58% across frequency terciles). The two are not
+independent: words frequent in one child's video also tend to be the words children find easy
+($\rho = -0.42$), so the model does align with children *a little* — but only *through* frequency,
+and its single-corpus counts are a noisy stand-in for the shared developmental ordering.
+
+![On the LEVANTE vocabulary 4AFC (seed-mean over 3 runs; 76 items with a child difficulty
+estimate; green = the model chose the correct image). **A**: the model's confidence is only weakly
+related to children's item difficulty. **B**: it tracks the word's frequency in the model's own
+BabyView training data much more strongly. The model knows the words it heard often, not the words
+children find easy — though the two partly overlap.](figures/fig_lev_vocab.png){#fig-lev-vocab width=100%}
+
+This is the chapter's thesis confirmed on outside data, against real children rather than proxies:
+the model has learned exactly the words its input made available often, and its competence is
+governed by that idiosyncratic exposure rather than by anything about how children acquire words.
+It is also consistent with LEVANTE-bench's own finding that even billion-parameter VLMs align only
+modestly with children at the item level — our learner sits at the small-model end of that same
+weak-alignment regime.
+
 ## The bottleneck is the signal, not the encoder
 
 This settles a question the conclusion of the mechanistic chapters left open. The frozen vision
