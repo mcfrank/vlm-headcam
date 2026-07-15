@@ -23,7 +23,7 @@ orders of magnitude.](figures/fig_scaling_curves.png){#fig-scaling width=85%}
 | 85k | — | 71.4 ± 1.6 |
 | 100k | 40.2 ± 3.1 | — |
 | 300k | 56.2 ± 2.6 | — |
-| 911k | 62.6 ± 1.7 | — |
+| 911k | 65.3 ± 1.7 | — |
 | 1.14M (full corpus) | **65.6 ± 2.2** | — |
 
 Two findings. First, contrary to the natural guess, **the random baseline does not plateau** — it
@@ -32,15 +32,9 @@ the held-out 20% to the 911k lifts it another +3). This full-corpus model is the
 best-organic learner interpreted in @sec-what-learned. Unfiltered training
 is genuinely *data-limited*: because most pairs are non-referential noise, the model needs a great
 deal of data to average out. Second, and this is the headline, **alignment is worth ~2 orders of
-magnitude of data**: **10k aligned pairs (63.9) already match ~900k random ones (62.6)**,[^scalerig] and the
+magnitude of data**: **10k aligned pairs (63.9) already match ~900k random ones (65.3)**, and the
 aligned curve is near the label ceiling by 85k. So the lever is not "more data" in the absolute —
 it is *concentration*: a few tens of thousands of aligned pairs beat a million unfiltered ones.
-
-[^scalerig]: These scaling curves use the book's original evaluation rig; the region-MIL rung of
-@sec-bootstrapping has since been re-stated on a cleaner single rig ~2–3 points higher (65.3 for the
-80% split). The offset is uniform across conditions, so the aligned-vs-random comparison — the point
-of this figure — is unaffected. Reassuringly, the full-corpus region-MIL here (65.6) already lands
-at the clean-rig region value.
 
 (One caveat: at the smallest sizes the low-vocabulary runs cover fewer of the 60 Konkle
 categories, so the absolute low-N numbers are dragged toward chance and the aligned/random
@@ -84,11 +78,11 @@ lift. Right: at a matched 110k pairs, pooling across children beats the single b
 +7.](figures/fig_whose_data.png){#fig-whose width=90%}
 
 The clean comparison is the **within-child ceiling**: the biggest single child contributes 110k
-pairs, and trained on those alone the model reaches **35.8 ± 2.7**; a pooled random sample of the
-*same 110k* count reaches **42.8 ± 3.1** — **+7 for diversity at matched amount**. One child's
+pairs, and trained on those alone the model reaches **36.7 ± 2.7**; a pooled random sample of the
+*same 110k* count reaches **43.0 ± 3.1** — **+6 for diversity at matched amount**. One child's
 world, even a large one, hits a low ceiling that pooling across homes clears. The finer sweep —
 fixing 30k pairs and varying the number of contributing children (1 → 36) — points the same way
-(31.0 → 34–37) but is within seed noise, so we read diversity as a **real but moderate** effect,
+(31.7 → ~35) but is within seed noise, so we read diversity as a **real but moderate** effect,
 not a dominant one.
 
 ## Synthesis

@@ -11,9 +11,9 @@ INK, SUB, GRID = "#2c2c2a", "#6b6a66", "#e1e0d9"
 RAND, ALIGN = "#b0655a", "#1d9e75"
 
 # --- scaling curves (N, mean, sd) ---
-rand = [(10000, 30.0, 3.5), (30000, 38.3, 0.8), (100000, 40.2, 3.1), (300000, 56.2, 2.6),
-        (911000, 62.6, 1.7), (1145000, 65.6, 2.2)]   # 1.14M = full corpus (held-out 20% added)
-align = [(10000, 63.9, 5.5), (30000, 68.0, 1.3), (85000, 71.4, 1.6)]
+rand = [(10000, 29.3, 3.5), (30000, 38.8, 0.8), (100000, 39.7, 3.1), (300000, 56.3, 2.6),
+        (911000, 65.3, 1.7), (1145000, 65.6, 2.2)]   # 1.14M = full corpus (held-out 20% added)
+align = [(10000, 63.9, 5.5), (30000, 68.2, 1.3), (85000, 71.5, 1.6)]
 fig, ax = plt.subplots(figsize=(7.6, 4.6), dpi=150)
 for data, col, lab in [(rand, RAND, "random (unfiltered)"), (align, ALIGN, "Gemini-aligned")]:
     x = [d[0] for d in data]; y = [d[1] for d in data]; e = [d[2] for d in data]
@@ -37,7 +37,7 @@ ax[0].bar(range(4), [d[1] for d in div], yerr=[d[2] for d in div], color=ALIGN, 
 ax[0].set_xticks(range(4)); ax[0].set_xticklabels([d[0] for d in div])
 ax[0].set_xlabel("# children (30k pairs fixed)", fontsize=10); ax[0].set_title("Diversity at fixed count", fontsize=11, color=INK, loc="left")
 ax[0].axhline(25, color=SUB, lw=1, ls=(0, (5, 4)))
-ax[1].bar([0, 1], [35.8, 42.8], yerr=[2.7, 3.1], color=[RAND, ALIGN], width=0.55, capsize=3)
+ax[1].bar([0, 1], [36.7, 43.0], yerr=[2.7, 3.1], color=[RAND, ALIGN], width=0.55, capsize=3)
 ax[1].set_xticks([0, 1]); ax[1].set_xticklabels(["1 child\n(110k)", "pooled\n(110k)"])
 ax[1].set_title("Within-child ceiling (matched count)", fontsize=11, color=INK, loc="left")
 ax[1].axhline(25, color=SUB, lw=1, ls=(0, (5, 4)))

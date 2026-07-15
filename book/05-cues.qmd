@@ -4,15 +4,9 @@
 
 The decomposition of @sec-bootstrapping relocates the prize. Earlier social-cue work aimed
 accessible cues at *filtering frames*, and found little — but filtering is
-the small rung (~+6, and region-MIL already takes most of it). The open headroom is in the
-**referent label** (~+19), split into **word selection** (+4.7, the referent when it *is* spoken)
-and **vision-binding** (+8.1, the referent when it is *not*).[^cuerig] This chapter re-aims cues at
-
-[^cuerig]: The cue experiments in this chapter were run on the book's original evaluation rig, the
-same one that produced @sec-bootstrapping's first-draft ladder; @sec-bootstrapping has since been
-re-stated on a cleaner single rig that sits ~2–3 points higher (there the label split is +4.1 /
-+7.5 off a ~+16 headroom). The offset is uniform and the null cue results below do not depend on it,
-so the numbers here are kept internally consistent with the rig the cues were actually measured on.
+the small rung (~+5, and region-MIL already takes most of it). The open headroom is in the
+**referent label** (~+16), split into **word selection** (+4.1, the referent when it *is* spoken)
+and **vision-binding** (+7.5, the referent when it is *not*). This chapter re-aims cues at
 **referent identification** — which word, and which object — measured against the Gemini referent
 oracle on Konkle (dev-tuned, Vong-60 test), with error bars.
 
@@ -51,33 +45,32 @@ simply not legible.
 
 ## Language cues: word selection {#sec-cues-lang}
 
-Can an accessible speech cue pick the referent *word* inside the utterance, recovering the +4.7
-(uniform filtnat 68.5 → oracle t15 73.2)? We tested four, each as a per-word pooling weight on the
-referent-bearing pairs (region-MIL, Konkle test-60, 3 seeds):
+Can an accessible speech cue pick the referent *word* inside the utterance, recovering the word rung
+(uniform 71.6 → oracle t15 74.0, a **+2.4** headroom at best epoch)? We tested four, each as a
+per-word pooling weight on the referent-bearing pairs (region-MIL, Konkle test-60, 3 seeds):
 
 | Cue | Mechanism | Result |
 |---|---|---|
 | speaker filter | drop the child's own utterances | **null** — drop-child 63.5 ≤ random-drop control 64.3 |
 | noun bias | static content-noun weighting (`spacy_pos`) | **null at convergence** (+2 transient, gone by the final epoch) |
-| discourse newness | down-weight recently-repeated words | **−1.7** — *hurts*; caregivers repeat the referent |
+| discourse newness | down-weight recently-repeated words | **null** (−0.8, within noise) |
 | prosody | per-word RMS energy from the audio | **null** (−0.6, within noise) |
 
 **Every language cue is null.** Two things explain it. First, **the contrastive objective already
 does implicit word-selection**: the referent word co-occurs with its object across many pairs and
 so rises on its own, while function words co-occur with everything and wash out — which is why the
-noun bias adds nothing at convergence and why the discourse-repetition cue, by penalizing repeated
-(hence often *referential*) words, actively hurts. Second, and more tellingly, **the +4.7 is
-largely an overfitting artefact**: uniform bag-of-words *at its best epoch* already reaches ~71.6,
-within ~1.6 of the oracle — the gap only opens because the uniform model overfits to 68.5 by the
-final epoch while the clean-label oracle does not. Early stopping recovers most of the "headroom";
-no cue recovers the residual.
+noun bias adds nothing at convergence and why a discourse-repetition cue, by penalizing repeated
+(hence often *referential*) words, does not help. Second, and more tellingly, **the headroom is
+small to begin with**: measured cleanly at best epoch, uniform bag-of-words already reaches 71.6,
+within **+2.4** of the referent-word oracle (74.0). The learner has essentially already solved
+word-selection on its own; no cue recovers the residual.
 
 The conclusion is clean: **word selection is not a cue-accessible lever.** The speech side of
 referent identification is already handled by the learner. What remains is the harder half.
 
 ## Vision cues: binding the unspoken referent {#sec-cues-vision}
 
-The genuinely open rung is **vision-binding (+8.1)** — the ~37% of aligned moments where the
+The genuinely open rung is **vision-binding (+7.5)** — the ~37% of aligned moments where the
 referent is *never spoken* ("look at *that*"). Here the object must be identified from vision, and
 this is a different kind of problem: **an accessible cue can supply the referent's *location*
 (gaze, salience, a caregiver's point, the child's hands) but not its *name*** — naming an unspoken
