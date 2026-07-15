@@ -1,5 +1,7 @@
 # How much does the vision encoder matter? {#sec-encoders}
 
+{{< include _caution.qmd >}}
+
 Everything so far has run on a single frozen off-the-shelf vision encoder — **DINOv2-base**. @sec-what-learned
 argued that this encoder is *not* the bottleneck: its frozen features already separate every Konkle
 category near-perfectly, so the failures are learning failures, not seeing failures. That is an

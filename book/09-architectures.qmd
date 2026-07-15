@@ -1,5 +1,7 @@
 # Architectures linking language and vision {#sec-architectures}
 
+{{< include _caution.qmd >}}
+
 @sec-encoders showed the vision encoder is not the bottleneck. But every result in this book has
 used a single *architecture*: a CLIP-style contrastive two-tower, in which a word and a frame are
 each crushed to one vector and aligned by a dot product, with a hard **max-over-regions** (MIL)

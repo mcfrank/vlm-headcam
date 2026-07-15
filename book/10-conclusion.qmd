@@ -1,5 +1,7 @@
 # Conclusion {#sec-conclusion}
 
+{{< include _caution.qmd >}}
+
 This book set out to test a simple idea: if word–object learning from a child's-eye view fails
 because speech and vision are only intermittently about the same thing, then *concentrating the
 aligned moments* — or learning to find them — should rescue it. The prototype was deliberately

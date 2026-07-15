@@ -1,5 +1,7 @@
 # Scaling and data distribution {#sec-scaling}
 
+{{< include _caution.qmd >}}
+
 @sec-data showed the corpus is large but extremely uneven across children. This chapter asks
 why the numbers are where they are along two axes — **how much** data, and **whose** — using
 the region-MIL learner on subsamples of the 911k training pairs, all evaluated on Konkle

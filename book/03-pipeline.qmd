@@ -1,5 +1,7 @@
 # The pipeline {#sec-pipeline}
 
+{{< include _caution.qmd >}}
+
 This chapter walks through the whole modeling pipeline, from raw cluster data to
 a trained model and its evaluation. The design goal is *iteration speed*: every
 choice below is made so that a full experiment runs in minutes, letting us test

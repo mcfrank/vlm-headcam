@@ -1,5 +1,7 @@
 # Background {#sec-background}
 
+{{< include _caution.qmd >}}
+
 ## The data gap
 
 Estimates of children's linguistic input converge on roughly $6\times10^7$ words

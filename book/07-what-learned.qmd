@@ -1,5 +1,7 @@
 # What got learned {#sec-what-learned}
 
+{{< include _caution.qmd >}}
+
 The chapters so far measured *how much* a learner reaches (the ladder) and *why it cannot reach
 further* (cues, scaling). This one opens the best organically-bootstrapped model — region-MIL
 trained on the **full corpus** (all 1.14M pairs, including the held-out 20%; the definitive model

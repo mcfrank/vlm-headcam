@@ -1,5 +1,7 @@
 # Bootstrapping experiments {#sec-bootstrapping}
 
+{{< include _caution.qmd >}}
+
 The question of this book is whether word–object mapping can be **bootstrapped** from
 naturalistic data — whether a learner can climb from naive contrastive training toward the
 ceiling using only signal it could plausibly have. This chapter maps that climb with a single,

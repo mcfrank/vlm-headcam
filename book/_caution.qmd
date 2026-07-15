@@ -1,0 +1,12 @@
+::: {.callout-important}
+## AI-generated — not for publication
+The code and prose in this book were written by Claude Code (an AI coding agent) under human
+direction. They have not been line-by-line verified by a human and must not be published or cited
+as-is.
+:::
+
+::: {.callout-warning}
+## Preliminary & unvetted analysis
+These are exploratory analyses of preliminary, in-progress work. Results and numbers have not been
+independently reviewed or validated and require checking before any use.
+:::

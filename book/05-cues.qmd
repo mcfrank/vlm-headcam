@@ -1,5 +1,7 @@
 # Cues {#sec-cues}
 
+{{< include _caution.qmd >}}
+
 The decomposition of @sec-bootstrapping relocates the prize. Earlier social-cue work aimed
 accessible cues at *filtering frames*, and found little — but filtering is
 the small rung (~+6, and region-MIL already takes most of it). The open headroom is in the

@@ -1,5 +1,7 @@
 # The data {#sec-data}
 
+{{< include _caution.qmd >}}
+
 Everything in this book is learned from **BabyView 2025.2**, a corpus of head-mounted
 camera recordings from young children's daily lives, paired with transcribed speech. This
 chapter describes what the corpus contains, why *referential alignment* is the central
