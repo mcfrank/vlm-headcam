@@ -51,15 +51,16 @@ same architecture family, differing *only* in training data — and in-domain lo
 
 ## A correction to the region-MIL rung
 
-This comparison also forces an honest correction to the ladder of @sec-bootstrapping. There we
-reported region-MIL as a **+9.7** free gain over whole-frame. But that whole-frame baseline was the
-DINOv2 **CLS token** (52.9), and CLS is a *weak* object-recognition readout for DINOv2. Measured
-against a **mean-pooled** whole-frame baseline — the fair "no spatial selection" summary, and what
-every encoder here uses — DINOv2 whole-frame is already **61.3**, so region-MIL's honest gain is
-only **+4.0**. For the stronger DINOv3-B it is **+1.8**; for the BabyView encoders, ≈0 (@fig-encoder-compare).
-Most of the book's apparent "+9.7 region-MIL magic" was **CLS being a poor summary**, not spatial
-selection being powerful — and the genuine region gain **shrinks as the base encoder gets stronger**,
-because a good encoder's mean-pooled features already localize what a word needs.[^zwm170]
+This comparison is what fixed the region-MIL rung of @sec-bootstrapping. An earlier draft of that
+ladder reported region-MIL as a **+9.7** free gain over whole-frame — but that baseline was the
+DINOv2 **CLS token** (52.9), a *weak* object-recognition readout for DINOv2. Measured against a
+**mean-pooled** whole-frame baseline — the fair "no spatial selection" summary, and what every
+encoder here uses — DINOv2 whole-frame is already **61.3**, so region-MIL's honest gain is only
+**+4.0** (the value the ladder now carries). For the stronger DINOv3-B it is **+1.8**; for the
+BabyView encoders, ≈0 (@fig-encoder-compare). Most of the apparent "region-MIL magic" was **CLS
+being a poor summary**, not spatial selection being powerful — and the genuine region gain
+**shrinks as the base encoder gets stronger**, because a good encoder's mean-pooled features already
+localize what a word needs.[^zwm170]
 
 [^zwm170]: The one non-monotone cell — ZWM-170M region-MIL (28.9) below its whole-frame (31.6) — is
 a readout mismatch, not a real drop: its cached grid is a mid-block layer while its whole-frame

@@ -4,7 +4,13 @@ The decomposition of @sec-bootstrapping relocates the prize. Earlier social-cue 
 accessible cues at *filtering frames*, and found little — but filtering is
 the small rung (~+6, and region-MIL already takes most of it). The open headroom is in the
 **referent label** (~+19), split into **word selection** (+4.7, the referent when it *is* spoken)
-and **vision-binding** (+8.1, the referent when it is *not*). This chapter re-aims cues at
+and **vision-binding** (+8.1, the referent when it is *not*).[^cuerig] This chapter re-aims cues at
+
+[^cuerig]: The cue experiments in this chapter were run on the book's original evaluation rig, the
+same one that produced @sec-bootstrapping's first-draft ladder; @sec-bootstrapping has since been
+re-stated on a cleaner single rig that sits ~2–3 points higher (there the label split is +4.1 /
++7.5 off a ~+16 headroom). The offset is uniform and the null cue results below do not depend on it,
+so the numbers here are kept internally consistent with the rig the cues were actually measured on.
 **referent identification** — which word, and which object — measured against the Gemini referent
 oracle on Konkle (dev-tuned, Vong-60 test), with error bars.
 

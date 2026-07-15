@@ -30,9 +30,15 @@ the held-out 20% to the 911k lifts it another +3). This full-corpus model is the
 best-organic learner interpreted in @sec-what-learned. Unfiltered training
 is genuinely *data-limited*: because most pairs are non-referential noise, the model needs a great
 deal of data to average out. Second, and this is the headline, **alignment is worth ~2 orders of
-magnitude of data**: **10k aligned pairs (63.9) already match ~900k random ones (62.6)**, and the
+magnitude of data**: **10k aligned pairs (63.9) already match ~900k random ones (62.6)**,[^scalerig] and the
 aligned curve is near the label ceiling by 85k. So the lever is not "more data" in the absolute —
 it is *concentration*: a few tens of thousands of aligned pairs beat a million unfiltered ones.
+
+[^scalerig]: These scaling curves use the book's original evaluation rig; the region-MIL rung of
+@sec-bootstrapping has since been re-stated on a cleaner single rig ~2–3 points higher (65.3 for the
+80% split). The offset is uniform across conditions, so the aligned-vs-random comparison — the point
+of this figure — is unaffected. Reassuringly, the full-corpus region-MIL here (65.6) already lands
+at the clean-rig region value.
 
 (One caveat: at the smallest sizes the low-vocabulary runs cover fewer of the 60 Konkle
 categories, so the absolute low-N numbers are dragged toward chance and the aligned/random

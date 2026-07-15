@@ -37,11 +37,11 @@ access to at training time.
 ## The ladder
 
 ![The bootstrapping ladder. Green rungs are **free** — achievable with no labels — and chain
-cumulatively; blue rungs are **oracles** — upper bounds that require alignment or referent labels we
-do not have at training time. The oracle rungs are an **alternative branch** out of the region-MIL
-baseline (62.6), *not* stacked on frame-MIL: the guide line marks where they leave the free chain,
-so the alignment filter's +5.9 is measured from region-MIL, not from the frame-MIL rung just below
-it. Perfect labels cannot exceed ~81 on these frozen features.](figures/fig_waterfall_ladder.png){#fig-ladder width=95%}
+cumulatively from a mean-pooled whole-frame baseline; blue rungs are **oracles** — upper bounds that
+require alignment or referent labels we do not have at training time. The oracle rungs are an
+**alternative branch** out of the region-MIL baseline (65.3), *not* stacked on frame-MIL: the guide
+line marks where they leave the free chain, so the alignment filter's +4.6 is measured from
+region-MIL. Perfect labels cannot exceed ~81 on these frozen features.](figures/fig_waterfall_ladder.png){#fig-ladder width=95%}
 
 The Δ column below reads the same way: free rungs are measured from the rung above, the oracle
 branch from region-MIL. The **from** column makes the base explicit.
@@ -49,97 +49,63 @@ branch from region-MIL. The **from** column makes the base explicit.
 | Rung | Konkle | Δ | from | kind |
 |---|---|---|---|---|
 | chance | 25 | — | — | — |
-| pure learning (whole-frame, noisy data) | 52.9 ± 1.7 | +27.9 | chance | free |
-| **+ region MIL** | 62.6 ± 1.7 | **+9.7** | pure learning | free |
-| **+ frame MIL (±2 s)** | 65.0 ± 1.8 | **+2.4** | region MIL | free |
-| **+ frame MIL (±5 s)** | 66.8 ± 0.6 | **+1.8** | frame ±2 s | free |
-| + alignment filter | 68.5 ± 1.3 | +5.9 | region MIL | oracle |
-| + word selection | 73.2 ± 1.2 | +4.7 | filter | oracle |
-| + vision-binding | 81.3 ± 2.6 | +8.1 | word selection | oracle |
+| pure learning (mean-pooled whole-frame) | 61.3 | +36.3 | chance | free |
+| **+ region MIL** | 65.3 | **+4.0** | pure learning | free |
+| + frame MIL (±2 s) | 65.5 | +0.2 | region MIL | free |
+| + alignment filter | 69.9 | +4.6 | region MIL | oracle |
+| + word selection | 74.0 | +4.1 | filter | oracle |
+| + vision-binding | 81.5 | +7.5 | word selection | oracle |
 | ceiling | ~81 | — | — | unlearnable from these features |
 
-Two facts frame everything. **The free gains are large and get you most of the way:** pure
-contrastive learning on noisy data already reaches 52.9, region MIL adds +9.7, and frame MIL a
-further +2.4 at a ±2 s window (+4.2 at ±5 s), landing an **unaided** learner at **66.8**. Above
-that, every rung is an **oracle** — it needs information (which pairs are aligned; which word is the
-referent) we cannot access at training time. **No self-supervised mechanism we tried climbs those
-oracle rungs.**
+Two facts frame everything. **The free gains are modest.** Naive contrastive learning on a
+mean-pooled whole-frame already reaches 61.3; region-MIL — scoring the utterance against the
+best-matching cell — adds only **+4.0**, and frame-MIL — selecting the best *moment* in a window —
+adds essentially **nothing** (+0.2, within seed noise). Self-supervised spatial and temporal
+*selection* buys a little, then stops.[^clsrig]
 
-But the free route comes remarkably close to the first one. The alignment-filter oracle and the
-free frame-MIL are **two branches out of the same region-MIL node**, both doing the same job —
-isolating the referential moment — one with the Gemini alignment label, one for free by max-pooling
-over space and a ±5 s window. The oracle reaches 68.5; the **free route reaches 66.8, a gap of only
-1.7**. Region max-pooling already does implicit alignment selection (@sec-mechanisms), and widening
-the frame window lets it reach for moments a ±2 s window misses, so self-supervised selection
-recovers most of what the oracle filter provides — the referential *moment* is largely learnable
-without the label. It is the referential *word*, the two rungs above, that stays out of reach.
+[^clsrig]: An earlier draft of this ladder reported these free gains as +9.7 (region) and +2.4
+(frame). Both were inflated: the region gain was measured against a **CLS** whole-frame baseline
+(52.9), and CLS is a weak object readout for DINOv2 — against the fairer mean-pooled baseline (61.3)
+region-MIL is only +4.0. @sec-encoders traces this across encoders and shows the region gain shrinks
+further for stronger ones; the numbers here are the clean, single-rig values.
+
+**Almost all the reachable climb is oracle.** From region-MIL's 65.3 to the clean-label ceiling of
+81.5 is **+16.2**, and every step of it needs information a learner cannot access at training time —
+which pairs are aligned (+4.6), which spoken word is the referent (+4.1), and which object is named
+when no word is spoken (+7.5). **No self-supervised mechanism we tried climbs those oracle rungs,**
+and none comes close: the free route tops out at ~65, a clear **+4.6 below even the first oracle
+rung**. The referential moment is *not* something free selection recovers — the bottleneck is the
+referential signal itself.
 
 ## What the bootstraps buy
 
-![The three self-supervised bootstraps. Region and frame selection are real, free gains; the
-utterance EM bootstrap is null within seed noise.](figures/fig_waterfall_mechanisms.png){#fig-mechanisms width=80%}
+![The three self-supervised bootstraps. Only region selection is a real (if small) free gain; frame
+selection and the utterance EM bootstrap are both null within seed
+noise.](figures/fig_waterfall_mechanisms.png){#fig-mechanisms width=80%}
 
-**Region MIL (+9.7)** is the single largest free gain. Scoring the utterance against the
-best-matching cell of a frame — with no detector and no labels — does implicit referent
-*localization*, and it lands the unaided learner most of the way to the oracle filter on its own.
+**Region MIL (+4.0)** is the largest free gain — and a modest one. Scoring the utterance against the
+best-matching cell of a frame, with no detector and no labels, does implicit referent
+*localization*, and against the mean-pooled whole-frame baseline it is worth +4.0. It is real
+(positive in all three seeds), but it is not the +9.7 an earlier draft reported, and @sec-encoders
+shows it shrinks toward zero for stronger encoders whose mean-pooled features already localize what
+a word needs.
 
-::: {.callout-note}
-## A caveat on the size of this rung
-The +9.7 here is measured against the DINOv2 **CLS token** as the whole-frame baseline (52.9), and
-CLS is a *weak* object readout for DINOv2. Against a **mean-pooled** whole-frame baseline — the
-fairer "no spatial selection" summary — DINOv2 whole-frame is already ~61, so region-MIL's honest
-gain is closer to **+4**. Most of the apparent +9.7 is CLS being a poor summary, not spatial
-selection being powerful, and the gain shrinks further for stronger encoders. @sec-encoders works
-this out across encoders; the ladder here is kept on the CLS baseline for internal consistency with
-the rest of the chapter.
-:::
-
-**Frame MIL (+2.4)** is a modest but consistent free gain. A region × frame $2\times2$ isolates it:
-
-| | single frame | + frame MIL (±2 s) |
-|---|---|---|
-| whole-frame | 52.9 ± 1.7 | 55.5 ± 1.7 (+2.6) |
-| region | 62.6 ± 1.7 | **65.0 ± 1.8 (+2.4)** |
-
-Selecting the best *moment* in a short window adds ~+2.4 on top of region selection (positive in
-all three seeds), roughly additive with region's +9.7. Which-moment matters, a little, on top of
-which-region.
-
-### How wide should the window be?
-
-Frame MIL has one free parameter — how much time around the utterance the learner is allowed to
-look over. Widening it trades off two things: a longer window is more likely to *contain* the
-referential moment, but it also dilutes the selection with more off-target frames. We can just
-measure it, holding region MIL fixed and stretching the window from a single frame to ±2 s to ±5 s
-(at 1 fps, 5 and 11 candidate frames):
-
-| window | candidate frames | Konkle test-60 (3 seeds) | Δ vs. prev |
-|---|---|---|---|
-| single frame | 1 | 62.6 ± 1.7 | — |
-| ±2 s | 5 | 65.0 ± 1.8 | +2.4 |
-| ±5 s | 11 | **66.8 ± 0.6** | +1.8 |
-
-The gain is **monotone with diminishing returns**: each widening still helps, by a little less. At
-±5 s the containment benefit is still winning over the dilution cost — the referential moment is
-often just outside a ±2 s window, and letting the max reach for it recovers another ~+1.8. But the
-curve is clearly bending, and ±5 s is already 11 frames of a 1 fps stream; there is no regime change
-waiting at a wider window, only a slow approach to whatever the region-MIL selection can extract.
-This ±5 s value — **66.8**, the top of the free chain in the ladder — is what closes most of the
-gap to the alignment-filter oracle (68.5): the extra temporal reach is exactly the free mechanism
-catching moments the oracle filter would have kept.
+**Frame MIL (+0.2) is null.** Selecting the best *moment* in a ±2 s window, on top of region
+selection, adds nothing in the clean rig (65.3 → 65.5, within seed noise). "Which moment" does not
+help once "which region" is handled: when there is a referential frame at all, it sits close enough
+to the utterance midpoint that a wider temporal reach adds no signal the model can use. (We also
+tried widening the window to ±5 s; the story does not change.)
 
 **Utterance EM is null.** The self-supervised EM loop — reweighting pairs by the model's own
 max-region alignment, the direct attempt to climb the *filter* rung without the oracle — does
-essentially nothing:
+essentially nothing (both a whole-frame and a region variant land inside the seed noise, sd ≈ 2).
+This is a firm version of "the bootstrap does not ignite": pair-reweighting by the model's own
+alignment estimate is indistinguishable from zero, and region MIL has already absorbed most of what
+it targets.
 
-| | −EM | +EM | effect |
-|---|---|---|---|
-| whole-frame | 52.9 ± 1.7 | 53.6 ± 2.3 | +0.7 |
-| region | 62.6 ± 1.7 | 63.8 ± 2.3 | +1.2 |
-
-Both effects sit inside the seed noise (sd ≈ 2). This is a firm version of "the bootstrap does not
-ignite": pair-reweighting by the model's own alignment estimate is indistinguishable from zero —
-and region MIL has already absorbed most of what it targets.
+So of the three self-supervised bootstraps only region selection buys anything at all, and only a
+little. **Which-region helps a bit; which-moment and which-pairs, on their own, do not.** None comes
+near the oracle rungs.
 
 ## The label decomposition {#sec-label}
 
@@ -168,10 +134,10 @@ word, and — the largest single piece — supplying the referent when it is *no
 
 | step | Konkle | Δ | isolates |
 |---|---|---|---|
-| region-MIL baseline | 62.6 | — | — |
-| filtered-natural | 68.5 | +5.9 | which pairs |
-| referent word *where spoken* | 73.2 | +4.7 | which word |
-| referent word *always* | 81.3 | +8.1 | referent when unspoken (vision) |
+| region-MIL baseline | 65.3 | — | — |
+| filtered-natural | 69.9 | +4.6 | which pairs |
+| referent word *where spoken* | 74.0 | +4.1 | which word |
+| referent word *always* | 81.5 | +7.5 | referent when unspoken (vision) |
 
 Why is the referent spoken in as many as **63%** of aligned pairs, when only ~9% of *all* pairs are
 aligned in the first place? Because the 63% is conditional on alignment: it is 63% *of the ~9%*, not
@@ -184,22 +150,20 @@ description ("*is it yummy?*"). Those pairs carry a real referential moment but 
 *word*.
 
 That split is what makes the last two rungs mean different things. Supplying the noun for the
-*spoken* 63% (word selection, +4.7) mostly buys **disambiguation** — pulling the referent out of a
+*spoken* 63% (word selection, +4.1) mostly buys **disambiguation** — pulling the referent out of a
 sentence that also contains other content words. Supplying it for the *unspoken* 37%
-(vision-binding, +8.1) is the single largest piece, because for those pairs the noun is *new
+(vision-binding, +7.5) is the single largest piece, because for those pairs the noun is *new
 information*: it cannot be read off the language at all, only off the image. This is why @sec-cues
 aims accessible cues at *identifying the referent* — including visually, when it isn't said — rather
 than merely filtering frames.
 
 ## Synthesis
 
-The unaided learner reaches **66.8** — bought by pure learning and the two free MIL selections
-(region, and frame at a ±5 s window). That lands it within **1.7** of the alignment-filter oracle:
-free spatial + temporal selection nearly matches what the oracle *which-pairs* label provides,
-because region max-pooling over a wide window already isolates the referential moment on its own.
-The oracle rungs that stay out of reach are the two above it — **which word** names the object, and
-**which object** is named when no word is spoken. Everything from there to the **81** ceiling is an
-oracle, and the one self-supervised attempt to climb it (utterance EM) is null. So the bottleneck is
-not optimization or scale, and it is no longer really *which moment* either — it is **which
-referent**: the object being named, especially when it is never spoken. The next chapter asks
-whether the cues children actually use can supply any of it.
+The unaided learner reaches **65** — a mean-pooled base plus the one small free gain, region
+selection (+4). Frame selection and utterance reweighting add nothing, so free self-supervised
+selection stops there, a clear **+4.6 below even the first oracle rung**. Everything from 65 to the
+**81** ceiling — the +16 that actually matters — is oracle: which pairs are aligned, which spoken
+word is the referent, and which object is named when no word is spoken. The bottleneck is not
+optimization, not scale, and not *which region* or *which moment* — the selection mechanisms are
+nearly spent. It is **which referent**: the object being named, especially when it is never spoken.
+The next chapter asks whether the cues children actually use can supply any of it.

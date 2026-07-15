@@ -56,32 +56,32 @@ def waterfall(steps, out, title, oracle_from=None, chance=25, ceiling=None, ylim
     fig.tight_layout(); fig.savefig(out, bbox_inches="tight"); plt.close(fig); print("wrote", out)
 
 
-# (a) the full ladder. Free rungs chain cumulatively; the oracle rungs branch from the
-# region-MIL baseline (62.6), so each carries an explicit base = the value it is measured from.
-waterfall([("pure\nlearning", 52.9), ("+ region\nMIL", 62.6),
-           ("+ frame\nMIL ±2s", 65.0), ("+ frame\nMIL ±5s", 66.8),
-           ("+ alignment\nfilter", 68.5, 62.6), ("+ word\nselection", 73.2, 68.5),
-           ("+ vision\nbinding", 81.3, 73.2)],
+# (a) the full ladder (clean single rig; mean-pooled whole-frame baseline). Free rungs chain
+# cumulatively; the oracle rungs branch from the region-MIL baseline (65.3).
+waterfall([("pure learning\n(mean-pooled)", 61.3), ("+ region\nMIL", 65.3),
+           ("+ frame\nMIL ±2s", 65.5),
+           ("+ alignment\nfilter", 69.9, 65.3), ("+ word\nselection", 74.0, 69.9),
+           ("+ vision\nbinding", 81.5, 74.0)],
           OUT / "fig_waterfall_ladder.png", "The bootstrapping ladder (Konkle test-60, 3 seeds)",
-          oracle_from=4, ceiling=81, ylim=(20, 88), branch_base=(62.6, 1, 4))
+          oracle_from=3, ceiling=81, ylim=(20, 88), branch_base=(65.3, 1, 3))
 
 # (b) the label decomposition (from the region-MIL baseline)
-waterfall([("region-MIL\nbaseline", 62.6), ("+ filter", 68.5), ("+ word\nselection", 73.2),
-           ("+ vision\nbinding", 81.3)],
-          OUT / "fig_waterfall_label.png", "Where the +19 label headroom lives",
-          oracle_from=1, ylim=(55, 88))
+waterfall([("region-MIL\nbaseline", 65.3), ("+ filter", 69.9), ("+ word\nselection", 74.0),
+           ("+ vision\nbinding", 81.5)],
+          OUT / "fig_waterfall_label.png", "Where the +16 label headroom lives",
+          oracle_from=1, ylim=(58, 88))
 
-# (c) what each bootstrap buys
+# (c) what each bootstrap buys (clean rig: the free selection gains are modest)
 fig, ax = plt.subplots(figsize=(7.4, 2.9), dpi=150)
-mechs = [("region MIL\n(where in frame)", 9.7, FREE),
-         ("frame MIL\n(which moment)", 2.4, FREE),
+mechs = [("region MIL\n(where in frame)", 4.0, FREE),
+         ("frame MIL\n(which moment)", 0.2, NULLC),
          ("utterance EM\n(which pairs)", 1.2, NULLC)]
 for y, (lab, d, c) in enumerate(mechs):
     ax.barh(y, d, color=c, height=0.62)
     ax.text(d + 0.15, y, "+%.1f" % d, va="center", fontsize=11, color=INK)
 ax.set_yticks(range(len(mechs))); ax.set_yticklabels([m[0] for m in mechs], fontsize=10)
-ax.invert_yaxis(); ax.set_xlim(0, 11); ax.set_xlabel("Konkle 4AFC gain", fontsize=10, color=SUB)
-ax.set_title("What each bootstrap buys (green = free, red = null within noise)",
+ax.invert_yaxis(); ax.set_xlim(0, 6); ax.set_xlabel("Konkle 4AFC gain", fontsize=10, color=SUB)
+ax.set_title("What each bootstrap buys (green = real free gain, red = null within noise)",
              fontsize=11.5, color=INK, loc="left", pad=8)
 for s in ("top", "right"): ax.spines[s].set_visible(False)
 ax.spines["left"].set_color(GRID); ax.spines["bottom"].set_color(GRID); ax.tick_params(colors=SUB, length=0)
