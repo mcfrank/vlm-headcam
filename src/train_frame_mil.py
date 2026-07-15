@@ -75,6 +75,8 @@ def main():
     ap.add_argument("--batch", type=int, default=256)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--emb-dim", type=int, default=None, help="encoder feature dim (default: cache dim)")
+    ap.add_argument("--center", action="store_true", help="subtract train dataset-mean before projection (anisotropy fix)")
     a = ap.parse_args()
     torch.manual_seed(a.seed); np.random.seed(a.seed)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -82,11 +84,16 @@ def main():
     man = pd.read_parquet(a.manifest)
     vocab = build_vocab(man.text, 5)
     caches, lut = load_multi(a.caches)
+    emb_dim = a.emb_dim or caches[0].shape[-1]
     ds = FramePairs(caches, lut, man, vocab, a.window, a.cls_only)
-    print(f"pairs {len(ds)} | vocab {len(vocab)} | window +-{a.window} | cls_only {a.cls_only}", flush=True)
+    print(f"pairs {len(ds)} | vocab {len(vocab)} | window +-{a.window} | cls_only {a.cls_only} | emb_dim {emb_dim}", flush=True)
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
-    m = RegionMIL(len(vocab)).to(dev)
+    m = RegionMIL(len(vocab), emb_dim=emb_dim).to(dev)
+    if a.center:
+        mu = np.asarray(caches[0]).reshape(-1, emb_dim).mean(0)
+        m.center_mu.copy_(torch.from_numpy(mu.astype(np.float32)).to(dev))
+        print(f"centered: subtracted train mean |mu|={np.linalg.norm(mu):.2f}", flush=True)
     opt = torch.optim.AdamW(m.parameters(), lr=a.lr, weight_decay=0.1)
     ev = pd.read_parquet(a.eval_frames); ecache, elut = load_region_cache(a.eval_cache)
 

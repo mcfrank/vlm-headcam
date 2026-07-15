@@ -83,6 +83,17 @@ utterance EM bootstrap is null within seed noise.](figures/fig_waterfall_mechani
 best-matching cell of a frame — with no detector and no labels — does implicit referent
 *localization*, and it lands the unaided learner most of the way to the oracle filter on its own.
 
+::: {.callout-note}
+## A caveat on the size of this rung
+The +9.7 here is measured against the DINOv2 **CLS token** as the whole-frame baseline (52.9), and
+CLS is a *weak* object readout for DINOv2. Against a **mean-pooled** whole-frame baseline — the
+fairer "no spatial selection" summary — DINOv2 whole-frame is already ~61, so region-MIL's honest
+gain is closer to **+4**. Most of the apparent +9.7 is CLS being a poor summary, not spatial
+selection being powerful, and the gain shrinks further for stronger encoders. @sec-encoders works
+this out across encoders; the ladder here is kept on the CLS baseline for internal consistency with
+the rest of the chapter.
+:::
+
 **Frame MIL (+2.4)** is a modest but consistent free gain. A region × frame $2\times2$ isolates it:
 
 | | single frame | + frame MIL (±2 s) |

@@ -70,15 +70,16 @@ def collate(b):
 
 
 class RegionMIL(nn.Module):
-    def __init__(self, vocab, dim=512, drop=0.1):
+    def __init__(self, vocab, dim=512, drop=0.1, emb_dim=EMB_DIM):
         super().__init__()
-        self.vproj = nn.Sequential(nn.LayerNorm(EMB_DIM), nn.Dropout(drop), nn.Linear(EMB_DIM, dim))
+        self.vproj = nn.Sequential(nn.LayerNorm(emb_dim), nn.Dropout(drop), nn.Linear(emb_dim, dim))
         self.word = nn.Embedding(vocab, dim, padding_idx=0)
         self.logit_scale = nn.Parameter(torch.tensor(np.log(1 / 0.07)))
         self.region_prior = None        # optional [Rn] bias on which region wins the MIL max
+        self.register_buffer("center_mu", torch.zeros(emb_dim))  # dataset-mean subtracted before vproj (anisotropy)
 
     def enc_regions(self, v):           # v [B,R,768] -> [B,R,D] normalized
-        return F.normalize(self.vproj(v), dim=-1)
+        return F.normalize(self.vproj(v - self.center_mu), dim=-1)
 
     def enc_text(self, t, n):
         e = self.word(t); m = (t != 0).unsqueeze(-1).float()

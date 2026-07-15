@@ -38,7 +38,9 @@ referential noise, does concentrating the aligned moments rescue learning?*
 | [Cues](05-cues.qmd) | Re-aiming the cues children actually use — prosody, discourse, gaze, pose — at *referent identification*; every one is null, for a concrete reason. |
 | [Scaling and data distribution](06-scaling.qmd) | How each rung scales with amount of data, and within- vs. across-child: alignment is ~90× the data, diversity buys more. |
 | [What got learned](07-what-learned.qmd) | The best organic model, item by item: distinctive common nouns; the bottleneck is the learning signal, not the vision encoder. |
-| [Conclusion](08-conclusion.qmd) | What referential alignment sets a ceiling on, and the three ways the boundary might move. |
+| [How much does the vision encoder matter?](08-encoders.qmd) | Swapping the encoder — off-the-shelf DINOv3 dominates, BabyView-trained encoders transfer *worse*; the referential gap shrinks with a stronger encoder but never closes. |
+| [Architectures linking language and vision](09-architectures.qmd) | Soft attention and a from-scratch generative captioner vs. contrastive hard-max: nothing beats the plain two-tower. The architecture isn't the bottleneck either. |
+| [Conclusion](10-conclusion.qmd) | What referential alignment sets a ceiling on, and the three ways the boundary might move. |
 
 ## The question in one figure
 

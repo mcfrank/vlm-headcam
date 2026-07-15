@@ -16,7 +16,9 @@ book:
     - 05-cues.qmd
     - 06-scaling.qmd
     - 07-what-learned.qmd
-    - 08-conclusion.qmd
+    - 08-encoders.qmd
+    - 09-architectures.qmd
+    - 10-conclusion.qmd
 
 bibliography: references.bib
 

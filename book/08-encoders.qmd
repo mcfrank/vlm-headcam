@@ -1,0 +1,115 @@
+# How much does the vision encoder matter? {#sec-encoders}
+
+Everything so far has run on a single frozen off-the-shelf vision encoder — **DINOv2-base**. @sec-what-learned
+argued that this encoder is *not* the bottleneck: its frozen features already separate every Konkle
+category near-perfectly, so the failures are learning failures, not seeing failures. That is an
+argument from one encoder. This chapter tests it directly by **swapping the encoder** — including
+encoders trained on *BabyView itself* — and asking whether an in-domain or simply stronger encoder
+moves the ceiling.
+
+This is also the natural home for a question our lab's earlier work raised. A BabyView-trained
+DINOv2 (from the CVCL-replication line, @lin2026egobabyvlm) gave notably *low* scaling; the intuition
+that an encoder tuned to the child's own visual world should help word learning has, so far, not
+paid off. Here we quantify it.
+
+## The comparison
+
+Five encoders embed the **exact same** 877,802 training frames — the topline set of @sec-bootstrapping —
+so the encoder is the only thing that varies. Two are off-the-shelf (**DINOv2-base**, our workhorse,
+and **DINOv3-ViT-B/16**); four are trained on BabyView by our collaborators: **DINOv3-ViT-L**, a
+**V-JEPA2-ViT-L** video model, and two sizes of **ZWM** (170M and 1B), the reconstruction-trained
+world model of the LRAS line [@lee2025lras]. On each encoder we train the *same* contrastive head
+(bag-of-words text, InfoNCE) and evaluate the *same* out-of-sample Konkle 4AFC, exactly as in
+DevBench's contrastive protocol [@devbench2024]. For a like-for-like image summary across models
+that lack a CLS token, all encoders are read out as **mean-pooled patch tokens** (whole-frame) or a
+**4×4 region grid** (region-MIL).
+
+## Off-the-shelf wins; in-domain training transfers *worse*
+
+The result is unambiguous (@fig-encoder-compare). The newer off-the-shelf encoder,
+**DINOv3-B, is the best of all** (whole-frame 70.8, region-MIL 72.6) — well above our DINOv2
+workhorse (61.3 / 65.3), which is itself far above every **BabyView-trained** encoder: DINOv3-L
+41.0, ZWM-1B 35.6, ZWM-170M 31.6, V-JEPA2-L 30.8 — the last three barely above chance (25).
+
+![Whole-frame vs. region-MIL Konkle 4AFC for six vision encoders (3 seeds), sorted by whole-frame.
+The off-the-shelf encoders dominate; every BabyView-trained encoder transfers far worse to clean
+object photos, and a bigger BabyView model (ZWM-1B) helps only marginally over a smaller one.
+](figures/fig_encoder_compare.png){#fig-encoder-compare width=95%}
+
+Two controls make this clean. First, capacity is *not* the story: ZWM-1B (947M) is barely better
+than ZWM-170M (170M), and both trail the ~300M ViT-Ls, which trail off-the-shelf DINOv2-base (~86M).
+Second, the low BabyView scores are *not* an artifact of the anisotropic, un-centered features
+those reconstruction models produce (a real hazard flagged by whoever cached them): re-running every
+encoder with the dataset mean subtracted before the projection moves nothing (all within 0.5 points).
+The deficit is real **transfer failure** — encoders tuned on blurry, cluttered, egocentric child
+video represent clean centered object photos *worse* than encoders trained on web images. That
+lines up exactly with the CVCL-replication line's low-scaling result: in-domain visual pretraining,
+on this benchmark, hurts.
+
+The single cleanest comparison is **DINOv3-L-BabyView (41.0) vs. DINOv3-B-off-the-shelf (70.8)** —
+same architecture family, differing *only* in training data — and in-domain loses by 30 points.
+
+## A correction to the region-MIL rung
+
+This comparison also forces an honest correction to the ladder of @sec-bootstrapping. There we
+reported region-MIL as a **+9.7** free gain over whole-frame. But that whole-frame baseline was the
+DINOv2 **CLS token** (52.9), and CLS is a *weak* object-recognition readout for DINOv2. Measured
+against a **mean-pooled** whole-frame baseline — the fair "no spatial selection" summary, and what
+every encoder here uses — DINOv2 whole-frame is already **61.3**, so region-MIL's honest gain is
+only **+4.0**. For the stronger DINOv3-B it is **+1.8**; for the BabyView encoders, ≈0 (@fig-encoder-compare).
+Most of the book's apparent "+9.7 region-MIL magic" was **CLS being a poor summary**, not spatial
+selection being powerful — and the genuine region gain **shrinks as the base encoder gets stronger**,
+because a good encoder's mean-pooled features already localize what a word needs.[^zwm170]
+
+[^zwm170]: The one non-monotone cell — ZWM-170M region-MIL (28.9) below its whole-frame (31.6) — is
+a readout mismatch, not a real drop: its cached grid is a mid-block layer while its whole-frame
+vector is a later layer. It is the only row not measured at a matched layer.
+
+## The extended ladder: the referential gap is robust to the encoder
+
+If the encoder is not the bottleneck, then climbing the *oracle* rungs — filtering to aligned pairs,
+supplying the referent label (@sec-label) — should still buy a large, encoder-independent gain. We
+built the full ladder (whole-frame → region-MIL → alignment-filter → referent-label) for all three
+DINOs (@fig-encoder-ladder).
+
+![The bootstrapping ladder across three vision encoders, worst to best. Each line's total rise
+(base → referent-label ceiling) is the **referential headroom**: +20 for DINOv2, +14 for
+off-the-shelf DINOv3-B, +10 for BabyView DINOv3-L. It shrinks with a stronger encoder but never
+closes — even the best encoder leaves ~+14 that only the referent-label oracle
+reaches.](figures/fig_encoder_ladder_slope.png){#fig-encoder-ladder width=90%}
+
+| Rung | DINOv3-L (BV) | DINOv2 (OTS) | DINOv3-B (OTS) |
+|---|---|---|---|
+| whole-frame (meanpatch) | 41.0 | 61.3 | 70.8 |
+| + region-MIL | 41.7 | 65.3 | 72.6 |
+| + alignment filter (oracle) | 45.7 | 70.3 | 75.4 |
+| + referent label (oracle **ceiling**) | 51.1 | 81.5 | 84.6 |
+
+Three things fall out, and they refine the "encoder doesn't matter" slogan into something more exact.
+
+**The ceiling moves.** A better encoder raises the whole ladder, oracle rungs included — the clean-label
+ceiling climbs from 81.5 (DINOv2) to 84.6 (DINOv3-B). The "~81 ceiling" of @sec-bootstrapping is
+DINOv2-specific.
+
+**The referential gap shrinks but persists.** The headroom from the free base to the label ceiling
+is +20 for DINOv2, +14 for DINOv3-B, +10 for DINOv3-L. A stronger encoder gets closer to its ceiling
+on free features alone — but **even the best off-the-shelf encoder we tested leaves ~+14 of
+label-topline headroom that only the referent oracle reaches.** The referential-alignment
+bottleneck is not an artifact of a weak encoder; it survives a large encoder upgrade.
+
+**In-domain pretraining loses even *with* the oracle.** BabyView DINOv3-L's clean-label ceiling
+(51.1) sits *below* off-the-shelf DINOv2's plain free region-MIL (65.3). Handed the correct referent
+word for every pair, the child's-eye-trained encoder still cannot match a weaker web-trained encoder
+that never sees the label. There is no readout of these BabyView features from which a linear learner
+recovers clean-object identity as well as off-the-shelf features do.
+
+## What the encoder does and doesn't change
+
+@sec-what-learned claimed the encoder is not the bottleneck; this chapter makes that precise. The
+encoder changes the **level** (base 31–71) and even the **ceiling** (51–85), and a stronger encoder
+narrows the referential gap. But the gap is **robust**: it persists across a 30-point spread of
+encoders, and in-domain pretraining — the one intervention that most directly targets "see the
+child's world better" — makes *everything* worse. What a stronger encoder buys is a higher floor
+under the same ceiling-shaped problem; what it does not buy is the referential alignment that the
+oracle rungs supply. The bottleneck is where @sec-what-learned put it: in the learning signal, not
+the eyes.
