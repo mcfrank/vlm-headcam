@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 400" role="img" aria-label="LEVANTE-bench vocabulary results">
+      <style>
+        .axl{font-size:12px;fill:#6b6a66} .bl{font-size:12.5px;fill:#24231f}
+        .val{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;fill:#24231f}
+      </style>
+      <!-- y grid + axis : y0=330 (0%), y=40 (100%), scale 2.9px/pt -->
+      <line x1="60" y1="40" x2="60" y2="330" stroke="#dcdad2"/>
+      <g stroke="#eeece5" stroke-width="1">
+        <line x1="60" y1="330" x2="800" y2="330"/><line x1="60" y1="258" x2="800" y2="258"/>
+        <line x1="60" y1="185" x2="800" y2="185"/><line x1="60" y1="113" x2="800" y2="113"/>
+        <line x1="60" y1="40"  x2="800" y2="40"/>
+      </g>
+      <g class="axl" text-anchor="end">
+        <text x="52" y="334">0</text><text x="52" y="262">25</text>
+        <text x="52" y="189">50</text><text x="52" y="117">75</text><text x="52" y="44">100</text>
+      </g>
+      <text x="18" y="185" class="axl" transform="rotate(-90 18 185)" text-anchor="middle">vocab 4AFC accuracy</text>
+
+      <!-- CHILDREN band (72–82%), the human reference -->
+      <rect x="60" y="92.2" width="740" height="29" fill="#c9a24b" opacity="0.16"/>
+      <line x1="60" y1="92.2" x2="800" y2="92.2" stroke="#b78e2f" stroke-width="1.3" stroke-dasharray="6 3"/>
+      <line x1="60" y1="121.2" x2="800" y2="121.2" stroke="#b78e2f" stroke-width="1.3" stroke-dasharray="6 3"/>
+      <text x="70" y="108" style="font-size:12.5px;fill:#8a6a1f;font-weight:700">children 5–12  ·  72–82%</text>
+
+      <!-- chance line -->
+      <line x1="60" y1="258" x2="800" y2="258" stroke="#b0655a" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="796" y="252" text-anchor="end" style="font-size:11px;fill:#b0655a">chance 25</text>
+
+      <!-- 7 bars: centers 105 apart from 100 -->
+      <g>
+        <rect x="72"  y="225.9" width="66" height="104.1" fill="#b0655a" rx="3"/>
+        <text x="105" y="219" text-anchor="middle" class="val" fill="#b0655a" font-weight="700">36</text>
+        <rect x="177" y="207.9" width="66" height="122.1" fill="#a9cdbd" rx="3"/>
+        <text x="210" y="200" text-anchor="middle" class="val" fill="#6b6a66">42</text>
+        <rect x="282" y="185.9" width="66" height="144.1" fill="#8fc0ac" rx="3"/>
+        <text x="315" y="178" text-anchor="middle" class="val" fill="#6b6a66">50</text>
+        <rect x="387" y="122.1" width="66" height="207.9" fill="#5da88f" rx="3"/>
+        <text x="420" y="115" text-anchor="middle" class="val" fill="#6b6a66">72</text>
+        <rect x="492" y="60.6" width="66" height="269.4" fill="#3f8f9a" rx="3"/>
+        <text x="525" y="53" text-anchor="middle" class="val" fill="#6b6a66">93</text>
+        <rect x="597" y="43.8" width="66" height="286.2" fill="#1f6aa8" rx="3"/>
+        <text x="630" y="36" text-anchor="middle" class="val" fill="#6b6a66">99</text>
+        <rect x="702" y="41.7" width="66" height="288.3" fill="#123a63" rx="3"/>
+        <text x="735" y="34" text-anchor="middle" class="val" fill="#6b6a66">99</text>
+      </g>
+      <!-- x labels -->
+      <g class="bl" text-anchor="middle">
+        <text x="105" y="349" font-weight="700" fill="#b0655a">ours</text><text x="105" y="363" class="axl" fill="#b0655a">~0.5M ✦</text>
+        <text x="210" y="349">TinyLLaVA</text><text x="210" y="363" class="axl">3.1B</text>
+        <text x="315" y="349">InternVL3.5</text><text x="315" y="363" class="axl">1B</text>
+        <text x="420" y="349">Qwen3.5</text><text x="420" y="363" class="axl">0.8B</text>
+        <text x="525" y="349">Gemma4</text><text x="525" y="363" class="axl">4B</text>
+        <text x="630" y="349">Qwen3.5</text><text x="630" y="363" class="axl">4B</text>
+        <text x="735" y="349">GPT-5.3</text><text x="735" y="363" class="axl">frontier</text>
+      </g>
+      <text x="60" y="390" class="axl">✦ ours = a frozen contrastive head (~0.5M trained params), scored on all 159: real accuracy on the 100 known words + chance on 59 out-of-vocabulary. Others are prompted VLMs.</text>
+    </svg>

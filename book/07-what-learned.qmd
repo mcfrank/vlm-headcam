@@ -88,6 +88,17 @@ simply never occur in a child's-eye corpus. On those 100 it scores **42.3 ± 0.5
 25), which places this tiny frozen learner in the range of the *smallest* generative VLMs
 LEVANTE-bench evaluates — models three to four orders of magnitude larger.
 
+Scored *fairly* across all 159 items — its 42.3% on the 100 words it knows, plus chance on the 59
+out-of-vocabulary ones it cannot attempt — the model reaches **~36%** (@fig-lev-compare): just above
+chance, level with a 3.1B generative VLM (TinyLLaVA), and far below both children (~72–82% by age)
+and the frontier models (near ceiling). The point is not that a 0.5M-parameter frozen probe wins,
+but *where it lands on that curve.*
+
+![LEVANTE-bench vocabulary, all 159 items. Our frozen contrastive probe (~36%; real accuracy on the
+100 known words, chance on the rest) against generative VLMs prompted for the answer, with children
+5–12 as the amber reference band. Model numbers are from local LEVANTE-bench runs.
+](figures/fig_levante_vocab.svg){#fig-lev-compare width=95%}
+
 The item-by-item comparison to children is the revealing part, and it is a **weak** alignment with
 a clear cause (@fig-lev-vocab). Across the 76 items with a child difficulty estimate, the model's
 per-item confidence is only faintly related to how hard the item is for children (Spearman

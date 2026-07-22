@@ -92,6 +92,12 @@ $$
 \right], \qquad s = 1/\tau.
 $$
 
+![The frozen two-tower. A frame passes through a frozen DINOv2 to a region grid; an utterance
+becomes one bag-of-words vector; a word is scored against its **single best-matching region** (max
+over the 17), and InfoNCE pulls co-occurring (frame, utterance) pairs together. Only the linear
+projection and the word embeddings are trained — minutes per
+run.](figures/fig_clip_arch.svg){#fig-clip width=58%}
+
 The whole model is about thirty lines:
 
 ```python
@@ -176,6 +182,10 @@ test on the **Konkle object benchmark** — clean photographs of everyday object
 backgrounds, entirely disjoint from BabyView. A trial presents a cue word and four object
 images (one from the cue's category, three from other categories); the model picks the image
 whose embedding is closest to the word embedding. Chance is 25%.
+
+![A Konkle 4AFC trial: a held-out cue word and four clean object photos — one from the cue's
+category, three distractors — and the model chooses the image with the highest word·image score.
+Chance is 25%.](figures/fig_konkle_4afc.svg){#fig-konkle width=92%}
 
 Evaluating on external objects has three virtues. It is **truly out of sample** — no BabyView
 frame appears in it — so we can train on the *entire* corpus, all 36 children, with no leakage,

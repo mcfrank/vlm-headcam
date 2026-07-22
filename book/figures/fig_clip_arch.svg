@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 560" role="img" aria-label="CLIP two-tower architecture">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#8f8d86"/>
+        </marker>
+      </defs>
+      <style>
+        .box{rx:10;ry:10;stroke:#dcdad2;stroke-width:1.5}
+        .lab{font-size:16px;fill:#24231f;font-weight:600}
+        .sub{font-size:13px;fill:#6b6a66}
+        .dim{font-family:ui-monospace,Menlo,monospace;font-size:15px;fill:#185fa5}
+        .dimg{font-family:ui-monospace,Menlo,monospace;font-size:15px;fill:#1d9e75}
+        .flow{stroke:#b8b6ae;stroke-width:1.8;fill:none;marker-end:url(#ah)}
+        .tag{font-size:12.5px;font-weight:700}
+      </style>
+
+      <!-- column headers -->
+      <text x="150" y="24" text-anchor="middle" class="tag" fill="#1d9e75">VISION · frozen</text>
+      <text x="410" y="24" text-anchor="middle" class="tag" fill="#185fa5">LANGUAGE · learned</text>
+
+      <!-- VISION column (x-center 150) -->
+      <rect x="66" y="36" width="168" height="48" fill="#eef1ee" class="box"/>
+      <text x="150" y="65" text-anchor="middle" class="lab">frame · 1 fps</text>
+      <path class="flow" d="M150 86 L150 104"/>
+      <rect x="66" y="106" width="168" height="56" fill="#e8f4ef" class="box" stroke="#1d9e75"/>
+      <text x="150" y="130" text-anchor="middle" class="lab">DINOv2-B/14 ❄</text>
+      <text x="150" y="150" text-anchor="middle" class="sub">frozen, ~86M</text>
+      <path class="flow" d="M150 164 L150 182"/>
+      <rect x="66" y="184" width="168" height="64" fill="#f1f0ea" class="box"/>
+      <text x="150" y="208" text-anchor="middle" class="lab">region grid</text>
+      <text x="150" y="228" text-anchor="middle" class="dimg">[17 × 768]</text>
+      <text x="150" y="243" text-anchor="middle" class="sub">CLS + 4×4 cells</text>
+      <path class="flow" d="M150 250 L150 268"/>
+      <rect x="66" y="270" width="168" height="64" fill="#e8f4ef" class="box" stroke="#1d9e75"/>
+      <text x="150" y="294" text-anchor="middle" class="lab">linear proj 🔥</text>
+      <text x="150" y="314" text-anchor="middle" class="dim">768 → 512</text>
+      <text x="150" y="329" text-anchor="middle" class="sub">+ LayerNorm</text>
+      <path class="flow" d="M150 336 L150 354"/>
+      <rect x="66" y="356" width="168" height="46" fill="#fff" class="box"/>
+      <text x="150" y="380" text-anchor="middle" class="lab">regions <tspan class="dimg">[17×512]</tspan></text>
+
+      <!-- LANGUAGE column (x-center 410) -->
+      <rect x="326" y="106" width="168" height="56" fill="#eef1f5" class="box"/>
+      <text x="410" y="130" text-anchor="middle" class="lab">"look at the doggie!"</text>
+      <text x="410" y="150" text-anchor="middle" class="sub">caregiver utterance</text>
+      <path class="flow" d="M410 164 L410 182"/>
+      <rect x="326" y="184" width="168" height="64" fill="#e7eef6" class="box" stroke="#185fa5"/>
+      <text x="410" y="208" text-anchor="middle" class="lab">word embeds 🔥</text>
+      <text x="410" y="228" text-anchor="middle" class="dim">13,324 → 512</text>
+      <text x="410" y="243" text-anchor="middle" class="sub">bag-of-words</text>
+      <path class="flow" d="M410 250 L410 268"/>
+      <rect x="326" y="270" width="168" height="46" fill="#fff" class="box"/>
+      <text x="410" y="294" text-anchor="middle" class="lab">mean-pool <tspan class="dim">[512]</tspan></text>
+
+      <!-- CONVERGE to score -->
+      <path class="flow" d="M150 402 C 150 440, 210 448, 268 452"/>
+      <path class="flow" d="M410 316 C 410 420, 350 448, 292 452"/>
+      <rect x="150" y="436" width="260" height="60" fill="#f6efe9" class="box" stroke="#b0655a"/>
+      <text x="280" y="463" text-anchor="middle" class="lab">score = maxᵣ (rᵢ · t)</text>
+      <text x="280" y="483" text-anchor="middle" class="sub">the single best-matching region, of 17</text>
+      <path class="flow" d="M280 498 L280 514"/>
+      <rect x="150" y="516" width="260" height="40" fill="#fff" class="box"/>
+      <text x="280" y="541" text-anchor="middle" class="lab" style="font-size:15px">InfoNCE — pull matches, push the rest</text>
+    </svg>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300" role="img" aria-label="Konkle 4AFC evaluation">
+      <defs>
+        <marker id="ah2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#b8b6ae"/>
+        </marker>
+      </defs>
+      <style>
+        .cbox{rx:10;ry:10;stroke:#dcdad2;stroke-width:1.4}
+        .cl{font-size:13.5px;fill:#24231f;font-weight:600}
+        .cs{font-size:11px;fill:#6b6a66}
+        .sc{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+      </style>
+
+      <!-- the word -->
+      <rect x="34" y="122" width="150" height="56" rx="28" fill="#e7eef6" stroke="#185fa5" stroke-width="1.6"/>
+      <text x="109" y="147" text-anchor="middle" class="cs">held-out word</text>
+      <text x="109" y="166" text-anchor="middle" style="font-size:19px;font-weight:700;fill:#185fa5">"dog"</text>
+
+      <!-- four candidate object photos -->
+      <!-- correct -->
+      <g>
+        <rect x="330" y="26" width="150" height="66" fill="#e8f4ef" class="cbox" stroke="#1d9e75" stroke-width="2"/>
+        <text x="366" y="64" text-anchor="middle" style="font-size:26px">🐕</text>
+        <text x="430" y="58" text-anchor="middle" class="cl">dog</text>
+        <text x="512" y="64" class="sc" fill="#1d9e75" font-weight="700">0.61 ✓</text>
+        <path d="M188 150 C 250 150, 250 59, 326 59" fill="none" stroke="#1d9e75" stroke-width="2" marker-end="url(#ah2)"/>
+      </g>
+      <!-- distractors -->
+      <g opacity="0.92">
+        <rect x="330" y="102" width="150" height="60" fill="#f6f5f1" class="cbox"/>
+        <text x="366" y="138" text-anchor="middle" style="font-size:24px">🍎</text>
+        <text x="430" y="132" text-anchor="middle" class="cl">apple</text>
+        <text x="512" y="138" class="sc" fill="#6b6a66">0.29</text>
+        <path d="M188 150 C 245 150, 250 130, 326 130" fill="none" stroke="#cfcdc5" stroke-width="1.6" marker-end="url(#ah2)"/>
+
+        <rect x="330" y="172" width="150" height="60" fill="#f6f5f1" class="cbox"/>
+        <text x="366" y="208" text-anchor="middle" style="font-size:24px">🪑</text>
+        <text x="430" y="202" text-anchor="middle" class="cl">chair</text>
+        <text x="512" y="208" class="sc" fill="#6b6a66">0.24</text>
+        <path d="M188 150 C 245 150, 250 200, 326 200" fill="none" stroke="#cfcdc5" stroke-width="1.6" marker-end="url(#ah2)"/>
+
+        <rect x="330" y="242" width="150" height="52" fill="#f6f5f1" class="cbox"/>
+        <text x="366" y="274" text-anchor="middle" style="font-size:22px">🚗</text>
+        <text x="430" y="272" text-anchor="middle" class="cl">car</text>
+        <text x="512" y="274" class="sc" fill="#6b6a66">0.22</text>
+        <path d="M188 150 C 245 150, 250 262, 326 266" fill="none" stroke="#cfcdc5" stroke-width="1.6" marker-end="url(#ah2)"/>
+      </g>
+
+      <!-- outcome -->
+      <text x="600" y="120" class="cs">model picks the image with the</text>
+      <text x="600" y="138" class="cs">highest word·image score →</text>
+      <rect x="600" y="150" width="228" height="46" rx="9" fill="#e8f4ef" stroke="#1d9e75" stroke-width="1.4"/>
+      <text x="714" y="178" text-anchor="middle" class="cl" fill="#1d9e75">argmax = dog → correct</text>
+      <text x="600" y="222" class="cs">clean object photos, out-of-sample</text>
+      <text x="600" y="240" class="cs">(never seen in training)</text>
+      <text x="600" y="266" style="font-size:12px;fill:#6b6a66">chance = <tspan class="sc">25%</tspan> · we report 3-seed mean</text>
+    </svg>
