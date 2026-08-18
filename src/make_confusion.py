@@ -20,7 +20,7 @@ run = sys.argv[1] if len(sys.argv) > 1 else "G_base_mil_full_s0"
 dev = "cuda" if torch.cuda.is_available() else "cpu"
 vocab = json.load(open(f"{W}/runs/{run}/vocab.json"))
 m = RegionMIL(len(vocab)).to(dev)
-m.load_state_dict(torch.load(f"{W}/runs/{run}/model.pt", map_location=dev)); m.eval()
+m.load_state_dict(torch.load(f"{W}/runs/{run}/model.pt", map_location=dev), strict=False); m.eval()  # older ckpts lack center_mu (zeros = off)
 learned = set(pd.read_parquet(f"{W}/book_figs/item_acc_{run}.parquet").query("acc >= 50").category)
 
 # gather image region-embeddings for learned categories, across both eval caches
@@ -63,6 +63,7 @@ for k in sorted(set(clusters)):
     if len(members) >= 3:
         print(f"  cluster {k} ({len(members)}): {members}")
 
+np.savez(f"{W}/book_figs/confusion_M.npz", M=M, cats=np.array(cats), order=order, clusters=clusters)
 Mo = M[np.ix_(order, order)]; lab = [cats[i] for i in order]
 fig, ax = plt.subplots(figsize=(11, 10), dpi=150)
 im = ax.imshow(Mo, cmap="magma")
