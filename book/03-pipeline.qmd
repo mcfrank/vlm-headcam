@@ -21,9 +21,16 @@ on ccn2, under `/ccn2a/dataset/babyview/2025.2/`:
 | `outputs/object_detections/cdi/<video>/` | YOLOE detections prompted with the CDI noun list (2,969 videos) | evaluation + region grounding |
 
 A single utterance, then, is a row with a video, a start/end time, the words
-spoken, and a precomputed CLIP alignment score. At 1 fps, a frame index is just
-a timestamp in seconds, so we pair an utterance with the frame at the midpoint of
-its window.
+spoken, and a precomputed CLIP alignment score. Frames are a **dense 1 fps extraction of
+every video** (5.42M frames; every second of every recording, not a pre-selected subset), and
+each utterance is paired with the frame at its **temporal midpoint**. At 1 fps a frame index is
+just a timestamp in seconds, so this is a pure timestamp lookup: no alignment score — CLIP or
+otherwise — plays any role in *which* frame an utterance gets.[^densefr]
+
+[^densefr]: Verified directly: in 300 randomly sampled videos, frame indices run contiguously
+`00000…N−1` with no gaps, and the last index matches the last utterance time. The frame tree
+(extracted 2025-09) also predates `full_clip_results.csv` (2025-10), whose per-utterance
+`clip_score_min/mean/max` were computed *over* these dense frames.
 
 ## The alignment filter
 
