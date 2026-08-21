@@ -1,0 +1,39 @@
+claim_id,chapter,label,published_value,published_sd,rig,expected_family,metric,notes
+ladder_pure,04,pure learning (mean-pooled),61.3,,clean,LOST_vlm_clean,best_acc,DINOv2 whole-frame meanpatch; also ch8 DINOv2 wf row
+ladder_region,04,+ region MIL,65.3,,clean,LOST_vlm_clean,best_acc,also ch8 DINOv2 grid row and ch6 911k point
+ladder_frame2,04,+ frame MIL ±2s,65.5,,clean,G_framereg,best_acc,
+ladder_frame5,04,+ frame MIL ±5s,66.8,,clean,G_framereg5,best_acc,
+ladder_filter,04,+ alignment filter,69.9,,clean,LOST_vlm_cleanoracle,best_acc,
+ladder_word,04,+ word selection,74.0,,clean,LOST_vlm_cleanoracle,best_acc,
+ladder_vision,04,+ vision binding,81.5,,clean,LOST_vlm_cleanoracle,best_acc,clean-label ceiling
+scale_rand_10k,06,random 10k,30.0,3.5,old,scale_rand_10000,posthoc_test60,
+scale_rand_30k,06,random 30k,38.3,0.8,old,scale_rand_30000,posthoc_test60,
+scale_rand_100k,06,random 100k,40.2,3.1,old,scale_rand_100000,posthoc_test60,
+scale_rand_300k,06,random 300k,56.2,2.6,old,scale_rand_300000,posthoc_test60,
+scale_rand_911k,06,random 911k,65.3,1.7,clean,LOST_vlm_clean,best_acc,RIG MIX: curve's other points are old-rig
+scale_full,06,full corpus 1.14M,65.6,2.2,clean,G_base_mil_full,best_acc,
+scale_align_10k,06,aligned 10k,63.9,5.5,old,scale_align_10000,posthoc_test60,
+scale_align_30k,06,aligned 30k,68.0,1.3,old,scale_align_30000,posthoc_test60,
+scale_align_85k,06,aligned 85k,71.4,1.6,old,scale_align_85000,posthoc_test60,
+div_1c,06,1 child,31.0,2.7,old,scale_div_1c,posthoc_test60,
+div_3c,06,3 children,33.0,4.4,old,scale_div_3c,posthoc_test60,
+div_10c,06,10 children,36.9,3.0,old,scale_div_10c,posthoc_test60,
+div_36c,06,36 children,34.4,1.0,old,scale_div_36c,posthoc_test60,
+div_bigchild,06,biggest single child,35.8,,old,scale_bigchild,posthoc_test60,
+div_poolbig,06,pooled matched-count,42.8,,old,scale_poolbig,posthoc_test60,
+enc_dinov3b_wf,08,DINOv3-B OTS whole-frame,70.8,,clean,E_dinov3b_ots_wf,best_acc,
+enc_dinov3b_grid,08,DINOv3-B OTS region-MIL,72.6,,clean,E_dinov3b_ots_grid,best_acc,
+enc_dinov3l_wf,08,DINOv3-L BabyView whole-frame,41.0,,clean,E_dinov3l_bv_wf,best_acc,
+enc_dinov3l_grid,08,DINOv3-L BabyView region-MIL,41.7,,clean,E_dinov3l_bv_grid,best_acc,
+enc_vjepa2_wf,08,V-JEPA2-L BabyView whole-frame,30.8,,clean,E_vjepa2l_bv_wf,best_acc,
+enc_vjepa2_grid,08,V-JEPA2-L BabyView region-MIL,31.4,,clean,E_vjepa2l_bv_grid,best_acc,
+enc_zwm170_wf,08,ZWM-170M whole-frame,31.6,,clean,E_zwm170m_bv_wf,best_acc,
+enc_zwm170_grid,08,ZWM-170M region-MIL,28.9,,clean,E_zwm170m_bv_grid,best_acc,layer mismatch (known)
+enc_zwm1b_wf,08,ZWM-1B whole-frame,35.6,,clean,E_zwm1b_bv_wf,best_acc,
+enc_zwm1b_grid,08,ZWM-1B region-MIL,35.7,,clean,E_zwm1b_bv_grid,best_acc,
+arch_max,09,hard max (contrastive),66.1,,clean,max,best_acc,
+arch_soft05,09,soft pooling tau=0.05,65.3,,clean,soft05,best_acc,
+arch_soft15,09,soft pooling tau=0.15,63.1,,clean,soft15,best_acc,
+arch_soft50,09,soft pooling tau=0.50,61.6,,clean,soft50,best_acc,
+arch_attn,09,learned cross-attention,60.2,,clean,attn,best_acc,
+arch_caption,09,from-scratch captioner,62.1,,clean,LOST_vlm_arch_cap,best_acc,generative likelihood 4AFC

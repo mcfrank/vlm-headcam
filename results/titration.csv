@@ -1,0 +1,15 @@
+mode,rho,acc_4afc,gate_precision,source
+soft,0.0,0.337,,eval/titration_results.txt
+soft,0.05,0.337,,eval/titration_results.txt
+soft,0.10,0.355,,eval/titration_results.txt
+soft,0.20,0.345,,eval/titration_results.txt
+soft,0.30,0.355,,eval/titration_results.txt
+soft,0.50,0.362,,eval/titration_results.txt
+soft,0.70,0.376,,eval/titration_results.txt
+soft,1.00,0.378,,eval/titration_results.txt
+gate,0.10,0.325,0.157,eval/titration_results.txt
+gate,0.20,0.341,0.196,eval/titration_results.txt
+gate,0.30,0.346,0.240,eval/titration_results.txt
+gate,0.50,0.379,0.348,eval/titration_results.txt
+gate,0.70,0.395,0.490,eval/titration_results.txt
+gate,1.00,0.417,1.000,eval/titration_results.txt

@@ -1,0 +1,11 @@
+cue,grain,kind,statistic,value,rho,source,note
+discourse continuity,utterance,language,rho,0.14,0.14,ch05 Condition-0,best overall
+combined language predictor,utterance,language,rho,0.11,0.11,ch05 Condition-0,
+prosody (energy range),word,language,rho,0.05,0.05,ch05 Condition-0,
+person present,utterance,social,AUC,0.55,0.10,ch05 Condition-0,best social; rho = 2*AUC-1
+caregiver speaking,utterance,social,AUC,0.54,0.08,ch05 Condition-0,
+pose gesture (point / show),utterance,social,AUC,0.53,0.06,ch05 Condition-0,
+child's hand present,utterance,social,AUC,0.53,0.06,ch05 Condition-0,
+visible face,utterance,social,AUC,0.51,0.02,ch05 Condition-0,
+caregiver gaze direction,utterance,social,AUC,0.50,0.00,ch05 Condition-0,pitch/yaw from face keypoints
+adult hand / reach / pointing,utterance,social,AUC,0.50,0.00,ch05 Condition-0,

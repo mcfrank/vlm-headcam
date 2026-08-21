@@ -1,0 +1,10 @@
+key,value,source
+videos,8566,"ccn2 extracted_frames_1fps dir count"
+children,36,"grid_baseline_train child_id nunique (83 in the full release)"
+frames_total,5419919,"find extracted_frames_1fps -name '*.jpg'"
+utterances,1282037,"full_clip_results.csv rows"
+pairs,1145371,"scored/gemini_full.parquet rows"
+train_pairs,911000,"grid_baseline_train.parquet (80% video split)"
+aligned_pairs,105309,"gemini_full alignment>=50 with a referent"
+aligned_spoken,70135,"of those, referent token spoken verbatim"
+konkle_cats,60,"Konkle test split (Vong 2024)"
