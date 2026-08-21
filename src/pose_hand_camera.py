@@ -45,6 +45,9 @@ def load(args):
     dims = pd.concat([pd.read_csv(p, sep='\t', header=None, names=['video_id', 'w', 'h', 'n_jpg']) for p in args.dims]).drop_duplicates('video_id')
     xw = pd.read_csv(args.crosswalk, sep='\t', low_memory=False)
     xw = xw.rename(columns={c: c.strip() for c in xw.columns})
+    # create_csv.py strips '_processed' from dir names (the 55 '_blackout_processed' videos) -> match that convention
+    dims['video_id'] = dims.video_id.str.replace('_processed', '', regex=False)
+    xw['video_id'] = xw.video_id.str.replace('_processed', '', regex=False)
     xw['date'] = pd.to_datetime(xw['date'], errors='coerce')
     for c in ['age (years)', 'duration_sec']:          # Airtable exports carry '#ERROR!' strings in numeric columns
         xw[c] = pd.to_numeric(xw[c], errors='coerce')
