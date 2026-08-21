@@ -2,8 +2,8 @@
 # Publish the book to Quarto Pub (a PUBLIC url) with the human-subjects frames REMOVED.
 #
 # The figures in figures/frames/ show participants' faces and must never reach a public surface.
-# This script backs them up (by COPY, so the originals are never at risk), substitutes small
-# "withheld" placeholders, does a clean render, runs a SAFETY GATE that refuses to publish if a
+# This script backs them up (by COPY, so the originals are never at risk), substitutes the static
+# figures/withheld.png card, does a clean render, runs a SAFETY GATE that refuses to publish if a
 # real frame leaked through, publishes, and restores the originals. If any step dies, the backup
 # in figures/frames_hold/ still holds the originals.
 #
@@ -28,24 +28,13 @@ else
   echo "note: no frames in $FRAMES (already frame-free) — nothing to hide."
 fi
 
-# 2) overwrite each real frame with a small "withheld" placeholder so the public book has no
-#    broken images. Best-effort renderer (PIL -> matplotlib -> empty file); all are safe.
+# 2) overwrite each real frame (recursively) with the static "withheld" card, so the public book
+#    shows a clear notice instead of a broken image. figures/withheld.png is committed + face-free.
 if [ -d "$HOLD" ]; then
+  [ -s figures/withheld.png ] || { echo "missing figures/withheld.png"; exit 1; }
   while IFS= read -r -d '' f; do
-    python3 - "$f" <<'PY' 2>/dev/null || : > "$f"
-import sys
-msg = "Example frame withheld (human subjects) - see the lab version."
-try:
-    from PIL import Image, ImageDraw
-    im = Image.new("RGB", (900, 320), (238, 238, 238))
-    ImageDraw.Draw(im).text((40, 150), msg, fill=(90, 90, 90))
-    im.save(sys.argv[1])
-except Exception:
-    import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
-    fig = plt.figure(figsize=(9, 3.2)); fig.text(0.5, 0.5, msg, ha="center", color="#5a5a5a")
-    fig.savefig(sys.argv[1]); plt.close(fig)
-PY
-  done < <(find "$FRAMES" -type f -print0)      # recursive: subdirs (e.g. frames/gemini_examples/) too
+    cp figures/withheld.png "$f"
+  done < <(find "$FRAMES" -type f -print0)
 fi
 
 # 3) clean render — wipe _book and caches so no previously-rendered real frame can leak
