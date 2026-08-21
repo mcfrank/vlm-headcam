@@ -15,8 +15,7 @@ SHORT = {"ladder_pure": "whole-frame\n(mean-pooled)", "ladder_region": "+ region
          "ladder_frame2": "+ frame\nMIL ±2s", "ladder_filter": "+ alignment\nfilter",
          "ladder_word": "+ word\nselection", "ladder_vision": "+ vision\nbinding"}
 
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6),
-                             gridspec_kw=dict(width_ratios=[1.55, 1]))
+fig, ax = plt.subplots(figsize=(T.W15, 2.6))
 
 # ---- A: ladder ----------------------------------------------------------------
 ids = FREE + ORACLE
@@ -26,7 +25,7 @@ FLOOR = 55
 prev = None
 for k, i in enumerate(ids):
     v, is_or = vals[i]["value"], i in ORACLE
-    col = T.BLUE if is_or else T.GREEN
+    col = T.ORACLE if is_or else T.FREE
     bot = FLOOR if k == 0 else (base if i == "ladder_filter" else prev)
     lo, hi = min(bot, v), max(bot, v)
     ax.bar(k, hi - lo, bottom=lo, width=0.62, color=col, zorder=3,
@@ -40,29 +39,23 @@ ax.axhline(vals["ladder_vision"]["value"], color=T.SUB, lw=0.6, ls=(0, (2, 2)))
 ax.text(-0.4, vals["ladder_vision"]["value"] + 0.7, "clean-label ceiling",
         ha="left", fontsize=5.8, color=T.SUB)
 ax.set_xticks(range(len(ids)))
-ax.set_xticklabels([SHORT[i] for i in ids], fontsize=5.8)
+ax.set_xticklabels([SHORT[i] for i in ids], fontsize=6.2)
 ax.set_ylim(FLOOR, 86); ax.set_ylabel("Konkle 4AFC (%)")
-ax.text(0.5, 0.96, "free", transform=ax.transAxes, color=T.GREEN, fontsize=6.5,
+ax.text(0.5, 0.96, "free", transform=ax.transAxes, color=T.FREE, fontsize=6.5,
         ha="right", style="italic")
-ax.text(0.56, 0.96, "oracle", transform=ax.transAxes, color=T.BLUE, fontsize=6.5,
+ax.text(0.56, 0.96, "oracle", transform=ax.transAxes, color=T.ORACLE, fontsize=6.5,
         ha="left", style="italic")
+ax.annotate("", xy=(2.6, base), xytext=(2.6, vals["ladder_vision"]["value"]),
+            arrowprops=dict(arrowstyle="<->", color=T.SUB, lw=0.7))
+ax.text(2.72, (base + vals["ladder_vision"]["value"]) / 2,
+        f"referential\nheadroom\n+{vals['ladder_vision']['value'] - base:.1f}",
+        fontsize=5.8, color=T.SUB, va="center")
+for k, q in zip((3, 4, 5), ("which\nmoments", "which\nword", "which\nobject")):
+    ax.text(k, FLOOR + 0.8, q, ha="center", fontsize=5.4, color=T.ORACLE, style="italic")
 T.clean(ax)
 
-# ---- B: what each oracle rung supplies -----------------------------------------
-gains = [(SHORT[i].replace("\n", " ").replace("+ ", ""),
-          vals[i]["value"] - (base if i == "ladder_filter" else
-                              vals[ORACLE[ORACLE.index(i) - 1]]["value"]),
-          q) for i, q in zip(ORACLE, ["which moments", "which word", "which object"])]
-ys = range(len(gains))
-bx.barh(list(ys), [g for _, g, _ in gains], color=T.BLUE, height=0.55, zorder=3)
-for y, (lab, g, q) in zip(ys, gains):
-    bx.text(g + 0.15, y, f"+{g:.1f}", va="center", fontsize=6.5, color=T.INK)
-    bx.text(0.12, y + 0.30, q, fontsize=5.6, color="white", style="italic")
-bx.set_yticks(list(ys)); bx.set_yticklabels([l for l, _, _ in gains], fontsize=6.5)
-bx.invert_yaxis(); bx.set_xlabel("gain over previous rung (pts)"); bx.set_xlim(0, 9.5)
-T.clean(bx, grid_axis="x")
-for a, l in zip((ax, bx), "AB"):
-    T.panel(a, l)
+for a, l in zip((ax,), ("",)):
+    pass
 
 note = D.provisional_note(ids)
 if note:

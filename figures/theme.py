@@ -13,14 +13,27 @@ OUT = Path(__file__).parent / "out"
 # PNAS column widths (inches)
 W1, W15, W2 = 3.42, 4.5, 7.0
 
-# project palette — kept identical to the book so talk/book/paper read as one project
-GREEN = "#1d9e75"   # free / unaided learning
-BLUE = "#185fa5"    # oracle / supervised
-RED = "#b0655a"     # negative results, BabyView-trained encoders
-AMBER = "#b8860b"
-PURPLE = "#7b5ea7"
+# ---------------------------------------------------------------- palette
+# Paul Tol's "muted" qualitative scheme — colorblind-safe (deuter/prot/tritanopia) and
+# print-safe in greyscale order. Colors are assigned SEMANTIC roles and must stay consistent
+# across every display item: the same idea is always the same color, different kinds of thing
+# are always different colors.
+TOL = dict(indigo="#332288", cyan="#88CCEE", teal="#44AA99", green="#117733",
+           olive="#999933", sand="#DDCC77", rose="#CC6677", wine="#882255",
+           purple="#AA4499", grey="#BBBBBB")
+
+FREE    = TOL["green"]    # unaided / free learning — what the learner gets on its own
+ORACLE  = TOL["indigo"]   # oracle / supervised information it is handed
+INDOM   = TOL["rose"]     # in-domain (BabyView-trained) encoders — the negative result
+CHILD   = TOL["sand"]     # human children / external reference
+OTHER   = TOL["teal"]     # a third model or condition when one is needed
+LIT     = TOL["purple"]   # published reference points from the literature (Vong, CVCL)
+NEUTRAL = TOL["grey"]     # the workhorse / baseline when it is not the point
+PROV    = TOL["wine"]     # provisional: source runs deleted (notes/PROVENANCE.md D6)
+
+# legacy aliases so existing scripts keep working
+GREEN, BLUE, RED, AMBER, PURPLE = FREE, ORACLE, INDOM, CHILD, LIT
 INK, SUB, GRID = "#2c2c2a", "#6b6a66", "#d9d8d1"
-PROV = "#c25b4e"    # provisional (unrecoverable provenance) — see notes/PROVENANCE.md
 
 plt.rcParams.update({
     "font.family": "sans-serif",

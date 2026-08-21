@@ -1,72 +1,102 @@
-"""Display item 2 — scaling, in two currencies.
+"""Display item 2 — how does word learning scale with the input a child actually receives?
 
-A: 4AFC vs number of training pairs (the engineering axis).
-B: the SAME observations rescaled to developmental time (the developmental axis) — because
-   aligned pairs are ~9.3% of utterances, buying N aligned pairs costs ~11x more waking hours
-   than N random ones, which partly offsets alignment's apparent data-efficiency.
+Deliberately shows ONLY the unfiltered stream: the question here is what *all* input buys, so the
+oracle-aligned arm (which is not something a learner could select) belongs with the ladder, not on
+this axis.
 
-Reconciles the book's fig_scaling_curves (pairs axis) and fig_dev_time (time axis) into one
-figure with one set of numbers, drawn from results/ rather than hardcoded.
+A: 4AFC vs training pairs, with a seed band and a saturating fit; CVCL (Vong et al. 2024) as a
+   published reference point.
+B: the same fit re-expressed in developmental time — hours of waking input — and extrapolated
+   toward child timescales, with children's LEVANTE-bench vocabulary accuracy as calibration.
 """
-import sys, numpy as np
+import sys, numpy as np, pandas as pd
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-# child-input rate constants (as in src/make_dev_figure.py)
-UTT_PER_HR, HR_PER_YEAR, ALIGNED_RATE = 820, 4000, 0.093
+UTT_PER_HR, HR_PER_YEAR = 820, 4000          # caregiver utterances/hr; waking hrs/yr
+CEIL = D.claim("ladder_vision")["value"]      # clean-label ceiling for the saturating fit
+rng = np.random.default_rng(0)
 
-RAND = [("scale_rand_10k", 1e4), ("scale_rand_30k", 3e4), ("scale_rand_100k", 1e5),
-        ("scale_rand_300k", 3e5), ("scale_rand_911k", 9.11e5)]
-ALIGN = [("scale_align_10k", 1e4), ("scale_align_30k", 3e4), ("scale_align_85k", 8.5e4)]
+POINTS = [("scale_rand_10k", 1e4), ("scale_rand_30k", 3e4), ("scale_rand_100k", 1e5),
+          ("scale_rand_300k", 3e5), ("scale_rand_911k", 9.11e5), ("scale_full", 1.145e6)]
+x, y, e, prov = [], [], [], []
+for cid, n in POINTS:
+    c = D.claim(cid)
+    x.append(n); y.append(c["value"]); e.append(c["sd"] or 1.5); prov.append(c["provisional"])
+x, y, e, prov = map(np.array, (x, y, e, prov))
 
 
-def series(spec):
-    x, y, e, prov = [], [], [], []
-    for cid, n in spec:
-        c = D.claim(cid)
-        x.append(n); y.append(c["value"]); e.append(c["sd"] or 0); prov.append(c["provisional"])
-    return np.array(x), np.array(y), np.array(e), np.array(prov)
+def sat(N, k, b):
+    return CEIL - k * np.power(N, -b)
 
-rx, ry, re_, rp = series(RAND)
-ax_, ay, ae, ap = series(ALIGN)
 
-fig, axes = plt.subplots(1, 2, figsize=(T.W2, 2.5), sharey=True)
+popt, _ = curve_fit(sat, x, y, p0=(300, 0.25), maxfev=20000)
+# Monte-Carlo the seed noise through the fit for a band
+grid = np.logspace(3.6, 7.6, 240)
+draws = []
+for _ in range(500):
+    try:
+        p, _ = curve_fit(sat, x, y + rng.normal(0, np.maximum(e, 0.5)), p0=popt, maxfev=20000)
+        draws.append(np.clip(sat(grid, *p), 25, CEIL))
+    except Exception:
+        pass
+draws = np.array(draws)
+lo, hi = np.percentile(draws, [10, 90], axis=0)
 
-for ax, mode in zip(axes, ["pairs", "time"]):
-    if mode == "pairs":
-        X_r, X_a = rx, ax_
-        ax.set_xlabel("training pairs")
-    else:
-        X_r = rx / UTT_PER_HR / HR_PER_YEAR
-        X_a = ax_ / (UTT_PER_HR * ALIGNED_RATE) / HR_PER_YEAR
-        ax.set_xlabel("developmental time (years of waking input)")
-    for X, Y, E, P, col, lab in [(X_r, ry, re_, rp, T.GREEN, "random (unfiltered)"),
-                                 (X_a, ay, ae, ap, T.BLUE, "referentially aligned")]:
-        ax.errorbar(X, Y, yerr=E, color=col, lw=1.2, marker="o", ms=3.2, capsize=1.6,
-                    elinewidth=0.6, label=lab, zorder=3)
-        if P.any():   # provisional points get a hollow ring
-            ax.scatter(X[P], Y[P], s=44, facecolors="none", edgecolors=T.PROV,
-                       lw=1.0, zorder=4)
-    ax.set_xscale("log")
-    ax.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
-    T.clean(ax)
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 
-axes[0].set_ylabel("Konkle 4AFC (%)")
-axes[0].set_ylim(20, 80)
-axes[0].legend(loc="upper left")
-axes[0].annotate("10k aligned ≈ 900k random", xy=(1e4, ay[0]), xytext=(4e4, 34),
-                 fontsize=6, color=T.SUB,
-                 arrowprops=dict(arrowstyle="-", color=T.SUB, lw=0.5))
-axes[1].text(0.97, 0.13, "aligned pairs cost ~11× the hours\n(only ~9% of utterances align)",
-             transform=axes[1].transAxes, ha="right", va="bottom", fontsize=6, color=T.SUB)
-for a, l in zip(axes, "AB"):
+# ---- A: pairs axis --------------------------------------------------------------
+ax.fill_between(grid, lo, hi, color=T.FREE, alpha=0.16, lw=0, zorder=1)
+ax.plot(grid, sat(grid, *popt), color=T.FREE, lw=1.0, zorder=2)
+ax.errorbar(x, y, yerr=e, fmt="o", color=T.FREE, ms=3.4, lw=0, elinewidth=0.7,
+            capsize=1.6, ecolor=T.FREE, zorder=4, label="BabyView, unfiltered")
+if prov.any():
+    ax.scatter(x[prov], y[prov], s=46, facecolors="none", edgecolors=T.PROV, lw=0.9, zorder=5)
+# published reference: CVCL (Vong et al. 2024) — single child, ~600k frames
+ax.scatter([6e5], [34.7], marker="D", s=18, color=T.LIT, zorder=5)
+ax.annotate("CVCL (Vong et al. 2024)\nout-of-distribution 34.7", (6e5, 34.7), (1.3e4, 27),
+            fontsize=5.6, color=T.LIT,
+            arrowprops=dict(arrowstyle="-", color=T.LIT, lw=0.5, shrinkA=0, shrinkB=2))
+ax.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
+ax.axhline(CEIL, color=T.ORACLE, lw=0.7, ls=(0, (2, 2)))
+ax.text(4e3, CEIL + 1, "clean-label ceiling", fontsize=5.6, color=T.ORACLE)
+ax.set_xscale("log"); ax.set_xlim(4e3, 3e6); ax.set_ylim(20, 90)
+ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
+ax.legend(loc="lower right", fontsize=6)
+T.clean(ax)
+
+# ---- B: developmental time ------------------------------------------------------
+to_yr = lambda n: n / UTT_PER_HR / HR_PER_YEAR
+gyr = to_yr(grid)
+bx.fill_between(gyr, lo, hi, color=T.FREE, alpha=0.16, lw=0, zorder=1)
+bx.plot(gyr, sat(grid, *popt), color=T.FREE, lw=1.0, zorder=2)
+bx.errorbar(to_yr(x), y, yerr=e, fmt="o", color=T.FREE, ms=3.4, lw=0, elinewidth=0.7,
+            capsize=1.6, zorder=4)
+# children's LEVANTE vocabulary accuracy, plotted at their ages — CALIBRATION, not the same task
+bx.axhspan(72, 82, color=T.CHILD, alpha=0.28, lw=0, zorder=1)
+bx.text(6.0, 77, "children 5–12 yr\n(LEVANTE vocabulary)", fontsize=5.6, color="#8a6d1f",
+        ha="right", va="center")
+for yr in (1, 3, 5):
+    bx.axvline(yr, color=T.GRID, lw=0.6, zorder=0)
+    bx.text(yr, 21.5, f"{yr} yr", fontsize=5.4, color=T.SUB, ha="center")
+bx.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
+bx.axhline(CEIL, color=T.ORACLE, lw=0.7, ls=(0, (2, 2)))
+bx.set_xscale("log"); bx.set_xlim(3e-3, 8); bx.set_ylim(20, 90)
+bx.set_xlabel("developmental time (years of waking input)")
+bx.text(0.03, 86, "observed", fontsize=5.8, color=T.SUB, style="italic")
+bx.text(1.6, 86, "extrapolated", fontsize=5.8, color=T.SUB, style="italic")
+bx.axvline(to_yr(x.max()), color=T.SUB, lw=0.6, ls=(0, (1, 2)))
+T.clean(bx)
+for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
 
-note = D.provisional_note([c for c, _ in RAND + ALIGN])
+note = D.provisional_note([c for c, _ in POINTS])
+cap = ("Fit is saturating (ceiling = clean-label topline); band = 10–90% over seed noise. "
+       "Children's band is LEVANTE vocabulary 4AFC — a different item set from Konkle, shown as "
+       "calibration of scale, not a like-for-like comparison.")
 if note:
-    fig.text(0.5, -0.10, "○ " + note, ha="center", fontsize=5.6, color=T.PROV)
-fig.text(0.5, -0.17, "Points 10k–300k are old-rig (final-epoch, post-hoc eval); 911k is clean-rig "
-         "(best-epoch). See notes/PROVENANCE.md D1 — re-run before submission.",
-         ha="center", fontsize=5.6, color=T.SUB)
+    cap += "  ○ " + note
+fig.text(0.5, -0.13, cap, ha="center", fontsize=5.5, color=T.SUB, wrap=True)
 T.save(fig, "fig2_scaling")
