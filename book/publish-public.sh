@@ -31,8 +31,7 @@ fi
 # 2) overwrite each real frame with a small "withheld" placeholder so the public book has no
 #    broken images. Best-effort renderer (PIL -> matplotlib -> empty file); all are safe.
 if [ -d "$HOLD" ]; then
-  for f in "$FRAMES"/*; do
-    [ -e "$f" ] || continue
+  while IFS= read -r -d '' f; do
     python3 - "$f" <<'PY' 2>/dev/null || : > "$f"
 import sys
 msg = "Example frame withheld (human subjects) - see the lab version."
@@ -46,7 +45,7 @@ except Exception:
     fig = plt.figure(figsize=(9, 3.2)); fig.text(0.5, 0.5, msg, ha="center", color="#5a5a5a")
     fig.savefig(sys.argv[1]); plt.close(fig)
 PY
-  done
+  done < <(find "$FRAMES" -type f -print0)      # recursive: subdirs (e.g. frames/gemini_examples/) too
 fi
 
 # 3) clean render — wipe _book and caches so no previously-rendered real frame can leak
@@ -55,11 +54,10 @@ quarto render
 
 # 4) SAFETY GATE: real headcam frames are large; placeholders are tiny. Abort on any big frame.
 fail=0
-for img in _book/figures/frames/* ; do
-  [ -e "$img" ] || continue
+while IFS= read -r -d '' img; do                 # recursive: any real frame anywhere under frames/
   sz=$(stat -f%z "$img" 2>/dev/null || stat -c%s "$img" 2>/dev/null || echo 0)
   [ "$sz" -gt 60000 ] && { echo "ABORT: $img is ${sz} bytes — looks like a REAL frame."; fail=1; }
-done
+done < <(find _book/figures/frames -type f -print0 2>/dev/null)
 [ "$fail" -eq 0 ] || { echo "Safety gate failed — NOT publishing. Originals restored on exit."; exit 1; }
 echo "Safety gate passed: only placeholders in _book/figures/frames/."
 
