@@ -13,12 +13,17 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--manifest", required=True)   # video_id, frame_idx, path
 ap.add_argument("--out", required=True)
 ap.add_argument("--grid", type=int, default=4); ap.add_argument("--batch", type=int, default=128)
+ap.add_argument("--model", default=None, help="HF model id (default: common.DINO_MODEL = DINOv2)")
+ap.add_argument("--emb-dim", type=int, default=None)
 args = ap.parse_args(); G = args.grid
 out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
 man = pd.read_parquet(args.manifest).reset_index(drop=True)
 dev = "cuda" if torch.cuda.is_available() else "cpu"
-proc = AutoImageProcessor.from_pretrained(DINO_MODEL); model = AutoModel.from_pretrained(DINO_MODEL).eval().to(dev)
-R = 1 + G * G; embs = np.zeros((len(man), R, EMB_DIM), np.float16); ok = np.zeros(len(man), bool)
+MODEL_ID = args.model or DINO_MODEL
+proc = AutoImageProcessor.from_pretrained(MODEL_ID); model = AutoModel.from_pretrained(MODEL_ID).eval().to(dev)
+DIM = args.emb_dim or getattr(model.config, "hidden_size", EMB_DIM)
+print(f"model {MODEL_ID} | dim {DIM} | {len(man)} images", flush=True)
+R = 1 + G * G; embs = np.zeros((len(man), R, DIM), np.float16); ok = np.zeros(len(man), bool)
 buf, pos = [], []
 
 def flush():
@@ -26,7 +31,7 @@ def flush():
     with torch.no_grad():
         h = model(**proc(images=buf, return_tensors="pt").to(dev)).last_hidden_state
     cls = h[:, 0]; patch = h[:, 1:]; P = patch.shape[1]; s = int(round(math.sqrt(P)))
-    grid = patch[:, :s*s].transpose(1, 2).reshape(-1, EMB_DIM, s, s)
+    grid = patch[:, :s*s].transpose(1, 2).reshape(-1, DIM, s, s)
     pooled = torch.nn.functional.adaptive_avg_pool2d(grid, (G, G)).flatten(2).transpose(1, 2)
     feat = torch.cat([cls.unsqueeze(1), pooled], 1).to(torch.float16).cpu().numpy()
     for j, p in enumerate(pos): embs[p] = feat[j]; ok[p] = True

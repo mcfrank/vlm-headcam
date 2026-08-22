@@ -68,6 +68,11 @@ def main():
     ap.add_argument("--caches", nargs="+", required=True)
     ap.add_argument("--eval-cache", required=True)
     ap.add_argument("--eval-frames", required=True)
+    # Model selection on a DEV split (Konkle dev-117) and reporting on test-60 removes the
+    # best-epoch-on-test optimism (+1.4 pts on average, but 0.4-3.5 depending on condition, which
+    # distorts comparisons). If omitted, falls back to the legacy best-on-test behaviour.
+    ap.add_argument("--dev-cache", default=None)
+    ap.add_argument("--dev-frames", default=None)
     ap.add_argument("--out", required=True)
     ap.add_argument("--window", type=int, default=2)
     ap.add_argument("--cls-only", action="store_true")
@@ -96,8 +101,12 @@ def main():
         print(f"centered: subtracted train mean |mu|={np.linalg.norm(mu):.2f}", flush=True)
     opt = torch.optim.AdamW(m.parameters(), lr=a.lr, weight_decay=0.1)
     ev = pd.read_parquet(a.eval_frames); ecache, elut = load_region_cache(a.eval_cache)
+    use_dev = bool(a.dev_cache and a.dev_frames)
+    if use_dev:
+        dv = pd.read_parquet(a.dev_frames); dcache, dlut = load_region_cache(a.dev_cache)
 
-    best = 0.0
+    Path(a.out).mkdir(parents=True, exist_ok=True)
+    hist, best_sel, best_state, best_ep = [], -1.0, None, -1
     for ep in range(a.epochs):
         m.train()
         for _, v, t, n in dl:
@@ -106,12 +115,36 @@ def main():
             loss = m.forward_loss(v, t, n, w)
             opt.zero_grad(); loss.backward(); opt.step()
         acc = eval_4afc_region(m, ecache, elut, ev, vocab, dev)
-        best = max(best, acc)
-        print({"ep": ep, "acc": round(acc, 4)}, flush=True)
-    Path(a.out).mkdir(parents=True, exist_ok=True)
+        dacc = eval_4afc_region(m, dcache, dlut, dv, vocab, dev) if use_dev else None
+        sel = dacc if use_dev else acc            # what we select the epoch on
+        if sel > best_sel:
+            best_sel, best_ep = sel, ep
+            best_state = {k: v_.detach().cpu().clone() for k, v_ in m.state_dict().items()}
+        rec = {"ep": ep, "acc": round(acc, 4)}
+        if use_dev:
+            rec["dev"] = round(dacc, 4)
+        hist.append(rec)
+        print(rec, flush=True)
+
+    # report the TEST accuracy at the DEV-selected epoch (or best-on-test in legacy mode)
+    reported = hist[best_ep]["acc"]
+    if best_state is not None:
+        m.load_state_dict(best_state)
     torch.save(m.state_dict(), Path(a.out) / "model.pt")
     save_json(vocab, Path(a.out) / "vocab.json")
-    print(f"DONE {a.out} best {best:.4f}", flush=True)
+    # metrics.json: the run's own machine-readable record, so no number ever has to be
+    # recovered from stdout again (see notes/PROVENANCE.md).
+    save_json({"run": str(Path(a.out).name), "seed": a.seed, "manifest": a.manifest,
+               "caches": a.caches, "eval_frames": a.eval_frames, "window": a.window,
+               "cls_only": a.cls_only, "center": a.center, "emb_dim": int(emb_dim),
+               "epochs": a.epochs, "n_pairs": len(ds), "vocab": len(vocab),
+               "selection": "dev" if use_dev else "test",
+               "selected_epoch": best_ep, "reported_test_acc": round(100 * reported, 3),
+               "best_test_acc": round(100 * max(h["acc"] for h in hist), 3),
+               "final_test_acc": round(100 * hist[-1]["acc"], 3),
+               "history": hist}, Path(a.out) / "metrics.json")
+    print(f"DONE {a.out} selected_ep {best_ep} ({'dev' if use_dev else 'test'}) "
+          f"reported {reported:.4f} best {max(h['acc'] for h in hist):.4f}", flush=True)
 
 
 if __name__ == "__main__":

@@ -717,3 +717,98 @@ grid_baseline_full (1.14M pairs). Region-MIL 100% = 65.6+/-2.2 (s0 68.1/s1 65.1/
 911k=62.6 -> +3.0, curve still climbing (no plateau, confirms data-limited). Item plot + analysis
 re-run on definitive model (G_base_mil_full_s0): vision-proto min 99 (features separate all),
 freq rho 0.41 >> vision rho 0.19. ch6 scaling curve + ch7 updated to definitive model.
+
+---
+# PHASE 4 — the clean rig, encoders, architectures (2026-07-14 → 07-15)
+
+*Backfilled 2026-08-21 during the provenance audit; these sessions were not logged at the time.
+See `notes/PHASES.md` for what "clean rig" means and `results/provenance_report.csv` for which of
+these numbers still have surviving run logs.*
+
+## The clean rig
+`train_frame_mil.py --window 0` becomes the single trainer: Konkle test-60 evaluated **during**
+training, **best epoch** reported. Replaces `train_region_mil.py` (post-hoc eval, final epoch).
+Offset ≈ +2–3 points; every ladder rung was re-run on it.
+
+## The CLS-baseline artifact (the reason for the ch4 rewrite)
+Region-MIL's headline "+9.7" had been measured against a **CLS** whole-frame baseline (52.9). The
+honest whole-frame readout is **mean-pooled patch tokens (61.3)**, against which region-MIL is
+**+4.0**. Diagnosed via a `--cls-only` run that was evaluating on the 17-region `emb_konkle` cache
+regardless of the flag (`train_frame_mil.py:108`); fixed by evaluating on `emb_konkle_cls1`.
+Consequence: the book was reframed — *free gains are modest, the oracle rungs carry the climb* —
+which strengthens the thesis. Ladder after the rewrite: 61.3 → 65.3 (+4.0 region) → 65.5 (+0.2
+frame ±2s) → 69.9 (filter) → 74.0 (word) → 81.5 (vision binding).
+**Provenance: these runs lived in `~/vlm_clean*` and were deleted in the July home cleanup —
+only `DONE` stubs survive. UNRECOVERABLE; must be re-run (see PROVENANCE D6).**
+
+## ch8 — does the vision encoder matter? (runs recovered from Oak)
+Five encoders over the identical 877,802 topline frames (Khai's cached embeddings), same
+contrastive head, same eval. Whole-frame (meanpatch) / region-MIL (4×4):
+DINOv3-B off-the-shelf **70.8 / 72.6** · DINOv2 off-the-shelf 61.3 / 65.3 · DINOv3-L BabyView
+41.0 / 41.7 · ZWM-1B 35.6 / 35.7 · ZWM-170M 31.6 / 28.9 · V-JEPA2-L 30.8 / 31.4.
+Verdict: **off-the-shelf web-trained encoders dominate; BabyView-trained encoders transfer far
+worse** (cleanest comparison DINOv3-L-BV 41.0 vs DINOv3-B-OTS 70.8, −30). Extended ladder shows
+referential headroom shrinking with a stronger encoder (+20 DINOv2 → +14 DINOv3-B) but never
+closing. ZWM-170M's region row is a layer mismatch (grid at layer12, whole-frame later), not a
+real drop.
+
+## ch9 — architectures (runs recovered from Oak)
+Holding encoder and data fixed, varying only the architecture:
+hard max **66.4** · soft pooling τ=0.05 **65.3** · τ=0.15 **63.1** · τ=0.50 **61.6** · learned
+cross-attention **60.2** · from-scratch captioner **62.1** (UNRECOVERABLE).
+Verdict: **nothing beats the contrastive hard-max.** Softening monotonically hurts, learned
+attention hurts most, generation ties. A word refers to one object in one place, so winner-take-all
+is the right bias — the architecture is not the bottleneck either.
+NB `max` here (66.4) is nominally the same configuration as ch4's "+ region MIL" (65.3) —
+see PROVENANCE D5.
+
+## LEVANTE-bench secondary eval
+DevBench-style contrastive 4AFC on the LEVANTE vocabulary task (159 items; the model can attempt
+100). Scores **42.3 ± 0.5%** on those 100; scored fairly across all 159 (chance on the 59 OOV)
+**≈36%** — level with a 3.1B generative VLM, far below children (72–82%). Item-level alignment
+with children's IRT difficulty is weak (ρ ≈ −0.13) while alignment with the word's frequency in
+the model's own input is more than twice as strong (ρ = +0.34). The model knows the words it heard
+often, not the words children find easy. **Clean provenance** (per-seed parquets) — the pattern the
+rest of the pipeline should follow.
+
+---
+# PHASE 5 — paper phase (2026-08-21 → )
+
+## Provenance audit (2026-08-21)
+Built `results/` as the single source of truth: `runs.parquet` (375 runs scraped from run logs,
+incl. 60 recovered from Oak), `evals.parquet` (56 post-hoc Konkle evals recovered from chain-log
+stdout), `published.csv` (38 claims made in the book), `provenance_report.csv` (the check).
+
+**Result: 30 MATCH · 1 MISMATCH · 7 UNRECOVERABLE.** Eight divergences documented in
+`notes/PROVENANCE.md` (D1–D8); the most consequential are the ch6 scaling curve mixing two rigs on
+one axis (D1) and the entire ch4 ladder having no surviving run logs (D6).
+
+### Next actions
+1. **Re-run the ch4 ladder + captioner on the clean rig** (manifests and caches all exist;
+   ~6 configs × 3 seeds). Closes D5, D6 and the DINOv2 rows of ch8.
+2. **Re-run the ch6 scaling curve on the clean rig** so one axis = one rig. Closes D1–D3.
+3. Fix metric convention (best vs final epoch), state it in Methods. Closes D4.
+4. Split figure scripts into data-emitters (ccn2) and figure-drawers (local). Closes D7, D8.
+
+## S1 (planned, supplement) — does an intermediate DINOv3 layer probe better than the final one?
+
+**Claim to test.** For self-distilled ViTs, intermediate blocks often linear-probe better than the
+last, which specializes toward the pretraining objective. If true here, the "clean rig" should read
+out at that layer rather than the default final layer, and the whole ladder shifts up.
+
+**Why it needs its own extraction.** Khai's cached DINOv3 readouts are **final-layer only** (CLS +
+meanpatch); only the V-JEPA2/ZWM caches carry `_layer{0,4,…}`. So this is the one re-run that needs
+new embedding rather than a new manifest.
+
+**Design (cheap first, expensive only if it pays).**
+1. Sweep on a ~100k-pair subset, whole-frame **meanpatch only**, layers {2,4,6,8,10,12} of 12 —
+   one forward pass yields all layers (`output_hidden_states=True`), so storage is
+   100k × 6 × 768 × fp16 ≈ 0.9 GB and compute is a single embedding pass.
+   `src/embed_dinov3_layers.py` → `src/train_frame_mil.py` per layer, 3 seeds.
+2. If a non-final layer wins by more than seed noise (~±1.5), re-extract the **4×4 grid at that
+   layer alone** over the 877k topline frames and re-run the ladder there; otherwise report the
+   null in the supplement and keep the final layer.
+
+**Reporting.** Either way this is a supplement figure (accuracy vs layer depth, 3 seeds) plus one
+sentence in Methods justifying the readout choice. Pre-registering the decision rule here so the
+choice is not made post hoc.
