@@ -900,3 +900,22 @@ more than the seed noise (~±1.5 pts). Outcomes:
 **Known caveat.** The pilot selects best-on-test within each model because these encoders have no
 dev-split eval cache; the comparison is relative across layers within a model, and any follow-up
 runs on the dev-selected clean rig. Do not quote the pilot's absolute numbers.
+
+### Release filter for 2026.1 (added 2026-08-21, before the manifest was built)
+
+The extracted frame set can be a **superset** of the release, so pair construction now filters on
+the authoritative marker: the Airtable export's `release` column, a comma-separated list of the
+releases each video belongs to (`metadata/videos.csv`, human-subjects — on the node and local only,
+never in git). `build_pairs_2026.py --release 2026.1` (the default) keeps only tagged videos.
+
+The join is on the **rec-id**, extracted with `r"(rec[A-Za-z0-9]{10,})"` rather than by splitting on
+underscores — ids carry optional `_rotated` / `_blackout` / `_processed` decorations, and a naive
+last-field split silently dropped 68 legitimate videos. With the regex the join is **16,008/16,008
+(100%)**.
+
+**Honest note on what this currently changes: nothing, yet.** The 2026.1 transcript is already
+release-scoped — all 16,008 of its videos are tagged 2026.1 — and since pairs come from the
+transcript and we only embed the midpoint frames of those pairs, superset frames never entered.
+The filter is a guard (against a future transcript that is not pre-scoped, and against anyone
+building manifests from the frame directory) and it makes release membership *verifiable* rather
+than assumed. It also warns if it ever drops >50% of videos, which would indicate a broken join.

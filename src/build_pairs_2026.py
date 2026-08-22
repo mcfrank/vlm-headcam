@@ -61,9 +61,10 @@ def main():
         v = pd.read_csv(a.videos_csv, low_memory=False)[["unique_video_id", "release"]]
         keep = set(v.loc[v.release.fillna("").str.split(",").apply(
             lambda xs: a.release in [x.strip() for x in xs]), "unique_video_id"])
-        # frame/transcript ids look like S00220001_2024-02-05_1_recXXXX[_rotated]
-        rec = (utt.video_id.str.replace(r"_rotated$", "", regex=True)
-                           .str.rsplit("_", n=1).str[-1])
+        # ids look like S00220001_2024-02-05_1_recXXXX with optional trailing decorations
+        # (_rotated, _blackout, _processed, and combinations), so pull the rec-token out directly
+        # rather than assuming it is the last underscore-separated field.
+        rec = utt.video_id.str.extract(r"(rec[A-Za-z0-9]{10,})", expand=False)
         n0, v0 = len(utt), utt.video_id.nunique()
         utt = utt[rec.isin(keep)]
         print(f"release filter {a.release!r}: kept {utt.video_id.nunique():,}/{v0:,} videos, "
