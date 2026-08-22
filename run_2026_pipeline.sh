@@ -9,6 +9,12 @@ set -u
 cd /data2/mcfrank/vlm-headcam
 export PYTHONPATH=src
 PY=/data2/mcfrank/ladder/condaenv/bin/python
+# DINOv3 is a GATED HuggingFace repo and this node has no HF auth. Khai has accepted the
+# licence and his cache holds the weights, and his `ccwm` env has transformers 4.57 (ours is 4.49,
+# which predates the dinov3 model type). So embedding runs in HIS env against HIS cache, offline;
+# training stays in our env. Same precedent as the pose pipeline symlinking his model weights.
+EMBPY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
+export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PREFIX=manifests/bv2026
 N_VIDEOS_EXPECTED=16008          # from the 2026.1 transcript
 
@@ -50,7 +56,7 @@ GEM=$!
 
 # ---- 2b. DINOv3-B region embeddings, only the midpoint frames -------------------------
 DV3=facebook/dinov3-vitb16-pretrain-lvd1689m
-if [ ! -d emb_dv3_2026 ]; then
+if [ ! -f emb_dv3_2026_0/index.parquet ]; then
   # shard across whatever GPUs are idle (pose/phase5 may be using some)
   # wait for idle GPUs rather than colliding with pose / run_phase5
   while :; do
@@ -61,7 +67,7 @@ if [ ! -d emb_dv3_2026 ]; then
   echo "embedding on GPUs: $FREE"
   i=0
   for g in $FREE; do
-    BABYVIEW_FRAMES="$FR" CUDA_VISIBLE_DEVICES=$g $PY -B src/embed_regions.py \
+    BABYVIEW_FRAMES="$FR" CUDA_VISIBLE_DEVICES=$g PYTHONPATH=src $EMBPY -B src/embed_regions.py \
       --frames ${PREFIX}_frames.parquet --out emb_dv3_2026_$i --model $DV3 --grid 4 \
       --shard $i --nshards $NF > logs/bv2026_emb_$i.log 2>&1 &
     i=$((i+1))

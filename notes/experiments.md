@@ -919,3 +919,46 @@ transcript and we only embed the midpoint frames of those pairs, superset frames
 The filter is a guard (against a future transcript that is not pre-scoped, and against anyone
 building manifests from the frame directory) and it makes release membership *verifiable* rather
 than assumed. It also warns if it ever drops >50% of videos, which would indicate a broken join.
+
+### English-dominance filter (added 2026-08-21) — a confound we had not been controlling
+
+**There was no language filter anywhere in the pipeline.** BabyView includes children whose home
+input is largely or entirely not English, and the evaluation is English throughout (Konkle category
+words, LEVANTE English vocabulary). Their utterances entered the bag-of-words vocabulary and the
+contrastive objective but could never align to the eval. Evidence it was live: one of the sampled
+Gemini negatives is *"Posso colocar a red?"* (Portuguese).
+
+**Source of truth** is the per-child demographics export
+(`data/BV-Main Demographics-Grid view.csv`, 55 subjects: `subject_id`, `percent_english`,
+`languages`), which joins straight to `child_id`. Human-subjects — gitignored, node + local only.
+`src/filter_english.py --min 80` (Mike's threshold) implements it; a per-video Airtable fallback
+exists but the per-child file is authoritative.
+
+**Impact.** At ≥80% English, 45 of 55 subjects are kept. On the paper's training manifest:
+910,975 → 790,519 pairs (86.8%), 6,550 → 5,283 videos, **36 → 28 children**. The 10 excluded
+subjects are at 0/0/0/0/3/22/48/50/68/70% English (japanese; french,portuguese; korean;
+mandarin/taiwanese/japanese/cantonese; etc.). For 2026.1 the filter keeps ~44 of 51 children, so
+the diversity extension still gains over 2025.2's 36.
+
+**Decision: run both arms.** `run_phase5.sh` now trains every ladder rung and scaling point twice —
+unfiltered and English-dominant (`*_en`) — so the paper can report the English-matched corpus as
+primary with the unfiltered as a robustness check (or the reverse), without another re-run. This is
+about matching the corpus to the eval, not a judgement about the children, and the paper should say
+so explicitly.
+
+### Debugging log for the phase-5 launch (three real bugs, all caught before wasting compute)
+
+1. **Silent no-op.** The first launch printed `PHASE5_DONE` having produced **zero** runs: a
+   missing dev-eval cache made every training command die in seconds. Fix: an explicit
+   prerequisite check that aborts, plus a final assertion that run dirs exist.
+2. **Empty-dir skip.** The failed run left an empty `emb_dv3_konkle_dev/`, and the `[ -d ... ]`
+   skip-check then treated the step as done. Fix everywhere: test for the *artifact*
+   (`index.parquet`), never the directory.
+3. **Gated model.** DINOv3 is a gated HF repo and this node has no HF auth; our env's
+   transformers (4.49) also predates the `dinov3` model type. Fix: embedding runs in khaiaw's
+   `ccwm` env (transformers 4.57) against his HF cache with `HF_HUB_OFFLINE=1` — the same
+   precedent as the pose pipeline using his model weights. Training stays in our env.
+
+First result confirms the design: `P5_lad_region_s0` selected epoch 16 on dev-117 and reports
+**73.9** on test-60, where best-on-test would have claimed 75.1 — the 1.2-point optimism the dev
+split was added to remove. Region-MIL on DINOv3-B is ~+8.6 over the DINOv2 value it replaces.

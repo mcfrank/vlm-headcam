@@ -41,9 +41,9 @@ declare -A LAYERS=( [vjepa2l]="0 4 8 12 16 20 23"
 for m in vjepa2l zwm170m zwm1b; do
   for L in ${LAYERS[$m]}; do
     RO=${STEM[$m]}_layer${L}
-    [ -d emb_s1/${m}_L${L} ] || $PY -B src/assemble_encoder_cache.py --base $TRAIN --readout $RO \
+    [ -f emb_s1/${m}_L${L}/index.parquet ] || $PY -B src/assemble_encoder_cache.py --base $TRAIN --readout $RO \
         --ids $SUB --out emb_s1/${m}_L${L} >> logs/s1_assemble.log 2>&1
-    [ -d emb_s1_eval/${m}_L${L} ] || $PY -B src/assemble_encoder_cache.py --base $EVALD --readout $RO \
+    [ -f emb_s1_eval/${m}_L${L}/index.parquet ] || $PY -B src/assemble_encoder_cache.py --base $EVALD --readout $RO \
         --ids manifests/konkle_eval_ids.txt --out emb_s1_eval/${m}_L${L} >> logs/s1_assemble.log 2>&1
     echo "assembled $m L$L"
   done
