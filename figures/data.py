@@ -46,6 +46,19 @@ def family(name, metric="best_acc"):
                 n=int(len(s)), values=sorted(s.tolist()))
 
 
+def ignition_band():
+    """(lo, hi): the cue-quality bracket in which a hard gate first overtakes soft weighting.
+
+    Below `lo` selecting on the cue buys nothing over just down-weighting; the band is what a
+    learner would need to reach before filtering for referential moments could pay. Derived from
+    results/titration.csv so fig3 and the SI titration figure cannot drift apart.
+    """
+    t = pd.read_csv(R / "titration.csv").pivot(index="rho", columns="mode",
+                                               values="acc_4afc").dropna()
+    over = t.index[t["gate"] > t["soft"]]
+    return float(t.index[t.index < over.min()].max()), float(over.min())
+
+
 def provisional_note(claim_ids):
     """One-line caption fragment naming which plotted points lack surviving provenance."""
     bad = [c for c in claim_ids if claim(c)["provisional"]]

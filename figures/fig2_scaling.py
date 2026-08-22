@@ -51,20 +51,21 @@ fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 ax.fill_between(grid, lo, hi, color=T.FREE, alpha=0.16, lw=0, zorder=1)
 ax.plot(grid, sat(grid, *popt), color=T.FREE, lw=1.0, zorder=2)
 ax.errorbar(x, y, yerr=e, fmt="o", color=T.FREE, ms=3.4, lw=0, elinewidth=0.7,
-            capsize=1.6, ecolor=T.FREE, zorder=4, label="BabyView, unfiltered")
+            capsize=1.6, ecolor=T.FREE, zorder=4)
 if prov.any():
     ax.scatter(x[prov], y[prov], s=46, facecolors="none", edgecolors=T.PROV, lw=0.9, zorder=5)
 # published reference: CVCL (Vong et al. 2024) — single child, ~600k frames
 ax.scatter([6e5], [34.7], marker="D", s=18, color=T.LIT, zorder=5)
-ax.annotate("CVCL (Vong et al. 2024)\nout-of-distribution 34.7", (6e5, 34.7), (1.3e4, 27),
-            fontsize=5.6, color=T.LIT,
-            arrowprops=dict(arrowstyle="-", color=T.LIT, lw=0.5, shrinkA=0, shrinkB=2))
+ax.annotate("CVCL (Vong et al. 2024)\nout-of-distribution 34.7", (6e5, 34.7), (4.2e5, 29.5),
+            fontsize=5.6, color=T.LIT, ha="right", va="center",
+            arrowprops=dict(arrowstyle="-", color=T.LIT, lw=0.5, shrinkA=1, shrinkB=2))
 ax.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
+ax.text(2.8e6, 25.9, "chance", fontsize=5.6, color=T.SUB, ha="right")
 ax.axhline(CEIL, color=T.ORACLE, lw=0.7, ls=(0, (2, 2)))
 ax.text(4e3, CEIL + 1, "clean-label ceiling", fontsize=5.6, color=T.ORACLE)
+ax.text(2.9e6, 68, "BabyView,\nunfiltered", fontsize=6, color=T.FREE, ha="right", va="bottom")
 ax.set_xscale("log"); ax.set_xlim(4e3, 3e6); ax.set_ylim(20, 90)
 ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
-ax.legend(loc="lower right", fontsize=6)
 T.clean(ax)
 
 # ---- B: developmental time ------------------------------------------------------
