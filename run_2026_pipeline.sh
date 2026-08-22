@@ -9,6 +9,13 @@ set -u
 cd /data2/mcfrank/vlm-headcam
 export PYTHONPATH=src
 PY=/data2/mcfrank/ladder/condaenv/bin/python
+# Vertex credentials for the Gemini annotation step (service account; never echoed, never in git)
+if [ -f "$HOME/.secrets/vlm-headcam.env" ]; then
+  set -a; . "$HOME/.secrets/vlm-headcam.env"; set +a
+  export GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS:-$HOME/.secrets/vlm-headcam-sa.json}"
+else
+  echo "WARNING: no ~/.secrets/vlm-headcam.env — the Gemini stage will fail"
+fi
 # DINOv3 is a GATED HuggingFace repo and this node has no HF auth. Khai has accepted the
 # licence and his cache holds the weights, and his `ccwm` env has transformers 4.57 (ours is 4.49,
 # which predates the dinov3 model type). So embedding runs in HIS env against HIS cache, offline;
@@ -48,9 +55,11 @@ grep -E "pairs over|children" logs/bv2026_pairs.log
 
 # ---- 2a. Gemini referential annotation (network-bound; runs alongside the GPU work) ---
 #      thinking is OFF by default (thinking_budget=0) — the cheap path.
-( [ -f scored/bv2026_gemini.parquet ] || \
-  BABYVIEW_FRAMES="$FR" $PY -B src/gemini_align.py --manifest ${PREFIX}_pairs.parquet \
-     --out scored/bv2026_gemini.parquet --workers 48 > logs/bv2026_gemini.log 2>&1
+( if [ ! -f scored/bv2026_gemini.parquet ]; then
+    BABYVIEW_FRAMES="$FR" $PY -B src/gemini_align.py --manifest ${PREFIX}_pairs.parquet \
+       --out scored/bv2026_gemini.parquet --workers 48 > logs/bv2026_gemini.log 2>&1 \
+      || { echo "GEMINI FAILED (see logs/bv2026_gemini.log)"; exit 1; }
+  fi
   echo "GEMINI_DONE" ) &
 GEM=$!
 

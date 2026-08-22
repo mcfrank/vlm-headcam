@@ -962,3 +962,44 @@ so explicitly.
 First result confirms the design: `P5_lad_region_s0` selected epoch 16 on dev-117 and reports
 **73.9** on test-60, where best-on-test would have claimed 75.1 — the 1.2-point optimism the dev
 split was added to remove. Region-MIL on DINOv3-B is ~+8.6 over the DINOv2 value it replaces.
+
+## Phase-5 first results (2026-08-22) — DINOv3-B, dev-117 selection, test-60 reported
+
+66 runs, all with `metrics.json`. Mean optimism removed by dev selection: **0.86 pts**.
+
+| rung | unfiltered | English ≥80% | (DINOv2, old) |
+|---|---|---|---|
+| pure (CLS-only) | 62.6 ± 2.6 | 61.7 ± 1.5 | 61.3 meanpatch |
+| + region MIL | **75.0 ± 1.3** | 72.3 ± 1.7 | 65.3 |
+| + alignment filter | 74.4 ± 1.2 | 73.5 ± 1.5 | 69.9 |
+| + word selection | 77.0 ± 2.3 | 74.3 ± 1.2 | 74.0 |
+| + vision binding | 82.9 ± 0.5 | 84.1 ± 2.8 | 81.5 |
+
+scaling (unfiltered): 10k 28.6 · 30k 36.1 · 100k 49.9 · 300k 66.4 · 911k 75.0 · 1.14M 73.2
+
+### Three things to resolve before any of this is quoted
+
+1. **The alignment filter rung is now flat (74.4 vs 75.0 region).** On DINOv2 it was +4.6. Read
+   carefully: the filter arm trains on ~84k aligned pairs vs 911k unfiltered, and aligned data is
+   still hugely more efficient (84k aligned → 74.4 where ~100k random → 49.9). What has changed is
+   that with a strong encoder the *full* corpus catches up, so filtering no longer adds **on top of
+   all the data**. The oracle climb now comes from word selection (+2.6) and vision binding (+5.9);
+   total referential headroom 75.0 → 82.9 = **+7.9, roughly half the +16 seen on DINOv2**. This is
+   consistent with ch8's headroom trend (+20 → +14) but sharper, and it materially changes how the
+   scaling/ladder story should be told.
+2. **The "pure" rung is `--cls-only`, i.e. the CLS artifact we corrected in Phase 4.** The honest
+   whole-frame DINOv3 baseline is meanpatch (70.8 from ch8), which would make region-MIL +4.2 rather
+   than the +12.3 implied here. `run_phase5.sh` must be fixed to use a meanpatch readout for the
+   pure rung before the ladder is used.
+3. **Unexplained: region-MIL reads 75.0 here but 72.6 in ch8** for nominally the same configuration
+   (same cache, manifest, trainer, 3 seeds). >2 sd apart. Check before trusting either.
+
+### Overnight failures and their causes
+- **bv2026** — Gemini had no Vertex credentials (the pipeline never sourced `~/.secrets/vlm-headcam.env`);
+  fixed, and a Gemini failure is now fatal rather than cascading into a stage that needs its output.
+  The pairs manifest did build correctly: **1,838,134 pairs over 1,745,489 unique frames, 51 children**,
+  release filter applied with no drops (as predicted).
+- **bv2026 + layer pilot** — both also hit `unbound variable` / syntax errors because **I edited the
+  scripts while they were running**. Bash reads a script incrementally by byte offset, so an edit
+  mid-run corrupts execution. Rule going forward: stop a job before editing its script, or write to
+  a new filename. Neither failure lost work; the pilot's 21 caches had already assembled.
