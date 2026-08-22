@@ -812,3 +812,28 @@ new embedding rather than a new manifest.
 **Reporting.** Either way this is a supplement figure (accuracy vs layer depth, 3 seeds) plus one
 sentence in Methods justifying the readout choice. Pre-registering the decision rule here so the
 choice is not made post hoc.
+
+## 2026.1 extension (queued 2026-08-21)
+
+**Scope decision.** The paper's experiments stay on **2025.2** (run_phase5.sh: ladder + scaling on
+the DINOv3-B clean rig with dev-split selection). 2026.1 adds a **scale and diversity extension**,
+not a new claim — its value is **51 children vs 36**, which is exactly what the diversity result
+turns on.
+
+**Scale.** 16,008 videos · 51 children · 1,838,288 utterances (vs 8,566 / 36 / 1,282,037). Frame
+extraction ran 2026-08-21 into `/ccn2b/dataset/babyview/_mcfrank_2026.1_staging/`, moving to a
+permanent `/ccn2b` home when complete.
+
+**Chain** (`run_2026_pipeline.sh`, resumable, waits for extraction to settle):
+`frames → pairs manifest (midpoint, same convention as 2025.2) → {Gemini annotation ‖ DINOv3-B
+region embedding} → scaling + diversity runs`.
+
+Two deliberate economies: we embed and annotate only the **utterance-midpoint frames**
+(~1.5M unique) rather than the full ~11M 1 fps extraction, and Gemini runs with **thinking off**
+(`thinking_budget=0`, the default) — the earlier ~$570 for 1.14M pairs was with thinking on.
+
+Infrastructure generalized for this: `embed_regions.py` and `embed_konkle.py` take `--model`
+(any HF encoder) and `embed_regions.py` takes `--shard/--nshards`; `build_scaling_manifests.py`
+takes `--scored/--pairs/--prefix/--sizes/--kids` (2025.2 defaults unchanged, so the existing
+`manifests/scale_*` names are preserved); `build_pairs_2026.py` aggregates the token-level 2026.1
+transcript to utterances before midpoint pairing.

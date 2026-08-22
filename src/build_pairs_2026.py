@@ -1,0 +1,65 @@
+"""Build the 2026.1 (utterance, midpoint-frame) pair manifest from the token-level transcript.
+
+2025.2 came with an utterance-level `full_clip_results.csv`; 2026.1 ships token-level rows, so we
+aggregate tokens -> utterances first (text from the `utterance` column, span from min/max token
+times), then pair each utterance with the frame at its temporal MIDPOINT — identical convention to
+2025.2 (see book/03-pipeline.qmd). No alignment score selects the frame.
+
+Emits
+  manifests/bv2026_pairs.parquet   video_id, frame_idx, text, child_id, speaker  (training pairs)
+  manifests/bv2026_frames.parquet  the UNIQUE frames those pairs touch (what we embed — far fewer
+                                   than the full 1 fps extraction, which we never need in full)
+
+usage: python src/build_pairs_2026.py --frames-root <dir> [--out-prefix manifests/bv2026]
+"""
+import argparse
+import os
+
+import numpy as np
+import pandas as pd
+
+TRANSCRIPT = "/ccn2a/dataset/babyview/2026.1/outputs/merged_transcripts_parsed.csv"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--transcript", default=TRANSCRIPT)
+    ap.add_argument("--frames-root", required=True, help="the release's extracted_frames_1fps dir")
+    ap.add_argument("--out-prefix", default="manifests/bv2026")
+    ap.add_argument("--require-frame", action="store_true",
+                    help="drop pairs whose midpoint frame is not on disk (slow; do it once)")
+    a = ap.parse_args()
+
+    cols = ["video_id", "utterance_id", "utterance", "token_start_time", "token_end_time", "speaker"]
+    df = pd.read_csv(a.transcript, usecols=cols)
+    print(f"{len(df):,} token rows | {df.video_id.nunique():,} videos", flush=True)
+
+    g = df.groupby(["video_id", "utterance_id"], sort=False)
+    utt = g.agg(text=("utterance", "first"),
+                start=("token_start_time", "min"),
+                end=("token_end_time", "max"),
+                speaker=("speaker", "first")).reset_index()
+    utt = utt.dropna(subset=["text", "start", "end"])
+    utt["text"] = utt.text.astype(str).str.strip()
+    utt = utt[utt.text.str.len() > 0]
+    # identical to 2025.2: at 1 fps the frame index IS the midpoint second
+    utt["frame_idx"] = ((utt.start + utt.end) / 2).astype(int)
+    utt["child_id"] = utt.video_id.str.split("_").str[0]
+    print(f"{len(utt):,} utterances | {utt.child_id.nunique()} children", flush=True)
+
+    if a.require_frame:
+        exists = [os.path.exists(f"{a.frames_root}/{v}/{f:05d}.jpg")
+                  for v, f in zip(utt.video_id, utt.frame_idx)]
+        n0 = len(utt); utt = utt[np.array(exists)]
+        print(f"  dropped {n0 - len(utt):,} pairs with no frame on disk", flush=True)
+
+    pairs = utt[["video_id", "frame_idx", "text", "child_id", "speaker"]].reset_index(drop=True)
+    pairs.to_parquet(f"{a.out_prefix}_pairs.parquet", index=False)
+    frames = pairs[["video_id", "frame_idx"]].drop_duplicates().reset_index(drop=True)
+    frames.to_parquet(f"{a.out_prefix}_frames.parquet", index=False)
+    print(f"wrote {len(pairs):,} pairs over {len(frames):,} unique frames -> {a.out_prefix}_*.parquet")
+    print(f"  (embedding only these frames, not the full 1 fps extraction)")
+
+
+if __name__ == "__main__":
+    main()

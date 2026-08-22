@@ -22,13 +22,20 @@ def main():
     ap.add_argument("--frames", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--grid", type=int, default=4, help="GxG region grid")
+    ap.add_argument("--model", default=None, help="HF model id (default: common.DINO_MODEL = DINOv2)")
     ap.add_argument("--batch", type=int, default=192)
+    ap.add_argument("--shard", type=int, default=0, help="this worker's index (parallel embedding)")
+    ap.add_argument("--nshards", type=int, default=1)
     args = ap.parse_args()
     G = args.grid
+    MODEL_ID = args.model or DINO_MODEL
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
 
     want = pd.read_parquet(args.frames)[["video_id", "frame_idx"]].drop_duplicates()
     want["frame_idx"] = want["frame_idx"].astype(int)
+    if args.nshards > 1:                      # deterministic split across parallel workers
+        want = want.iloc[args.shard::args.nshards].reset_index(drop=True)
+        print(f"shard {args.shard}/{args.nshards}: {len(want)} frames", flush=True)
     idx_path = out / "index.parquet"; emb_path = out / "emb.f16.npy"
     if idx_path.exists():
         have = pd.read_parquet(idx_path)
@@ -43,12 +50,14 @@ def main():
         print("nothing to do"); return
 
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    proc = AutoImageProcessor.from_pretrained(DINO_MODEL)
-    model = AutoModel.from_pretrained(DINO_MODEL).eval().to(dev)
+    proc = AutoImageProcessor.from_pretrained(MODEL_ID)
+    model = AutoModel.from_pretrained(MODEL_ID).eval().to(dev)
+    DIM = getattr(model.config, 'hidden_size', EMB_DIM)
+    print(f'model {MODEL_ID} | dim {DIM}', flush=True)
 
     rows = want.reset_index(drop=True)
     R = 1 + G * G
-    embs = np.zeros((len(rows), R, EMB_DIM), dtype=np.float16)
+    embs = np.zeros((len(rows), R, DIM), dtype=np.float16)
     ok = np.zeros(len(rows), dtype=bool)
     buf, pos = [], []
 
@@ -61,7 +70,7 @@ def main():
         cls = h[:, 0]                                    # [B, 768]
         patch = h[:, 1:]                                 # [B, P, 768]
         P = patch.shape[1]; s = int(round(math.sqrt(P)))
-        grid = patch[:, :s * s].transpose(1, 2).reshape(-1, EMB_DIM, s, s)
+        grid = patch[:, :s * s].transpose(1, 2).reshape(-1, DIM, s, s)
         pooled = torch.nn.functional.adaptive_avg_pool2d(grid, (G, G))  # [B,768,G,G]
         pooled = pooled.flatten(2).transpose(1, 2)       # [B, G*G, 768]
         feat = torch.cat([cls.unsqueeze(1), pooled], 1)  # [B, 1+G*G, 768]
