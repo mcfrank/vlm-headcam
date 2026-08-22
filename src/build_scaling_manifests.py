@@ -28,9 +28,19 @@ for N in [int(x) for x in A.sizes.split(",")]:
     m.sample(N, random_state=0)[cols].to_parquet(f"manifests/{P}_rand_{N}.parquet", index=False)
 
 # A2 aligned (top-N Gemini) scaling
-ma = m.sort_values("alignment", ascending=False)
+# `alignment` is an INTEGER 0-100 and massively tied (24,677 pairs score exactly 100), so a
+# plain head(N) cuts inside a tie group in file order — which is grouped by video and child, and
+# gave the 10k arm only 24 of 36 children. Shuffle first, then a STABLE sort, so ties break at
+# random. (src/build_gemini_arms.py already did this; this script did not.)
+ma = (m.sample(frac=1.0, random_state=0)
+        .sort_values("alignment", ascending=False, kind="stable"))
 for N in [int(x) for x in A.aligned_sizes.split(",")]:
-    ma.head(N)[cols].to_parquet(f"manifests/{P}_align_{N}.parquet", index=False)
+    if N > len(ma):
+        print(f"  SKIP align_{N}: only {len(ma)} scored pairs available"); continue
+    sub = ma.head(N)
+    print(f"  align_{N}: min alignment {sub.alignment.min():.0f}, "
+          f"{sub.child_id.nunique()} children")
+    sub[cols].to_parquet(f"manifests/{P}_align_{N}.parquet", index=False)
 
 # B4 diversity at fixed count 30k: draw 30k from k biggest children (balanced)
 pc = m.groupby("child_id").size().sort_values(ascending=False)

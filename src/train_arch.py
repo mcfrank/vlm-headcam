@@ -87,12 +87,18 @@ def collate(b):
 @torch.no_grad()
 def eval_4afc(m, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_len=16):
     rng = np.random.default_rng(seed)
-    pools, cat_ids = {}, {}
+    # OOV categories score CHANCE rather than being dropped: dropping them made the
+    # denominator depend on the training manifest (see train_region_mil.eval_4afc_region).
+    pools, cat_ids, oov = {}, {}, []
     for cat, g in ev.groupby("category"):
         ids = encode(cat, vocab, max_len)
         rows = [lut[frame_key(v, f)] for v, f in zip(g.video_id, g.frame_idx) if frame_key(v, f) in lut]
-        if ids and len(rows) >= 4:
+        if len(rows) < 4:
+            continue
+        if ids:
             pools[cat] = rows; cat_ids[cat] = ids
+        else:
+            oov.append(cat)
     cats = sorted(pools)
     allr = sorted({r for rs in pools.values() for r in rs})
     R = m.enc_regions(torch.from_numpy(np.asarray(emb[allr], dtype=np.float32)).to(dev))
@@ -108,7 +114,7 @@ def eval_4afc(m, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_len=16):
             sc = m.score(R[[r2i[r] for r in cand]], tv).squeeze(-1)     # [4]
             correct += int(sc.argmax().item() == 0)
         accs.append(correct / n_trials)
-    return float(np.mean(accs))
+    return float(np.mean(list(accs) + [0.25] * len(oov)))
 
 
 def main():
@@ -137,6 +143,10 @@ def main():
     ds = Pairs(emb, lut, man, vocab)
     D = np.asarray(ds[0][0]).shape[-1]
     print(f"pairs {len(ds)} | vocab {len(vocab)} | pool {a.pool} tau {a.tau} | D {D}", flush=True)
+    _cov = len(ds) / max(len(man), 1)
+    if _cov < 0.999:   # a cache that does not span the manifest silently shrinks training
+        print(f"  COVERAGE {100*_cov:.1f}% — {len(man)-len(ds)} of {len(man)} manifest "
+              f"pairs have no cached frame", flush=True)
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
     m = ArchMIL(len(vocab), D, a.dim, a.pool, a.tau).to(dev)

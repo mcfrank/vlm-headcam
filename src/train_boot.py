@@ -144,6 +144,10 @@ def main():
     ds = BootPairs(emb, lut, man, vocab)
     print(f"pairs {len(ds)} | vocab {len(vocab)} | clip base-rate>0.24 "
           f"{np.nanmean(ds.clip>0.24):.3f}", flush=True)
+    _cov = len(ds) / max(len(man), 1)
+    if _cov < 0.999:   # a cache that does not span the manifest silently shrinks training
+        print(f"  COVERAGE {100*_cov:.1f}% — {len(man)-len(ds)} of {len(man)} manifest "
+              f"pairs have no cached frame", flush=True)
 
     model = TwoTower(len(vocab), args.dim).to(dev)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)

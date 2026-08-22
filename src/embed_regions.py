@@ -52,8 +52,9 @@ def main():
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     proc = AutoImageProcessor.from_pretrained(MODEL_ID)
     model = AutoModel.from_pretrained(MODEL_ID).eval().to(dev)
+    NREG = getattr(model.config, 'num_register_tokens', 0) or 0   # DINOv3: 4, DINOv2: 0
     DIM = getattr(model.config, 'hidden_size', EMB_DIM)
-    print(f'model {MODEL_ID} | dim {DIM}', flush=True)
+    print(f'model {MODEL_ID} | dim {DIM} | register tokens {NREG}', flush=True)
 
     rows = want.reset_index(drop=True)
     R = 1 + G * G
@@ -68,8 +69,9 @@ def main():
             inp = proc(images=buf, return_tensors="pt").to(dev)
             h = model(**inp).last_hidden_state          # [B, 1+P, 768]
         cls = h[:, 0]                                    # [B, 768]
-        patch = h[:, 1:]                                 # [B, P, 768]
+        patch = h[:, 1 + NREG:]                                 # [B, P, 768]
         P = patch.shape[1]; s = int(round(math.sqrt(P)))
+        assert s * s == P, f"patch count {P} not a perfect square (NREG={NREG} wrong?)"
         grid = patch[:, :s * s].transpose(1, 2).reshape(-1, DIM, s, s)
         pooled = torch.nn.functional.adaptive_avg_pool2d(grid, (G, G))  # [B,768,G,G]
         pooled = pooled.flatten(2).transpose(1, 2)       # [B, G*G, 768]

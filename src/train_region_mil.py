@@ -102,18 +102,35 @@ class RegionMIL(nn.Module):
 
 
 @torch.no_grad()
-def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_len=16):
+def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_len=16,
+                     oov_at_chance=True, return_detail=False):
+    """4AFC over the eval set's FULL category list.
+
+    A category whose word is out-of-vocabulary for this run scores CHANCE (0.25) rather than being
+    dropped from the mean. Dropping it — the behaviour before 2026-08-22 — made the denominator a
+    function of the training manifest: a smaller/more filtered manifest builds a smaller vocab,
+    loses its rarest (hardest) categories, and reports a higher number over an easier subset. On
+    dev-117 that produced corr(accuracy, categories scored) = -0.94. "The model has no word for it"
+    is a failure to learn, not a reason to skip the item.
+
+    Categories with too few eval IMAGES (<4) are still excluded: that is a property of the
+    benchmark, not of the model, and it is identical across runs.
+    """
     rng = np.random.default_rng(seed)
-    pools, cat_ids = {}, {}
+    pools, cat_ids, oov = {}, {}, []
     for cat, g in ev.groupby("category"):
         ids = encode(cat, vocab, max_len)
         rows = [lut[frame_key(v, f)] for v, f in zip(g.video_id, g.frame_idx)
                 if frame_key(v, f) in lut]
-        if ids and len(rows) >= 4:
+        if len(rows) < 4:
+            continue                      # benchmark-side; same for every run
+        if ids:
             pools[cat] = rows; cat_ids[cat] = ids
+        else:
+            oov.append(cat)               # model-side: scored at chance below
     cats = sorted(pools)
     if len(cats) < 4:
-        return float("nan")
+        return (float("nan"), {}) if return_detail else float("nan")
     all_rows = sorted({r for rs in pools.values() for r in rs})
     V = torch.from_numpy(np.asarray(emb[all_rows], dtype=np.float32)).to(dev)  # [K,R,768]
     Rp = model.enc_regions(V)                                                  # [K,R,D]
@@ -136,7 +153,14 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
             if sc.argmax().item() == 0:
                 correct += 1
         accs.append(correct / n_trials)
-    return float(np.mean(accs))
+    per_cat = dict(zip(cats, accs))
+    if oov_at_chance:
+        per_cat.update({c: 0.25 for c in oov})          # never asked -> chance, not omitted
+    acc = float(np.mean(list(per_cat.values())))
+    if return_detail:
+        return acc, {"per_cat": per_cat, "n_scored": len(cats), "n_oov": len(oov),
+                     "n_total": len(cats) + len(oov)}
+    return acc
 
 
 def rank01(x):

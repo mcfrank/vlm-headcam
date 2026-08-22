@@ -99,18 +99,24 @@ class TwoTower(nn.Module):
 def eval_4afc(model, emb, lut, eval_frames, vocab, device, n_trials=100, seed=0, max_len=16):
     rng = np.random.default_rng(seed)
     # category -> list of emb-cache rows; and category token ids
+    # OOV categories score CHANCE rather than being dropped: dropping them made the
+    # denominator depend on the training manifest (see train_region_mil.eval_4afc_region).
     has_key = "key" in eval_frames.columns
-    pools, cat_ids = {}, {}
+    pools, cat_ids, oov = {}, {}, []
     for cat, g in eval_frames.groupby("category"):
         ids = encode(cat, vocab, max_len)
         keys = g.key if has_key else [frame_key(v, f) for v, f in zip(g.video_id, g.frame_idx)]
         rows = [lut[k] for k in keys if k in lut]
-        if ids and len(rows) >= 4:
+        if len(rows) < 4:
+            continue
+        if ids:
             pools[cat] = rows
             cat_ids[cat] = ids
+        else:
+            oov.append(cat)
     cats = sorted(pools)
     if len(cats) < 4:
-        return {"acc": float("nan"), "n_cats": len(cats)}
+        return {"acc": float("nan"), "n_cats": len(cats), "n_oov": len(oov)}
 
     model.eval()
     # precompute image projections for all eval rows
@@ -139,8 +145,10 @@ def eval_4afc(model, emb, lut, eval_frames, vocab, device, n_trials=100, seed=0,
             if sims.argmax().item() == 0:
                 correct += 1
         per_cat[cat] = correct / n_trials
+    per_cat.update({c: 0.25 for c in oov})          # OOV -> chance, never omitted
     return {"acc": float(np.mean(list(per_cat.values()))),
-            "n_cats": len(cats), "per_cat": per_cat}
+            "n_cats": len(per_cat), "n_scored": len(cats), "n_oov": len(oov),
+            "per_cat": per_cat}
 
 
 # ---------------- main ----------------

@@ -35,6 +35,29 @@ def add(run, accs, store, source, n_pairs=None, n_cats=None, best_reported=None)
     ))
 
 
+# ---- format 0: runs/*/metrics.json — written by the run itself, authoritative ---
+# Added 2026-08-22: the log regexes below silently failed on the dev-selected format
+# ("{'ep': 0, 'acc': 0.44, 'dev': 0.29}" / "DONE <path> selected_ep 16 (dev) reported ...")
+# so every phase-5 run vanished from this table. metrics.json needs no parsing at all.
+for mj in sorted(glob.glob(f"{W}/runs/*/metrics.json")):
+    try:
+        d = json.load(open(mj))
+    except Exception as e:
+        print("SKIP", mj, e); continue
+    run = d.get("run") or os.path.basename(os.path.dirname(mj))
+    m = re.search(r"_s(\d+)$", run)
+    rows.append(dict(
+        run=run, family=re.sub(r"_s\d+$", "", run),
+        seed=d.get("seed", int(m.group(1)) if m else None),
+        best_acc=d.get("reported_test_acc"),          # dev-selected where available
+        final_acc=d.get("final_test_acc"),
+        best_epoch=d.get("selected_epoch"), n_epochs=d.get("epochs"),
+        n_pairs=d.get("n_pairs"), n_eval_cats=d.get("n_eval_cats"),
+        best_reported=d.get("best_test_acc"),
+        store="metrics.json", source=os.path.relpath(mj, W),
+    ))
+print(f"  metrics.json runs: {len(rows)}")
+
 # ---- format A: runs/*/log.json -------------------------------------------------
 for lj in sorted(glob.glob(f"{W}/runs/*/log.json")):
     run = os.path.basename(os.path.dirname(lj))
@@ -71,7 +94,10 @@ for store, pat in [("data2", f"{W}/logs/*.log"),
 
 df = pd.DataFrame(rows)
 # a run can appear in both a log.json and a text log — keep the richer (log.json) row
-df = df.sort_values(["run", "n_epochs"]).drop_duplicates("run", keep="last")
+# metrics.json is authoritative: prefer it over anything parsed out of a log
+df["_auth"] = (df.store == "metrics.json").astype(int)
+df = (df.sort_values(["run", "_auth", "n_epochs"])
+        .drop_duplicates("run", keep="last").drop(columns="_auth"))
 df = df.sort_values(["family", "seed"]).reset_index(drop=True)
 os.makedirs(f"{W}/results", exist_ok=True)
 df.to_parquet(f"{W}/results/runs.parquet", index=False)

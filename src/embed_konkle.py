@@ -21,8 +21,9 @@ man = pd.read_parquet(args.manifest).reset_index(drop=True)
 dev = "cuda" if torch.cuda.is_available() else "cpu"
 MODEL_ID = args.model or DINO_MODEL
 proc = AutoImageProcessor.from_pretrained(MODEL_ID); model = AutoModel.from_pretrained(MODEL_ID).eval().to(dev)
+NREG = getattr(model.config, "num_register_tokens", 0) or 0   # DINOv3: 4, DINOv2: 0
 DIM = args.emb_dim or getattr(model.config, "hidden_size", EMB_DIM)
-print(f"model {MODEL_ID} | dim {DIM} | {len(man)} images", flush=True)
+print(f"model {MODEL_ID} | dim {DIM} | registers {NREG} | {len(man)} images", flush=True)
 R = 1 + G * G; embs = np.zeros((len(man), R, DIM), np.float16); ok = np.zeros(len(man), bool)
 buf, pos = [], []
 
@@ -30,7 +31,8 @@ def flush():
     if not buf: return
     with torch.no_grad():
         h = model(**proc(images=buf, return_tensors="pt").to(dev)).last_hidden_state
-    cls = h[:, 0]; patch = h[:, 1:]; P = patch.shape[1]; s = int(round(math.sqrt(P)))
+    cls = h[:, 0]; patch = h[:, 1 + NREG:]; P = patch.shape[1]; s = int(round(math.sqrt(P)))
+    assert s*s == P, f"patch count {P} not a perfect square (NREG={NREG} wrong?)"
     grid = patch[:, :s*s].transpose(1, 2).reshape(-1, DIM, s, s)
     pooled = torch.nn.functional.adaptive_avg_pool2d(grid, (G, G)).flatten(2).transpose(1, 2)
     feat = torch.cat([cls.unsqueeze(1), pooled], 1).to(torch.float16).cpu().numpy()

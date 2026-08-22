@@ -97,6 +97,10 @@ def main():
     emb, lut = load_region_cache(a.region_cache)
     ds = WeightedPairs(emb, lut, man, vocab, a.weight_col)
     print(f"pairs {len(ds)} | vocab {len(vocab)} | weight_col {a.weight_col or 'UNIFORM'}", flush=True)
+    _cov = len(ds) / max(len(man), 1)
+    if _cov < 0.999:   # a cache that does not span the manifest silently shrinks training
+        print(f"  COVERAGE {100*_cov:.1f}% — {len(man)-len(ds)} of {len(man)} manifest "
+              f"pairs have no cached frame", flush=True)
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
     m = PerWordMIL(len(vocab)).to(dev)

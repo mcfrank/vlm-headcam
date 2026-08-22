@@ -53,6 +53,10 @@ def main():
     ds = RegionPairs(emb, lut, man, vocab)
     print(f"pairs {len(ds)} | vocab {len(vocab)} | prior covers "
           f"{np.mean([w in prior for w in vocab])*100:.0f}% of vocab", flush=True)
+    _cov = len(ds) / max(len(man), 1)
+    if _cov < 0.999:   # a cache that does not span the manifest silently shrinks training
+        print(f"  COVERAGE {100*_cov:.1f}% — {len(man)-len(ds)} of {len(man)} manifest "
+              f"pairs have no cached frame", flush=True)
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
     m = WeightedRegionMIL(len(vocab)).to(dev); m.set_prior(pvec)

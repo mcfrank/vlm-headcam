@@ -73,12 +73,17 @@ def collate(b):
 @torch.no_grad()
 def eval_4afc(m, eemb, elut, ev, vocab, dev, n_trials=100, seed=0):
     rng = np.random.default_rng(seed)
-    pools, cat_tok = {}, {}
+    # OOV categories score CHANCE rather than being dropped (see train_region_mil.eval_4afc_region).
+    pools, cat_tok, oov = {}, {}, []
     for cat, g in ev.groupby("category"):
         ids = encode(cat, vocab, 16)
         rows = [elut[frame_key(v, f)] for v, f in zip(g.video_id, g.frame_idx) if frame_key(v, f) in elut]
-        if ids and len(rows) >= 4:
+        if len(rows) < 4:
+            continue
+        if ids:
             pools[cat] = rows; cat_tok[cat] = ids[0]         # score first token of the category word
+        else:
+            oov.append(cat)
     cats = sorted(pools)
     allr = sorted({r for rs in pools.values() for r in rs})
     mem = m.patch_proj(torch.from_numpy(np.asarray(eemb[allr], dtype=np.float32)).to(dev))
@@ -94,7 +99,7 @@ def eval_4afc(m, eemb, elut, ev, vocab, dev, n_trials=100, seed=0):
             p_c = torch.log_softmax(logits, -1)[:, c]         # logP(word | image_i)
             correct += int(p_c.argmax().item() == 0)
         accs.append(correct / n_trials)
-    return float(np.mean(accs))
+    return float(np.mean(list(accs) + [0.25] * len(oov)))
 
 
 def main():
@@ -124,6 +129,10 @@ def main():
     ds = Caps(emb, lut, man, vocab, len(vocab))
     D = np.asarray(ds[0][0]).shape[-1]
     print(f"pairs {len(ds)} | vocab {len(vocab)} | D {D} | dec {a.layers}x{a.dim}", flush=True)
+    _cov = len(ds) / max(len(man), 1)
+    if _cov < 0.999:   # a cache that does not span the manifest silently shrinks training
+        print(f"  COVERAGE {100*_cov:.1f}% — {len(man)-len(ds)} of {len(man)} manifest "
+              f"pairs have no cached frame", flush=True)
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
     m = Captioner(len(vocab), D, a.dim, a.layers, a.heads).to(dev)

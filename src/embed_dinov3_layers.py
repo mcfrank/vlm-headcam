@@ -39,6 +39,8 @@ def main():
     proc = AutoImageProcessor.from_pretrained(MODEL)
     model = AutoModel.from_pretrained(MODEL).to(dev).eval().half()
 
+    NREG = getattr(model.config, "num_register_tokens", 0) or 0   # DINOv3: 4
+    print(f"register tokens: {NREG}", flush=True)
     layers = [int(x) for x in a.layers.split(",")]
     fr = pd.read_parquet(a.frames)[["video_id", "frame_idx"]].drop_duplicates().reset_index(drop=True)
     R = 1 + (a.grid * a.grid if a.grid else 0)
@@ -53,17 +55,19 @@ def main():
             for r in chunk.itertuples():
                 try:
                     ims.append(Image.open(frame_path(r.video_id, r.frame_idx)).convert("RGB"))
-                except Exception:
-                    ims.append(Image.new("RGB", (224, 224)))
+                except Exception as e:
+                    # a black image would be written as a real embedding — refuse instead
+                    raise SystemExit(f"unreadable frame {r.video_id}/{r.frame_idx}: {e}")
             px = proc(images=ims, return_tensors="pt")["pixel_values"].to(dev).half()
             out = model(pixel_values=px, output_hidden_states=True)
             for L in layers:
                 h = out.hidden_states[L]                    # [B, 1+P, D]
-                patch = h[:, 1:, :]
+                patch = h[:, 1 + NREG:, :]
                 vecs = [patch.mean(1, keepdim=True)]        # meanpatch
                 if a.grid:
                     B, P, Dd = patch.shape
                     g = int(P ** 0.5)
+                    assert g * g == P, f"patch count {P} not square (NREG={NREG}?)"
                     gp = patch[:, :g * g, :].transpose(1, 2).reshape(B, Dd, g, g)
                     gp = torch.nn.functional.adaptive_avg_pool2d(gp, (a.grid, a.grid))
                     vecs.append(gp.flatten(2).transpose(1, 2))
