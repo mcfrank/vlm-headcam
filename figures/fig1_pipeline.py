@@ -1,90 +1,250 @@
-"""Display item 1 — design and pipeline.
+"""Display item 1 — design and pipeline, drawn with the real materials.
 
-A: the corpus and how an (utterance, frame) pair is formed — dense 1 fps frames, midpoint pairing,
-   no score selects the frame.
-B: what the referential annotation adds, and the funnel from utterances to referential moments.
-C: the frozen two-tower learner and the out-of-corpus 4AFC evaluation.
+A: the corpus and how an (utterance, frame) pair is formed. A run of 1 fps frames from one
+   recording with the time-aligned utterances underneath; each utterance is paired with the frame
+   at its midpoint second. No score selects the frame.
+B: what the referential annotation adds — two pairs Gemini marks as referential, two it does
+   not — and the funnel from all pairs to referential moments.
+C: the frozen two-tower learner (region grid over a frozen encoder; bag-of-words over the
+   utterance; max-over-regions score; InfoNCE) and the out-of-corpus 4AFC evaluation.
 
-Schematic — numbers come from results/corpus.csv so the counts stay in sync with the data.
+All frames are face-blurred copies (src/blur_faces.py) staged in figures/assets/frames; counts
+come from results/corpus.csv.
 """
-import sys, pandas as pd
+import sys, pandas as pd, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, Rectangle
+from PIL import Image
 
-R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
+HERE = __import__("pathlib").Path(__file__).resolve().parent
+R = HERE.parent / "results"
+A = HERE / "assets"
 C = pd.read_csv(R / "corpus.csv").set_index("key").value.to_dict()
 
+CAT_VID = "S00400001_2023-08-08_1_recSJfNNDLfxCQail"
+STRIP = list(range(603, 610))                                 # seconds shown in panel A
+UTTS = [(604.229, 605.070, "Wait, is that your cat?"),        # from merged_transcripts_parsed
+        (606.502, 607.123, "Which cat is it?"),
+        (608.567, 609.028, "That's Poe.")]
+CARDS = [("S00320003_2025-06-27_3_recn38XpC15e0nbXX", 369, "Blinker, blinker, little car.", 100, "car", "bottom"),
+         ("S00380001_2025-07-08_1_reciK6XREODFdF0Zz", 695, "Come to Bobo, I mean, ball.", 100, "ball", "center"),
+         ("S00240001_2025-05-12_3_recxaqvlc4HaUaW5H", 758, "Pria, try your fork.", 0, None, "center"),
+         ("S00400003_2024-05-23_2_recJER5vIIPF6FSeP", 123, "Let's call him later.", 0, None, "center")]
+KONKLE = [("cat", "ACAT6.jpg"), ("ball", "ball8.JPG"), ("dog", "Adog120.jpg"), ("hat", "Ahat47.jpg")]
 
-def box(ax, x, y, w, h, text, fc="#f2f1ec", ec=T.SUB, fs=6, bold=False, tc=T.INK):
-    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.008,rounding_size=0.02",
-                                fc=fc, ec=ec, lw=0.6, zorder=2))
-    ax.text(x + w / 2, y + h / 2, text, ha="center", va="center", fontsize=fs, zorder=3,
-            fontweight="bold" if bold else "normal", color=tc, linespacing=1.35)
+FR = lambda vid, i: A / "frames" / f"{vid}_{i:05d}.jpg"
 
 
-def arrow(ax, x1, y1, x2, y2, color=T.SUB):
-    ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>", mutation_scale=6,
-                                 color=color, lw=0.7, zorder=1, shrinkA=0, shrinkB=0))
+def load(path, crop=None, anchor="center"):
+    im = Image.open(path).convert("RGB")
+    if crop:                                               # crop to w:h ratio
+        w, h = im.size; tw, th = crop
+        if w / h > tw / th: nw, nh = int(h * tw / th), h
+        else: nw, nh = w, int(w * th / tw)
+        x0 = (w - nw) // 2
+        y0 = {"center": (h - nh) // 2, "bottom": h - nh, "top": 0}[anchor]
+        im = im.crop((x0, y0, x0 + nw, y0 + nh))
+    return np.asarray(im)
 
 
-fig = plt.figure(figsize=(T.W2, 3.6))
-gs = fig.add_gridspec(1, 3, width_ratios=[1.15, 1, 1.25], wspace=0.12)
-axes = [fig.add_subplot(gs[i]) for i in range(3)]
-for a in axes:
-    a.set_xlim(0, 1); a.set_ylim(0, 1); a.axis("off")
+def img(ax, arr, x, y, w, h=None, ec=None, lw=0.6, z=2):
+    """Draw an image with its top-left at (x, y) in axis units, width w (height from aspect)."""
+    H, W = arr.shape[:2]
+    h = h or w * H / W
+    ax.imshow(arr, extent=(x, x + w, y - h, y), zorder=z, interpolation="bilinear")
+    if ec:
+        ax.add_patch(Rectangle((x, y - h), w, h, fc="none", ec=ec, lw=lw, zorder=z + 1))
+    return x + w, y - h
 
-# ---- A: corpus -> pair ---------------------------------------------------------
-a = axes[0]
-box(a, .06, .86, .88, .10, f"BabyView 2025.2\n{C['videos']:,.0f} videos · {C['children']:,.0f} children", fc="#e7eef6", ec=T.BLUE)
-box(a, .02, .66, .46, .12, f"dense 1 fps frames\n{C['frames_total']:,.0f}", fc="#e8f4ef", ec=T.GREEN, fs=5.6)
-box(a, .52, .66, .46, .12, f"time-aligned ASR\n{C['utterances']:,.0f} utterances", fs=5.6)
-arrow(a, .35, .86, .25, .78); arrow(a, .65, .86, .75, .78)
-box(a, .18, .44, .64, .12, "pair at the utterance\nMIDPOINT second", fc="#fff", ec=T.INK)
-arrow(a, .25, .66, .40, .56); arrow(a, .75, .66, .60, .56)
-a.text(.5, .365, "no alignment score selects the frame", ha="center", fontsize=5.6,
-       color=T.SUB, style="italic")
-box(a, .18, .20, .64, .11, f"{C['pairs']:,.0f} pairs\n({C['train_pairs']:,.0f} train on the 80% video split)",
-    fc="#f2f1ec", ec=T.SUB, bold=True)
-arrow(a, .5, .44, .5, .31)
-a.set_title("Corpus to pairs", fontsize=7.5, color=T.INK)
 
-# ---- B: annotation funnel ------------------------------------------------------
-b = axes[1]
-box(b, .06, .86, .88, .10, "Gemini-2.5-Flash (Vertex)\nper pair: alignment 0–100 + referent noun", fc="#e7eef6", ec=T.BLUE)
+def arrow(ax, x1, y1, x2, y2, color=T.SUB, lw=0.7, z=1, style="-|>"):
+    ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle=style, mutation_scale=6,
+                                 color=color, lw=lw, zorder=z, shrinkA=0, shrinkB=0))
+
+
+def chip(ax, x, y, w, h, text, fc, ec, fs=5.4, tc=T.INK, bold=False, z=3, pad=0.25):
+    ax.add_patch(FancyBboxPatch((x, y - h), w, h, boxstyle=f"round,pad=0,rounding_size={pad}",
+                                fc=fc, ec=ec, lw=0.6, zorder=z))
+    ax.text(x + w / 2, y - h / 2, text, ha="center", va="center", fontsize=fs, color=tc,
+            fontweight="bold" if bold else "normal", zorder=z + 1, linespacing=1.3)
+
+
+# ---------------------------------------------------------------- canvas (units = 0.1 in)
+FW, FH = T.W2, 4.3
+fig = plt.figure(figsize=(FW, FH))
+PANELS = {"A": (0.00, 2.25), "B": (2.35, 2.15), "C": (4.60, 2.40)}     # x-offset, width in inches
+axes = {}
+for k, (x0, w) in PANELS.items():
+    ax = fig.add_axes([x0 / FW, 0, w / FW, 1])
+    ax.set_xlim(0, w * 10); ax.set_ylim(0, FH * 10); ax.set_aspect("equal"); ax.axis("off")
+    ax.text(0.5, FH * 10 - 0.5, k, fontsize=9, fontweight="bold", color=T.INK, va="top")
+    axes[k] = ax
+TOP = FH * 10 - 3.2
+
+# ================================================================ A: corpus -> pairs
+ax = axes["A"]
+# camera (optional asset: figures/assets/camera.png from the BabyView site, CC-BY)
+cam = A / "camera.png"
+y = TOP
+if cam.exists():
+    arr = load(cam)
+    img(ax, arr, 1.0, y, 7.0)
+    ax.text(8.6, y - 1.2, f"BabyView head camera\n{C['children']:.0f} children · "
+            f"{C['videos']:,.0f} recordings", fontsize=5.6, color=T.INK, va="top", linespacing=1.4)
+    y -= 7.0 * arr.shape[0] / arr.shape[1] + 1.6
+else:
+    print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
+    ax.text(1.0, y - 0.2, f"BabyView head camera · {C['children']:.0f} children · "
+            f"{C['videos']:,.0f} recordings", fontsize=5.6, color=T.INK, va="top")
+    y -= 2.2
+
+# frame strip: 7 consecutive seconds, 1 fps
+n = len(STRIP); gap = 0.25; x0 = 1.0; usable = 22.5 - 2 * x0
+fw = (usable - (n - 1) * gap) / n
+fh = fw * 910 / 512
+xs = {}
+for i, sec in enumerate(STRIP):
+    x = x0 + i * (fw + gap)
+    img(ax, load(FR(CAT_VID, sec)), x, y, fw, ec="#ffffff", lw=0)
+    xs[sec] = x + fw / 2
+ax.text(x0, y + 0.5, "frames, 1 per second", fontsize=5.4, color=T.FREE, va="bottom")
+y_strip_bot = y - fh
+# time axis under the strip
+ty = y_strip_bot - 1.3
+sec0 = STRIP[0]; per_s = fw + gap
+tx = lambda t: x0 + (t - sec0) * per_s + fw / 2 - per_s / 2 + gap / 2   # t in seconds -> x
+ax.plot([x0, x0 + usable], [ty, ty], color=T.SUB, lw=0.5)
+for sec in STRIP + [STRIP[-1] + 1]:
+    ax.plot([tx(sec)] * 2, [ty, ty + 0.35], color=T.SUB, lw=0.5)
+ax.text(x0, ty - 0.5, f"{sec0} s", fontsize=4.8, color=T.SUB, va="top")
+ax.text(x0 + usable, ty - 0.5, f"{STRIP[-1] + 1} s", fontsize=4.8, color=T.SUB, va="top", ha="right")
+# utterances as bars at their real times; each pairs with the frame at its midpoint second
+uy = ty - 3.0
+ax.text(x0, uy + 0.9, "transcribed speech", fontsize=5.4, color=T.ORACLE, va="bottom")
+for k, (t0, t1, text) in enumerate(UTTS):
+    main = k == 1
+    yy = uy - (k % 2) * 1.9
+    col = T.ORACLE if main else "#8a84b8"
+    ax.add_patch(Rectangle((tx(t0), yy - 0.55), tx(t1) - tx(t0), 1.1, fc=col, ec="none", zorder=3))
+    ax.text(tx(t0) if k < 2 else tx(t1), yy - 0.95, f"“{text}”", fontsize=4.9, color=col,
+            va="top", ha="left" if k < 2 else "right", zorder=3)
+    mid = (t0 + t1) / 2; sec = int(mid)
+    ax.plot([tx(mid), tx(mid)], [yy + 0.55, y_strip_bot - 0.2], color=col, lw=0.7,
+            ls="-" if main else (0, (1.5, 1.5)), zorder=2)
+    ax.plot([tx(mid), xs[sec]], [y_strip_bot - 0.2, y_strip_bot - 0.2], color=col, lw=0.7,
+            ls="-" if main else (0, (1.5, 1.5)), zorder=2)
+    if main:
+        ax.add_patch(Rectangle((xs[sec] - fw / 2, y_strip_bot), fw, fh, fc="none", ec=T.ORACLE,
+                               lw=1.1, zorder=4))
+ax.text(x0 + usable / 2, uy - 4.6, "pair each utterance with the frame at its midpoint second\n"
+        "no score selects the frame", fontsize=5.4, color=T.INK, ha="center", va="top",
+        style="italic", linespacing=1.4)
+# counts
+cy = uy - 8.6
+ax.text(x0 + usable / 2, cy, f"{C['frames_total']:,.0f} frames  ·  {C['utterances']:,.0f} utterances",
+        fontsize=5.6, color=T.SUB, ha="center", va="top")
+arrow(ax, x0 + usable / 2, cy - 1.6, x0 + usable / 2, cy - 3.0)
+chip(ax, x0 + 2, cy - 3.2, usable - 4, 2.6, f"{C['pairs']:,.0f} pairs", fc="#f2f1ec", ec=T.SUB,
+     fs=6.2, bold=True)
+
+# ================================================================ B: referential annotation
+bx = axes["B"]
+y = TOP
+bx.text(0.8, y + 0.2, "Gemini reads each pair:  alignment 0–100  +  referent noun",
+        fontsize=5.4, color=T.INK, va="bottom")
+cw, ch = 9.6, 9.6
+for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
+    col, row = k % 2, k // 2
+    x = 0.8 + col * (cw + 0.9)
+    yy = y - 0.6 - row * (ch + 3.2)
+    aligned = score >= 50
+    img(bx, load(FR(vid, fi), crop=(1, 1), anchor=anchor), x, yy, cw,
+        ec=T.FREE if aligned else T.INDOM, lw=1.0)
+    bx.text(x, yy - ch - 0.5, f"“{text}”", fontsize=4.9, color=T.INK, va="top")
+    tag = f"aligned {score:.0f}  ·  referent: {ref}" if aligned else f"aligned {score:.0f}  ·  no referent"
+    bx.text(x, yy - ch - 1.7, tag, fontsize=4.9, color=T.FREE if aligned else T.INDOM, va="top")
+# funnel
 tot = C["pairs"]
-levels = [("all pairs", tot, "#dcdad2"),
-          ("about something visible", C["aligned_pairs"], T.GREEN),
-          ("…and the referent is spoken", C["aligned_spoken"], T.BLUE)]
-y = .60
-for lab, n, col in levels:
-    wfrac = .86 * (n / tot) ** 0.42
-    b.add_patch(plt.Rectangle((.5 - wfrac / 2, y), wfrac, .085, fc=col, ec="none", zorder=2))
-    b.text(.5, y + .0425, f"{n:,.0f}", ha="center", va="center", fontsize=6,
-           color="white" if col != "#dcdad2" else T.INK, fontweight="bold", zorder=3)
-    b.text(.5, y - .035, f"{lab}  ({100*n/tot:.0f}%)", ha="center", fontsize=5.8, color=T.SUB)
-    y -= .20
-b.text(.5, .06, "only ~1 in 11 utterances is\nabout something the child can see",
-       ha="center", fontsize=6, color=T.INK, style="italic")
-b.set_title("Referential annotation", fontsize=7.5, color=T.INK)
+levels = [("all pairs", tot, "#dcdad2", T.INK),
+          ("about something visible", C["aligned_pairs"], T.FREE, "white"),
+          ("…and the referent is spoken", C["aligned_spoken"], T.ORACLE, "white")]
+fy = y - 2 * (ch + 3.2) - 1.4
+for lab, nn, col, tc in levels:
+    wfrac = 19.0 * (nn / tot) ** 0.42
+    bx.add_patch(Rectangle((0.8 + (20.0 - wfrac) / 2, fy - 1.8), wfrac, 1.8, fc=col, ec="none", zorder=2))
+    bx.text(10.8, fy - 0.9, f"{nn:,.0f}", ha="center", va="center", fontsize=5.6, color=tc,
+            fontweight="bold", zorder=3)
+    bx.text(10.8, fy - 2.1, f"{lab}  ({100 * nn / tot:.0f}%)", ha="center", va="top",
+            fontsize=5.2, color=T.SUB)
+    fy -= 3.7
 
-# ---- C: model + eval -----------------------------------------------------------
-c = axes[2]
-box(c, .04, .80, .43, .11, "frame", fc="#e8f4ef", ec=T.GREEN)
-box(c, .53, .80, .43, .11, "utterance", fc="#e7eef6", ec=T.BLUE)
-box(c, .04, .60, .43, .13, "frozen DINOv2\nCLS + 4×4 grid", fc="#e8f4ef", ec=T.GREEN)
-box(c, .53, .60, .43, .13, "bag-of-words\n(trained from scratch)", fc="#e7eef6", ec=T.BLUE)
-arrow(c, .255, .80, .255, .73); arrow(c, .745, .80, .745, .73)
-box(c, .16, .40, .68, .12, "score = max over regions\n(multiple-instance)", fc="#fdf0ec", ec=T.RED)
-arrow(c, .255, .60, .38, .52); arrow(c, .745, .60, .62, .52)
-box(c, .16, .24, .68, .09, "InfoNCE", fc="#fff", ec=T.INK)
-arrow(c, .5, .40, .5, .33)
-box(c, .06, .05, .88, .12, f"evaluation: {C['konkle_cats']:.0f}-way Konkle 4AFC\nout-of-corpus object photos · chance 25%",
-    fc="#f2f1ec", ec=T.SUB, bold=True)
-arrow(c, .5, .24, .5, .17)
-c.set_title("Frozen two-tower learner", fontsize=7.5, color=T.INK)
+# ================================================================ C: learner + eval
+cx = axes["C"]
+y = TOP
+# two inputs: a frame with the region grid, and the utterance as a bag of words
+fwC = 6.4; fhC = fwC * 910 / 512
+arr = load(FR(CAT_VID, 606))
+img(cx, arr, 1.0, y, fwC)
+for i in range(1, 4):                                            # 4x4 region grid
+    cx.plot([1.0 + fwC * i / 4] * 2, [y - fhC, y], color="white", lw=0.5, alpha=0.9, zorder=3)
+    cx.plot([1.0, 1.0 + fwC], [y - fhC * i / 4] * 2, color="white", lw=0.5, alpha=0.9, zorder=3)
+cx.text(1.0, y + 0.5, "frame", fontsize=5.4, color=T.FREE, va="bottom")
+cx.text(1.0, y - fhC - 0.4, "frozen encoder\nCLS + 4×4 region grid", fontsize=5.0, color=T.FREE,
+        va="top", linespacing=1.3)
+# utterance -> word chips
+ux = 10.0
+cx.text(ux, y + 0.5, "utterance", fontsize=5.4, color=T.ORACLE, va="bottom")
+cx.text(ux, y - 0.3, "“Which cat is it?”", fontsize=5.2, color=T.INK, va="top")
+words = ["which", "cat", "is", "it"]
+wy = y - 2.4
+for i, w in enumerate(words):
+    chip(cx, ux + (i % 2) * 5.2, wy - (i // 2) * 2.3, 4.6, 1.8, w, fc="#ecebf5", ec=T.ORACLE, fs=5.2)
+cx.text(ux, wy - 5.2, "bag of words, learned\nfrom scratch", fontsize=5.0, color=T.ORACLE,
+        va="top", linespacing=1.3)
+# score = max over regions: a 4x4 similarity map with the max highlighted
+sy = y - fhC - 4.6
+sim = np.array([[.1, .2, .1, .1], [.2, .3, .2, .1], [.1, .9, .4, .1], [.1, .3, .2, .1]])
+cell = 1.25
+sx = 9.2
+for i in range(4):
+    for j in range(4):
+        v = sim[i, j]
+        cx.add_patch(Rectangle((sx + j * cell, sy - (i + 1) * cell), cell, cell,
+                               fc=plt.cm.Purples(0.15 + 0.75 * v), ec="white", lw=0.4, zorder=2))
+im_ = np.unravel_index(sim.argmax(), sim.shape)
+cx.add_patch(Rectangle((sx + im_[1] * cell, sy - (im_[0] + 1) * cell), cell, cell, fc="none",
+                       ec=T.INK, lw=1.0, zorder=3))
+arrow(cx, 1.0 + fwC / 2, y - fhC - 3.4, sx - 0.6, sy - 2 * cell, color=T.FREE)
+arrow(cx, ux + 4.8, wy - 4.7, sx + 4 * cell + 0.6, sy - 2 * cell, color=T.ORACLE)
+cx.text(sx + 2 * cell, sy - 4 * cell - 0.4, "word · region similarity\nscore = max over regions",
+        fontsize=5.0, color=T.INK, ha="center", va="top", linespacing=1.3)
+# InfoNCE: batch similarity matrix, diagonal = true pairs
+ny = sy - 4 * cell - 4.2
+nb = 5; nc = 1.0; nx = sx + 2 * cell - nb * nc / 2
+rng = np.random.default_rng(1)
+M = rng.uniform(0.05, 0.4, (nb, nb)); np.fill_diagonal(M, rng.uniform(0.75, 0.95, nb))
+for i in range(nb):
+    for j in range(nb):
+        cx.add_patch(Rectangle((nx + j * nc, ny - (i + 1) * nc), nc, nc,
+                               fc=plt.cm.Greys(0.1 + 0.8 * M[i, j]), ec="white", lw=0.3, zorder=2))
+arrow(cx, sx + 2 * cell, sy - 4 * cell - 3.0, sx + 2 * cell, ny + 0.2)
+cx.text(nx - 0.6, ny - nb * nc / 2, "frames", fontsize=4.8, color=T.FREE, ha="right", va="center", rotation=90)
+cx.text(nx + nb * nc / 2, ny - nb * nc - 0.3, "utterances", fontsize=4.8, color=T.ORACLE, ha="center", va="top")
+cx.text(nx + nb * nc + 0.6, ny - nb * nc / 2, "InfoNCE\ntrue pairs on\nthe diagonal", fontsize=5.0,
+        color=T.INK, va="center", linespacing=1.3)
+# evaluation: 4AFC over out-of-corpus object photos
+ey = ny - nb * nc - 4.0
+cx.text(1.0, ey + 0.3, f"evaluation: “cat”?   {C['konkle_cats']:.0f}-way 4AFC, out-of-corpus photos",
+        fontsize=5.4, color=T.INK, va="bottom")
+kw = 4.6
+for i, (lab, fn) in enumerate(KONKLE):
+    x = 1.0 + i * (kw + 0.9)
+    img(cx, load(A / "konkle" / fn), x, ey - 0.3, kw, ec=T.FREE if lab == "cat" else "#d0cfc8",
+        lw=1.2 if lab == "cat" else 0.5)
+    cx.text(x + kw / 2, ey - 0.3 - kw - 0.4, lab, fontsize=5.0, color=T.INK, ha="center", va="top")
+cx.text(1.0 + 4 * kw + 3 * 0.9, ey - 0.3 - kw - 1.8, "chance 25%", fontsize=5.0, color=T.SUB,
+        ha="right", va="top")
 
-for a, l in zip(axes, "ABC"):
-    a.text(-0.02, 1.06, l, transform=a.transAxes, fontsize=9, fontweight="bold", color=T.INK)
 T.save(fig, "fig1_pipeline")

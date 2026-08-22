@@ -60,7 +60,6 @@ for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
 note = D.provisional_note(["ladder_pure", "ladder_region", "ladder_filter", "ladder_vision"])
 if note:
-    fig.text(0.5, -0.11, "red outline / DINOv2 row: " + note, ha="center", fontsize=5.6, color=T.PROV)
-fig.text(0.5, -0.17, "Panel B rungs for the two DINOv3 encoders are from the ch8 extended ladder "
-         "(hardcoded pending re-scrape).", ha="center", fontsize=5.6, color=T.SUB)
+    print("  NOTE fig5 (red outline / DINOv2 row):", note)
+print("  NOTE fig5: panel B rungs for the two DINOv3 encoders are literals pending the re-scrape")
 T.save(fig, "fig5_representation")

@@ -63,8 +63,6 @@ cb.ax.tick_params(labelsize=5.4)
 T.clean(bx)
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
-fig.text(0.5, -0.13, f"A: our model scored across all 159 items (real accuracy on the {known.sum()} "
-         f"in-vocabulary words, chance on the {(~known).sum()} it cannot attempt). Other models are "
-         "prompted generatively — not a matched protocol.\nB: {n} items with a child difficulty estimate."
-         .format(n=len(d)), ha="center", fontsize=5.5, color=T.SUB)
+print(f"  NOTE fig6: A scores ours across all {len(it)} items ({known.sum()} attemptable, chance on "
+      f"{(~known).sum()}); other models prompted generatively. B: {len(d)} items with a child difficulty.")
 T.save(fig, "fig6_levante")

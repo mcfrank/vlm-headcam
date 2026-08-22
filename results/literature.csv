@@ -1,0 +1,11 @@
+source,split,model,n_utterances,n_frames,konkle_acc,konkle_cats,note
+Vong et al. 2024,S manual (Sullivan 2022),CVCL,37500,600000,34.7,64,"Science 2024; 64-way Konkle OOD eval; ~61 h of one child"
+Vong & Lake 2026,S-Whisper,CVCL,122571,1088036,36.1,60,"arXiv 2507.14749v2 Fig 9 / Table 1 train split"
+Vong & Lake 2026,S-Whisper,CVCL+T,122571,1088036,36.1,60,
+Vong & Lake 2026,S-Whisper,CVCL+T+LM,122571,1088036,37.2,60,
+Vong & Lake 2026,A-Whisper,CVCL,72810,689794,29.5,60,
+Vong & Lake 2026,A-Whisper,CVCL+T,72810,689794,30.1,60,
+Vong & Lake 2026,A-Whisper,CVCL+T+LM,72810,689794,30.0,60,
+Vong & Lake 2026,Y-Whisper,CVCL,71101,670820,28.8,60,
+Vong & Lake 2026,Y-Whisper,CVCL+T,71101,670820,27.7,60,
+Vong & Lake 2026,Y-Whisper,CVCL+T+LM,71101,670820,27.4,60,

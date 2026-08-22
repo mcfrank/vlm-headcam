@@ -1,21 +1,14 @@
-"""Display item 3 — the referential gap, and the elimination argument that nothing free closes it.
+"""Display item 3 — the alignment ladder: what the learner gets free, and what the oracle buys.
 
-A: the ladder. Free rungs (green) stack; oracle rungs (indigo) branch from the region-MIL
-   baseline. The gap between the top free rung and the clean-label ceiling is the referential
-   headroom: everything the learner would gain if it knew which moments, which word, which object.
-B: the elimination. Every cue we can actually read off the stream, on one information scale
-   (rank correlation with the Gemini gold), against the ignition band from the titration — the
-   cue quality at which hard gating starts to beat soft weighting at all. No accessible cue is
-   within a factor of two of the band, so the first oracle rung is not something a learner could
-   have taken.
+Free rungs (green) stack; oracle rungs (indigo) branch from the region-MIL baseline. The gap
+between the top free rung and the clean-label ceiling is the referential headroom: everything the
+learner would gain if it knew which moments, which word, which object. The cue analysis that
+shows no accessible signal closes it is fig4.
 """
-import sys, pandas as pd
+import sys
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-
-R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 
 FREE = ["ladder_pure", "ladder_region", "ladder_frame2"]
 ORACLE = ["ladder_filter", "ladder_word", "ladder_vision"]
@@ -23,10 +16,8 @@ SHORT = {"ladder_pure": "whole-\nframe", "ladder_region": "+ region\nMIL",
          "ladder_frame2": "+ frame\nMIL ±2s", "ladder_filter": "+ align\nfilter",
          "ladder_word": "+ word\nselect", "ladder_vision": "+ vision\nbind"}
 
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.75),
-                             gridspec_kw=dict(width_ratios=[1.45, 1], wspace=0.40))
+fig, ax = plt.subplots(figsize=(T.W15, 2.6))
 
-# ---- A: ladder ------------------------------------------------------------------
 ids = FREE + ORACLE
 vals = {i: D.claim(i) for i in ids}
 base = vals["ladder_region"]["value"]           # oracle branches from region-MIL
@@ -74,41 +65,7 @@ ax.set_xlim(X0, HX + 0.62); ax.set_ylim(FLOOR, TOP)
 ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
 
-# ---- B: no accessible cue reaches the ignition band ------------------------------
-cues = pd.read_csv(R / "cues.csv").sort_values("rho")
-IGN_LO, IGN_HI = D.ignition_band()
-
-bx.axvspan(IGN_LO, IGN_HI, color=T.ORACLE, alpha=0.10, lw=0, zorder=1)
-bx.axvline(IGN_LO, color=T.ORACLE, lw=0.7, ls=(0, (3, 2)), zorder=2)
-for i, r in enumerate(cues.itertuples()):
-    bx.plot([0, r.rho], [i, i], color=T.FREE, lw=1.0, zorder=3)
-    bx.scatter([r.rho], [i], s=15, color=T.FREE, zorder=4,
-               marker="o" if r.kind == "language" else "s")
-best = cues.iloc[-1]
-bx.annotate(f"best accessible cue  ρ = {best.rho:.2f}", (best.rho, len(cues) - 1),
-            (best.rho + 0.025, len(cues) - 1), fontsize=5.6, color=T.FREE,
-            va="center", ha="left")
-bx.text((IGN_LO + IGN_HI) / 2, (len(cues) - 1) / 2,
-        "ignition\nband", color=T.ORACLE, ha="center", va="center", fontsize=6)
-bx.set_yticks(range(len(cues)))
-bx.set_yticklabels(cues.cue, fontsize=5.8)
-bx.set_xlim(-0.008, max(0.56, IGN_HI + 0.06)); bx.set_ylim(-0.8, len(cues) - 0.2)
-bx.set_xlabel("information about which moments are referential\n(ρ with the Gemini gold)")
-bx.legend(handles=[Line2D([], [], marker="o", color=T.FREE, lw=0, ms=3.2, label="language"),
-                   Line2D([], [], marker="s", color=T.FREE, lw=0, ms=3.2, label="social / visual")],
-          loc="lower left", bbox_to_anchor=(0.14, 0.0), fontsize=5.8,
-          handletextpad=0.4, borderpad=0.2)
-T.clean(bx, grid_axis="x")
-
-for a, l in zip((ax, bx), "AB"):
-    T.panel(a, l, dx=-0.14)
-
-cap = ("B: the ignition band (ρ "
-       f"{IGN_LO:.2f}–{IGN_HI:.2f}) is where a hard gate first beats soft weighting in the "
-       "titration (Phase-2 rig; SI). No cue a learner\ncould read off the stream comes close, so "
-       "the first oracle rung is not one it could have climbed.")
 note = D.provisional_note(ids)
 if note:
-    cap += "\nA: dashed outline = " + note
-fig.text(0.5, -0.16, cap, ha="center", va="top", fontsize=5.5, color=T.SUB)
+    print("  NOTE fig3 (dashed outline):", note)
 T.save(fig, "fig3_ladder")
