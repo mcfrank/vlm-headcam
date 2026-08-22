@@ -27,7 +27,9 @@ echo "GPUs free: $FREE"; set -- $FREE; G1=$1; G2=${2:-$1}; G3=${3:-$1}
 
 # ---- 0. eval caches: restore DINOv3-B test-60, embed dev-117 -----------------------
 mkdir -p emb_enc_eval
+mkdir -p emb_enc_eval emb_enc_grid_eval
 [ -f emb_enc_eval/dinov3b_ots_konkle/index.parquet ] || rsync -rlt $OAK/emb_enc_eval/dinov3b_ots_konkle emb_enc_eval/
+[ -f emb_enc_grid_eval/dinov3b_ots_konkle/index.parquet ] || rsync -rlt $OAK/emb_enc_grid_eval/dinov3b_ots_konkle emb_enc_grid_eval/
 if [ ! -f emb_dv3_konkle_dev/index.parquet ]; then
   echo "=== embedding Konkle dev-117 with DINOv3-B ==="
   rm -rf emb_dv3_konkle_dev   # a previous failure can leave an empty dir
@@ -36,14 +38,33 @@ if [ ! -f emb_dv3_konkle_dev/index.parquet ]; then
      --model facebook/dinov3-vitb16-pretrain-lvd1689m > logs/p5_embed_dev.log 2>&1
 fi
 
-for need in emb_enc_eval/dinov3b_ots_konkle emb_dv3_konkle_dev emb_enc_grid_top/dinov3b_ots; do
+for need in emb_enc_eval/dinov3b_ots_konkle emb_enc_grid_eval/dinov3b_ots_konkle \
+            emb_dv3_konkle_dev16 emb_dv3_grid_877k emb_enc/dinov3b_ots; do
   [ -f "$need/index.parquet" ] || { echo "ABORT: missing prerequisite $need (see logs/p5_*.log)"; exit 1; }
 done
 echo "prerequisites present"
 
-TRAIN=emb_enc_grid_top/dinov3b_ots          # DINOv3-B 4x4 grid over the 877k topline frames
-EVAL="--eval-cache emb_enc_eval/dinov3b_ots_konkle --eval-frames manifests/eval_frames_konkle.parquet"
-DEV="--dev-cache emb_dv3_konkle_dev --dev-frames manifests/eval_frames_konkle_dev.parquet"
+# embed_konkle writes CLS + 4x4 (R=17); Khai's grid readout is 16 cells with no CLS. Slice the dev
+# cache to match, or max-over-regions gets an extra region the projection never saw in training.
+if [ ! -f emb_dv3_konkle_dev16/index.parquet ]; then
+  mkdir -p emb_dv3_konkle_dev16
+  $PY - <<'PYX'
+import numpy as np, shutil
+a = np.load("emb_dv3_konkle_dev/emb.f16.npy", mmap_mode="r")
+np.save("emb_dv3_konkle_dev16/emb.f16.npy", np.asarray(a[:, 1:, :]))   # drop the CLS row
+shutil.copy("emb_dv3_konkle_dev/index.parquet", "emb_dv3_konkle_dev16/index.parquet")
+print("dev cache sliced to", np.load("emb_dv3_konkle_dev16/emb.f16.npy", mmap_mode="r").shape)
+PYX
+fi
+
+# The FULL 877,802-frame DINOv3-B grid. emb_enc_grid_top is the TOPLINE subset (82,811 frames) —
+# using it silently trained every rung on ~9% of its manifest on 2026-08-22.
+TRAIN=emb_dv3_grid_877k
+PUREC=emb_enc/dinov3b_ots                   # whole-frame MEANPATCH (R=1), the honest pure baseline
+EVAL="--eval-cache emb_enc_grid_eval/dinov3b_ots_konkle --eval-frames manifests/eval_frames_konkle.parquet"
+EVAL1="--eval-cache emb_enc_eval/dinov3b_ots_konkle --eval-frames manifests/eval_frames_konkle.parquet"
+DEV="--dev-cache emb_dv3_konkle_dev16 --dev-frames manifests/eval_frames_konkle_dev.parquet"
+COV="--min-coverage 0.9"
 
 # build English-dominant variants of every manifest the ladder/scaling use
 for man in grid_baseline_train grid_t15_filtnat_train grid_t15_train grid_t2_labels_train \
@@ -57,14 +78,22 @@ run () {  # run <tag> <manifest> <gpu> [extra flags]
   local tag=$1 man=$2 gpu=$3; shift 3
   for s in 0 1 2; do
     CUDA_VISIBLE_DEVICES=$gpu $PY -B src/train_frame_mil.py --window 0 \
-      --manifest manifests/$man.parquet --caches $TRAIN $EVAL $DEV \
+      --manifest manifests/$man.parquet --caches $TRAIN $EVAL $DEV $COV \
       --seed $s --out runs/P5_${tag}_s$s "$@" > logs/p5_${tag}_s$s.log 2>&1
   done
 }
 
 # ---- 1. the ladder (the UNRECOVERABLE display item) --------------------------------
 echo "=== ladder ==="
-run lad_pure     grid_baseline_train      $G1 --cls-only &   # whole-frame readout
+purerun () {  # whole-frame meanpatch baseline: its own R=1 cache and matching R=1 eval
+  local tag=$1 man=$2 gpu=$3
+  for s in 0 1 2; do
+    CUDA_VISIBLE_DEVICES=$gpu $PY -B src/train_frame_mil.py --window 0 \
+      --manifest manifests/$man.parquet --caches $PUREC $EVAL1 $DEV $COV \
+      --seed $s --out runs/P5_${tag}_s$s > logs/p5_${tag}_s$s.log 2>&1
+  done
+}
+purerun lad_pure grid_baseline_train $G1 &
 run lad_region   grid_baseline_train      $G2 &              # + region MIL
 run lad_filter   grid_t15_filtnat_train   $G3 &              # + alignment filter
 wait
@@ -72,7 +101,7 @@ run lad_word     grid_t15_train           $G1 &              # + word selection
 run lad_vision   grid_t2_labels_train     $G2 &              # + vision binding (clean-label ceiling)
 wait
 # English-dominant arm
-run lad_pure_en   grid_baseline_train_en    $G1 --cls-only &
+purerun lad_pure_en grid_baseline_train_en $G1 &
 run lad_region_en grid_baseline_train_en    $G2 &
 run lad_filter_en grid_t15_filtnat_train_en $G3 &
 wait

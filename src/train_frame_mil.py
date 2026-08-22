@@ -82,6 +82,11 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--emb-dim", type=int, default=None, help="encoder feature dim (default: cache dim)")
     ap.add_argument("--center", action="store_true", help="subtract train dataset-mean before projection (anisotropy fix)")
+    # A cache that does not cover the manifest silently shrinks the training set — this is exactly
+    # how the 2026-08-22 phase-5 runs trained on 9% of their manifests without anyone noticing.
+    # Coverage is always reported; pass --min-coverage to make a shortfall fatal.
+    ap.add_argument("--min-coverage", type=float, default=0.0,
+                    help="abort if the caches cover less than this fraction of the manifest")
     a = ap.parse_args()
     torch.manual_seed(a.seed); np.random.seed(a.seed)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -91,7 +96,15 @@ def main():
     caches, lut = load_multi(a.caches)
     emb_dim = a.emb_dim or caches[0].shape[-1]
     ds = FramePairs(caches, lut, man, vocab, a.window, a.cls_only)
-    print(f"pairs {len(ds)} | vocab {len(vocab)} | window +-{a.window} | cls_only {a.cls_only} | emb_dim {emb_dim}", flush=True)
+    cov = len(ds) / max(len(man), 1)
+    print(f"pairs {len(ds)} | manifest {len(man)} | coverage {100*cov:.1f}% | vocab {len(vocab)} "
+          f"| window +-{a.window} | cls_only {a.cls_only} | emb_dim {emb_dim}", flush=True)
+    if cov < 0.999:
+        print(f"  NOTE: {len(man) - len(ds):,} pairs dropped — their frames are not in the caches",
+              flush=True)
+    if cov < a.min_coverage:
+        raise SystemExit(f"ABORT: cache coverage {100*cov:.1f}% < required {100*a.min_coverage:.0f}%. "
+                         f"The cache does not span this manifest — check you are using the right one.")
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
     m = RegionMIL(len(vocab), emb_dim=emb_dim).to(dev)
