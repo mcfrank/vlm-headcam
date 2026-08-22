@@ -116,6 +116,12 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
     Categories with too few eval IMAGES (<4) are still excluded: that is a property of the
     benchmark, not of the model, and it is identical across runs.
     """
+    # Dropout must be OFF while scoring. train_frame_mil/train_region_mil called this straight
+    # after model.train() with no switch, so every reported 4AFC was measured with dropout active
+    # — depressing accuracy by ~1.4 pts and adding noise to the epoch curve that best/dev-epoch
+    # selection then keyed on. Setting it here covers all callers.
+    _was_training = model.training
+    model.eval()
     rng = np.random.default_rng(seed)
     pools, cat_ids, oov = {}, {}, []
     for cat, g in ev.groupby("category"):
@@ -130,6 +136,7 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
             oov.append(cat)               # model-side: scored at chance below
     cats = sorted(pools)
     if len(cats) < 4:
+        model.train(_was_training)
         return (float("nan"), {}) if return_detail else float("nan")
     all_rows = sorted({r for rs in pools.values() for r in rs})
     V = torch.from_numpy(np.asarray(emb[all_rows], dtype=np.float32)).to(dev)  # [K,R,768]
@@ -153,6 +160,7 @@ def eval_4afc_region(model, emb, lut, ev, vocab, dev, n_trials=100, seed=0, max_
             if sc.argmax().item() == 0:
                 correct += 1
         accs.append(correct / n_trials)
+    model.train(_was_training)
     per_cat = dict(zip(cats, accs))
     if oov_at_chance:
         per_cat.update({c: 0.25 for c in oov})          # never asked -> chance, not omitted

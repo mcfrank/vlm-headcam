@@ -101,6 +101,8 @@ def eval_4afc(model, emb, lut, eval_frames, vocab, device, n_trials=100, seed=0,
     # category -> list of emb-cache rows; and category token ids
     # OOV categories score CHANCE rather than being dropped: dropping them made the
     # denominator depend on the training manifest (see train_region_mil.eval_4afc_region).
+    _was_training = model.training
+    model.eval()                      # dropout OFF while scoring (see train_region_mil)
     has_key = "key" in eval_frames.columns
     pools, cat_ids, oov = {}, {}, []
     for cat, g in eval_frames.groupby("category"):
@@ -116,6 +118,7 @@ def eval_4afc(model, emb, lut, eval_frames, vocab, device, n_trials=100, seed=0,
             oov.append(cat)
     cats = sorted(pools)
     if len(cats) < 4:
+        model.train(_was_training)
         return {"acc": float("nan"), "n_cats": len(cats), "n_oov": len(oov)}
 
     model.eval()
@@ -145,6 +148,7 @@ def eval_4afc(model, emb, lut, eval_frames, vocab, device, n_trials=100, seed=0,
             if sims.argmax().item() == 0:
                 correct += 1
         per_cat[cat] = correct / n_trials
+    model.train(_was_training)
     per_cat.update({c: 0.25 for c in oov})          # OOV -> chance, never omitted
     return {"acc": float(np.mean(list(per_cat.values()))),
             "n_cats": len(per_cat), "n_scored": len(cats), "n_oov": len(oov),
