@@ -837,3 +837,66 @@ Infrastructure generalized for this: `embed_regions.py` and `embed_konkle.py` ta
 takes `--scored/--pairs/--prefix/--sizes/--kids` (2025.2 defaults unchanged, so the existing
 `manifests/scale_*` names are preserved); `build_pairs_2026.py` aggregates the token-level 2026.1
 transcript to utterances before midpoint pairing.
+
+---
+# QUEUED JOBS (launched 2026-08-21 ~22:30) — state of play for a return after travel
+
+All three run **detached on ccn2** (`setsid`, output to `/data2/mcfrank/*.log`). They survive
+laptop lid closure, SSH disconnects and session ends; nothing depends on a Claude session staying
+open. Each is **resumable** — every stage skips itself if its output exists, so re-launching after
+a crash is safe and cheap.
+
+**Check everything with one command:**
+```bash
+ssh ccn2-14 'bash /data2/mcfrank/vlm-headcam/status.sh'
+```
+It reports which pipelines are alive, the last line of each log, GPU state, how many runs have
+finished (counted by `metrics.json`), 2026.1 ingest progress, and disk.
+
+| Job | Script | Log | Waits for | Produces |
+|---|---|---|---|---|
+| **Phase-5 re-runs** | `run_phase5.sh` | `/data2/mcfrank/phase5.log` | ≥3 idle GPUs | `runs/P5_*` — the ladder (5 rungs) + scaling (6 sizes), 3 seeds each, on **DINOv3-B** with **dev-117 epoch selection** |
+| **2026.1 pipeline** | `run_2026_pipeline.sh` | `/data2/mcfrank/bv2026.log` | frame extraction to settle (follows the frames when they move to their permanent `/ccn2b` home) | `manifests/bv2026_*`, `scored/bv2026_gemini.parquet`, `emb_dv3_2026_*`, `runs/B26_*` |
+| **S1 layer pilot** | `run_layer_pilot.sh` | `/data2/mcfrank/layer_pilot.log` | `run_phase5` to exit | `runs/S1_{vjepa2l,zwm170m,zwm1b}_L*` — 7 layers × 3 models × 3 seeds |
+
+## When they finish
+
+```bash
+ssh ccn2-14 'cd /data2/mcfrank/vlm-headcam && /data2/mcfrank/ladder/condaenv/bin/python src/scrape_runs.py'
+scp "ccn2-14:/data2/mcfrank/vlm-headcam/results/*.parquet" results/
+.venv/bin/python src/check_provenance.py     # should turn the 7 UNRECOVERABLE claims green
+make -C figures                              # every display item rebuilds from the new tables
+```
+
+Then update `results/published.csv` to point the ladder claims at the new `P5_*` families, and
+record the DINOv3 switch in `notes/PHASES.md`.
+
+## S1 pilot — what it is and how to read it
+
+**Question.** Does readout *depth* matter for contrastive alignment? The usual "intermediate layers
+probe better" finding is strongest for reconstruction/contrastively-trained models; DINO-family
+models are discriminatively trained, so the final layer should be less specialized.
+
+**Why it is nearly free.** Khai already cached whole-frame vectors at 7 layers each for V-JEPA2-L,
+ZWM-170M and ZWM-1B — no new embedding. Only a DINOv3 sweep would need fresh extraction
+(`src/embed_dinov3_layers.py`, written but **not** queued), and this pilot decides whether that is
+worth doing.
+
+**Design.** 200k-frame subset (the question is *relative* — which layer — not absolute), 3 seeds,
+7 layers per model. Precedent from inside this project: ZWM-170M's across-image cosine is U-shaped
+in depth (0.97 → 0.82 at L16 → 0.95), so depth should matter there if anywhere.
+
+**Decision rule, fixed in advance.** A non-final layer "wins" only if it beats the final layer by
+more than the seed noise (~±1.5 pts). Outcomes:
+- **flat** → report the null; keep the final layer; skip the DINOv3 extraction. This also
+  strengthens the elimination argument (not just "better encoders don't close the gap" but "no
+  *depth* of them does").
+- **peaked for ZWM/V-JEPA2 only** → the cleaner supplement claim: depth matters for
+  reconstruction-trained world models, not for discriminative ones.
+- **peaked broadly** → run the DINOv3 extraction, and extract the 4×4 grid at the **top two layers
+  plus the final one** (the best *meanpatch* layer is not necessarily the best *grid* layer, since
+  region-MIL needs spatial specificity that peaks earlier).
+
+**Known caveat.** The pilot selects best-on-test within each model because these encoders have no
+dev-split eval cache; the comparison is relative across layers within a model, and any follow-up
+runs on the dev-selected clean rig. Do not quote the pilot's absolute numbers.
