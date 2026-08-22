@@ -52,8 +52,12 @@ GEM=$!
 DV3=facebook/dinov3-vitb16-pretrain-lvd1689m
 if [ ! -d emb_dv3_2026 ]; then
   # shard across whatever GPUs are idle (pose/phase5 may be using some)
-  FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk '$2<2000{print $1}')
-  NF=$(echo $FREE | wc -w); [ "$NF" -ge 1 ] || { echo "no free GPU for embedding"; NF=1; FREE=0; }
+  # wait for idle GPUs rather than colliding with pose / run_phase5
+  while :; do
+    FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk '$2<2000{print $1}')
+    NF=$(echo $FREE | wc -w); [ "$NF" -ge 2 ] && break
+    echo "  $(date +%H:%M) waiting for >=2 idle GPUs (have $NF)"; sleep 600
+  done
   echo "embedding on GPUs: $FREE"
   i=0
   for g in $FREE; do
