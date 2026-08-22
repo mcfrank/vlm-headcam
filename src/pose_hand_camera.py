@@ -59,6 +59,7 @@ def main():
     ap.add_argument('--csv', required=True); ap.add_argument('--crosswalk', required=True)
     ap.add_argument('--dims', action='append', required=True); ap.add_argument('--out', required=True)
     ap.add_argument('--min_frames', type=int, default=60)
+    ap.add_argument('--release_ids', help='file of video_ids that constitute the release; rows outside it are dropped')
     ap.add_argument('--exclude_cameras', default='headlight')
     ap.add_argument('--fov', action='append', default=[], help='camera=vertical_fov_deg, e.g. bones=110')
     ap.add_argument('--min_hours_pair', type=float, default=2.0, help='min hours per camera for a child to count as a within-child pair')
@@ -68,6 +69,10 @@ def main():
     excl = set(filter(None, args.exclude_cameras.split(',')))
 
     df, dims, xw = load(args)
+    if args.release_ids:      # reproducibility: the GCS pull is a superset of any one release
+        keep = {l.strip().replace('_processed', '') for l in open(args.release_ids) if l.strip()}
+        n0 = df.video_id.nunique(); df = df[df.video_id.isin(keep)]
+        print(f'release filter: kept {df.video_id.nunique()} of {n0} videos ({len(keep)} in release list)')
     # ---- frames per video (rows are persons; frames with no person appear as one row each)
     nfr = df.groupby('video_id').t.nunique().rename('n_frames')
     meta = nfr.to_frame().join(dims.set_index('video_id'), how='left').join(

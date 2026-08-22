@@ -100,6 +100,10 @@ def analyze(args):
     d = d[d.camera.notna() & ~d.camera.isin(set(filter(None, args.exclude_cameras.split(','))))].copy()
     # field-of-view edges (deg below horizontal; vertical FOV per camera): bottom = pitch_down + FOV/2, top = FOV/2 - pitch_down
     d['half_fov'] = d.camera.map(fov); d['edge_bottom_deg'] = d.pitch_down_deg + d.half_fov / 2; d['edge_top_deg'] = d.half_fov / 2 - d.pitch_down_deg
+    if args.release_ids:      # the pull is a superset of the release
+        keep = {l.strip().replace('_processed', '') for l in open(args.release_ids) if l.strip()}
+        n0 = len(d); d = d[d.video_id.isin(keep)]
+        print(f'release filter: kept {len(d)} of {n0} videos')
     print('joined', len(d), d.camera.value_counts().to_dict())
     print('dominant axis x camera:'); print(pd.crosstab([d.camera, d.rotated], [d.dominant_axis, d.dominant_sign]))
     if 'grav_pitch_down_deg' in d:
@@ -191,4 +195,5 @@ if __name__ == '__main__':
     a = sub.add_parser('analyze'); a.add_argument('--imu', required=True); a.add_argument('--crosswalk', required=True); a.add_argument('--out', required=True)
     a.add_argument('--pose_video_summary'); a.add_argument('--exclude_cameras', default='headlight'); a.add_argument('--min_hours_pair', type=float, default=2.0)
     a.add_argument('--fov', action='append', default=[], help='camera=vertical_fov_deg (portrait), e.g. bones=110 mini=130')
+    a.add_argument('--release_ids', help='file of video_ids that constitute the release; rows outside it are dropped')
     args = ap.parse_args(); extract(args) if args.cmd == 'extract' else analyze(args)

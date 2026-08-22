@@ -27,10 +27,19 @@ book/figures/frames_hold/
 # Gemini alignment scoring outputs (per-utterance derived data — keep local)
 scored/
 
-# GCP / Vertex credentials — never commit
+# GCP / Vertex credentials — never commit.
+# NB 2026-08: a malformed `scp` once dropped a byte-identical copy of the service-account key
+# at the repo root named `mcfrank@node14-...` — which none of the patterns below matched.
+# The belt-and-braces rules catch any file whose contents are a key, whatever it is named.
+.secrets
 .secrets/
 *service-account*.json
 *-sa.json
+*.pem
+*.p12
+*credentials*.json
+mcfrank@*
+*@node14*
 .env
 
 # Local pose skeleton review panels (faces — never commit)
@@ -38,3 +47,12 @@ skeletons/
 
 # Local human-subjects frame review (faces) — never commit
 vlm_disagree_review/
+
+# Local build env for paper figures (recreate: python3 -m venv .venv && .venv/bin/pip install -r requirements.txt)
+.venv/
+
+# Konkle object images (1 GB; public source data, mirrored on ccn2 at data/konkle/)
+data/
+
+# Scratch dirs from exploration
+scratch_lev/
