@@ -55,7 +55,10 @@ grep -E "pairs over|children" logs/bv2026_pairs.log
 
 # ---- 2a. Gemini referential annotation (network-bound; runs alongside the GPU work) ---
 #      thinking is OFF by default (thinking_budget=0) — the cheap path.
-( if [ ! -f scored/bv2026_gemini.parquet ]; then
+# gemini_align skips already-scored keys from its JSONL checkpoint, so re-running is cheap and
+# resumes. A parquet on disk may be PARTIAL (2026-08-23: 55.8% scored), so never skip on its
+# existence alone.
+( if true; then
     BABYVIEW_FRAMES="$FR" $PY -B src/gemini_align.py --manifest ${PREFIX}_pairs.parquet \
        --out scored/bv2026_gemini.parquet --workers 48 > logs/bv2026_gemini.log 2>&1 \
       || { echo "GEMINI FAILED (see logs/bv2026_gemini.log)"; exit 1; }

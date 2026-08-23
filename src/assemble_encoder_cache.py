@@ -16,10 +16,14 @@ ap.add_argument("--readout", required=True)   # subdir name
 ap.add_argument("--ids", required=True)       # file of image_ids (one per line), defines row order
 ap.add_argument("--out", required=True)
 a = ap.parse_args()
-os.makedirs(a.out, exist_ok=True)
+
 
 ids = [l.strip() for l in open(a.ids) if l.strip()]
+if not ids:
+    raise SystemExit(f"ABORT: {a.ids} is empty — nothing to assemble "
+                     f"(this silently left empty cache dirs on 2026-08-22)")
 rdir = f"{a.base}/{a.readout}"
+os.makedirs(a.out, exist_ok=True)
 first = np.load(f"{rdir}/{ids[0]}.npy")
 R, D = (1, first.shape[0]) if first.ndim == 1 else first.shape   # [D]->1 region ; [16,D]->16
 print(f"{a.readout}: {len(ids)} frames x {R} regions x {D}d", flush=True)

@@ -45,6 +45,9 @@ for m in vjepa2l zwm170m zwm1b; do
         --ids $SUB --out emb_s1/${m}_L${L} >> logs/s1_assemble.log 2>&1
     [ -f emb_s1_eval/${m}_L${L}/index.parquet ] || $PY -B src/assemble_encoder_cache.py --base $EVALD --readout $RO \
         --ids manifests/konkle_eval_ids.txt --out emb_s1_eval/${m}_L${L} >> logs/s1_assemble.log 2>&1
+    for c in emb_s1/${m}_L${L} emb_s1_eval/${m}_L${L}; do
+      [ -f "$c/index.parquet" ] || { echo "SKIP $m L$L — $c did not assemble"; continue 2; }
+    done
     echo "assembled $m L$L"
   done
 done
@@ -58,6 +61,7 @@ for m in vjepa2l zwm170m zwm1b; do
   for L in ${LAYERS[$m]}; do
     for s in 0 1 2; do
       g=$((i % 8)); i=$((i+1))
+      [ -f emb_s1_eval/${m}_L${L}/index.parquet ] || continue
       CUDA_VISIBLE_DEVICES=$g $PY -B src/train_frame_mil.py --window 0 \
         --manifest manifests/grid_baseline_train.parquet \
         --caches emb_s1/${m}_L${L} \

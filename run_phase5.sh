@@ -38,12 +38,6 @@ if [ ! -f emb_dv3_konkle_dev/index.parquet ]; then
      --model facebook/dinov3-vitb16-pretrain-lvd1689m > logs/p5_embed_dev.log 2>&1
 fi
 
-for need in emb_enc_eval/dinov3b_ots_konkle emb_enc_grid_eval/dinov3b_ots_konkle \
-            emb_dv3_konkle_dev16 emb_dv3_grid_877k emb_enc/dinov3b_ots; do
-  [ -f "$need/index.parquet" ] || { echo "ABORT: missing prerequisite $need (see logs/p5_*.log)"; exit 1; }
-done
-echo "prerequisites present"
-
 # embed_konkle writes CLS + 4x4 (R=17); Khai's grid readout is 16 cells with no CLS. Slice the dev
 # cache to match, or max-over-regions gets an extra region the projection never saw in training.
 if [ ! -f emb_dv3_konkle_dev16/index.parquet ]; then
@@ -56,6 +50,12 @@ shutil.copy("emb_dv3_konkle_dev/index.parquet", "emb_dv3_konkle_dev16/index.parq
 print("dev cache sliced to", np.load("emb_dv3_konkle_dev16/emb.f16.npy", mmap_mode="r").shape)
 PYX
 fi
+
+for need in emb_enc_eval/dinov3b_ots_konkle emb_enc_grid_eval/dinov3b_ots_konkle \
+            emb_dv3_konkle_dev16 emb_dv3_grid_877k emb_enc/dinov3b_ots; do
+  [ -f "$need/index.parquet" ] || { echo "ABORT: missing prerequisite $need (see logs/p5_*.log)"; exit 1; }
+done
+echo "prerequisites present"
 
 # The FULL 877,802-frame DINOv3-B grid. emb_enc_grid_top is the TOPLINE subset (82,811 frames) —
 # using it silently trained every rung on ~9% of its manifest on 2026-08-22.
@@ -80,6 +80,8 @@ run () {  # run <tag> <manifest> <gpu> [extra flags]
     CUDA_VISIBLE_DEVICES=$gpu $PY -B src/train_frame_mil.py --window 0 \
       --manifest manifests/$man.parquet --caches $TRAIN $EVAL $DEV $COV \
       --seed $s --out runs/P5_${tag}_s$s "$@" > logs/p5_${tag}_s$s.log 2>&1
+    [ -f runs/P5_${tag}_s$s/metrics.json ] || \
+      echo "RUN FAILED: P5_${tag}_s$s (see logs/p5_${tag}_s$s.log): $(tail -1 logs/p5_${tag}_s$s.log | cut -c1-90)"
   done
 }
 
