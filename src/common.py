@@ -3,11 +3,16 @@ import re
 import json
 import numpy as np
 import pandas as pd
+import os
 from pathlib import Path
 
 # ---- paths on ccn2 ----
-BV = Path("/ccn2a/dataset/babyview/2025.2")
-FRAMES = BV / "extracted_frames_1fps"
+# Release root. Override for another release with BABYVIEW_ROOT, or point only the frame tree
+# somewhere else with BABYVIEW_FRAMES. 2026-08-23: the 2026.1 Gemini pass silently read frames
+# from 2025.2 because this was hardcoded — 2026.1 is a superset, so 55.8% of pairs "worked"
+# (the videos shared with 2025.2) and every genuinely-new video failed with ENOENT.
+BV = Path(os.environ.get("BABYVIEW_ROOT", "/ccn2a/dataset/babyview/2025.2"))
+FRAMES = Path(os.environ.get("BABYVIEW_FRAMES", BV / "extracted_frames_1fps"))
 DETS = BV / "outputs/object_detections/cdi"
 CLIP_RESULTS = BV / "outputs/full_clip_results.csv"
 PARSED = BV / "outputs/merged_transcripts_parsed.csv"

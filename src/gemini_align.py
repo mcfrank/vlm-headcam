@@ -152,7 +152,21 @@ def main():
     if ckpt.exists():
         recs = [json.loads(l) for l in open(ckpt)]
         if recs:
-            done = set(keys_of(pd.DataFrame(recs)))
+            rdf = pd.DataFrame(recs)
+            # A record that ERRORED is NOT done — retry it. Treating errors as done makes a
+            # transient failure (or a wrong frame path) permanent: on 2026-08-23 that left
+            # 812,785 of 2026.1's pairs unscored and un-retryable, because the frame root was
+            # pointing at 2025.2 and every new video raised ENOENT.
+            if "alignment" in rdf.columns:
+                bad = rdf.alignment.isna()
+                if bad.any():
+                    print(f"  {bad.sum()} checkpoint records errored — retrying them", flush=True)
+                    if "error" in rdf.columns:
+                        top = rdf.loc[bad, "error"].astype(str).str.slice(0, 60).value_counts().head(3)
+                        for k, v in top.items():
+                            print(f"     {v:>8,}  {k}", flush=True)
+                rdf = rdf[~bad]
+            done = set(keys_of(rdf))
     todo = man[~keys_of(man).isin(done)]
     print(f"{len(man)} pairs | {len(done)} already scored | {len(todo)} to do", flush=True)
 

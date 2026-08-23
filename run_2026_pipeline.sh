@@ -48,7 +48,7 @@ echo "extraction settled at $(ls "$FR" | wc -l) video dirs"
 
 # ---- 1. pairs manifest (midpoint pairing, same convention as 2025.2) -----------------
 if [ ! -f ${PREFIX}_pairs.parquet ]; then
-  $PY -B src/build_pairs_2026.py --frames-root "$FR" --out-prefix $PREFIX --require-frame \
+  BABYVIEW_FRAMES="$FR" $PY -B src/build_pairs_2026.py --frames-root "$FR" --out-prefix $PREFIX --require-frame \
       > logs/bv2026_pairs.log 2>&1 || { echo "PAIRS FAILED"; exit 1; }
 fi
 grep -E "pairs over|children" logs/bv2026_pairs.log
@@ -59,7 +59,7 @@ grep -E "pairs over|children" logs/bv2026_pairs.log
 # resumes. A parquet on disk may be PARTIAL (2026-08-23: 55.8% scored), so never skip on its
 # existence alone.
 ( if true; then
-    BABYVIEW_FRAMES="$FR" $PY -B src/gemini_align.py --manifest ${PREFIX}_pairs.parquet \
+    BABYVIEW_ROOT=/ccn2b/dataset/babyview/2026.1 BABYVIEW_FRAMES="$FR" $PY -B src/gemini_align.py --manifest ${PREFIX}_pairs.parquet \
        --out scored/bv2026_gemini.parquet --workers 48 > logs/bv2026_gemini.log 2>&1 \
       || { echo "GEMINI FAILED (see logs/bv2026_gemini.log)"; exit 1; }
   fi
@@ -79,7 +79,7 @@ if [ ! -f emb_dv3_2026_0/index.parquet ]; then
   echo "embedding on GPUs: $FREE"
   i=0
   for g in $FREE; do
-    BABYVIEW_FRAMES="$FR" CUDA_VISIBLE_DEVICES=$g PYTHONPATH=src $EMBPY -B src/embed_regions.py \
+    BABYVIEW_ROOT=/ccn2b/dataset/babyview/2026.1 BABYVIEW_FRAMES="$FR" CUDA_VISIBLE_DEVICES=$g PYTHONPATH=src $EMBPY -B src/embed_regions.py \
       --frames ${PREFIX}_frames.parquet --out emb_dv3_2026_$i --model $DV3 --grid 4 \
       --shard $i --nshards $NF > logs/bv2026_emb_$i.log 2>&1 &
     i=$((i+1))
