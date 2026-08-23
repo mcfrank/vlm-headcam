@@ -66,3 +66,28 @@ for s in [int(x) for x in a.seeds.split(",")]:
     out[["video_id", "frame_idx", "text"]].to_parquet(f"manifests/ctl_kids_s{s}.parquet", index=False)
     print(f"wrote manifests/ctl_kids_s{s}.parquet  {len(out):,} pairs / "
           f"{out.video_id.str.split('_').str[0].nunique()} children  (dropped {sorted(drop)})")
+
+# ---- follow-ups, added after the first controls came back -----------------------
+# ctl_qty 72.0 and ctl_kids 71.8 vs english 67.5: neither pair count nor child count
+# explains the gap, so it is WHICH children the language filter removes. The prime suspect
+# is S00240001 — 61,002 pairs (half of everything removed) and 68% English, i.e. mostly
+# usable data that the >=80% threshold discards.
+if __name__ == "__main__" and True:
+    N = len(eng)
+    # (1) a >=50% threshold keeps S00240001 (68%) and S00680001 (50%)
+    keep50 = set(d.loc[d.pe >= 50, "subject_id"])
+    e50 = full[full.child.isin(keep50)]
+    print(f"\n>=50% English: {len(e50):,} pairs / {e50.child.nunique()} children")
+    e50[["video_id", "frame_idx", "text"]].to_parquet("manifests/en50.parquet", index=False)
+    # matched-count version so it is comparable to the others
+    if len(e50) > N:
+        e50.sample(N, random_state=0)[["video_id", "frame_idx", "text"]].to_parquet(
+            "manifests/en50_matched.parquet", index=False)
+        print(f"  matched to {N:,} -> manifests/en50_matched.parquet")
+    # (2) drop ONLY the big 68%-English child, matched count
+    big = full[full.child != "S00240001"]
+    if len(big) >= N:
+        big.sample(N, random_state=0)[["video_id", "frame_idx", "text"]].to_parquet(
+            "manifests/ctl_drop_big.parquet", index=False)
+        print(f"drop S00240001 only, matched to {N:,} / {big.child.nunique()} children "
+              f"-> manifests/ctl_drop_big.parquet")
