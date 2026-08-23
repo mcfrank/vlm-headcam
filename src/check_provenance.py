@@ -19,35 +19,43 @@ pub = pd.read_csv("results/published.csv")
 runs = pd.read_parquet("results/runs.parquet")
 ev = pd.read_parquet("results/evals.parquet")
 ev60 = ev[ev.eval_set == "test60"]
+try:                       # dropout-corrected re-evaluation of saved ch8 checkpoints
+    reeval = pd.read_csv("results/reeval_corrected.csv")
+except FileNotFoundError:
+    reeval = pd.DataFrame(columns=["family", "corrected"])
 
 out = []
 for _, c in pub.iterrows():
     fam, metric = c.expected_family, c.metric
     rec, n, src = None, 0, ""
-    if str(fam).startswith("LOST"):
-        status = "UNRECOVERABLE"
-    else:
-        if metric == "posthoc_test60":
+    if True:
+        if metric == "reeval":
+            s = reeval[reeval.family == fam]
+            if len(s): rec, n, src = s.corrected.mean(), len(s), "reeval_corrected.csv"
+        elif metric == "posthoc_test60":
             s = ev60[ev60.family == fam]
             if len(s): rec, n, src = s.acc.mean(), len(s), s.source.iloc[0]
         else:
             s = runs[runs.family == fam]
             if len(s): rec, n, src = s.best_acc.mean(), len(s), s.store.iloc[0]
-        if rec is None:
-            status = "UNRECOVERABLE"
-        else:
-            status = "MATCH" if abs(rec - c.published_value) <= TOL else "MISMATCH"
-    out.append(dict(claim_id=c.claim_id, chapter=f"ch{c.chapter:02d}", label=c.label,
-                    rig=c.rig, published=c.published_value,
-                    recovered=None if rec is None else round(rec, 2),
-                    delta=None if rec is None else round(rec - c.published_value, 2),
+        pass
+    book = c.book_value if pd.notna(c.book_value) else None
+    status = "LIVE" if rec is not None else "MISSING"
+    out.append(dict(claim_id=c.claim_id, chapter=str(c.chapter), label=c.label,
+                    rig=c.rig, book=book,
+                    current=None if rec is None else round(rec, 2),
+                    drift=None if (rec is None or book is None) else round(rec - book, 2),
                     n_seeds=n, status=status, source=src or c.expected_family))
 rep = pd.DataFrame(out)
 rep.to_csv("results/provenance_report.csv", index=False)
 counts = rep.status.value_counts().to_dict()
-print(f"{len(rep)} published claims -> " + " | ".join(f"{k} {v}" for k, v in counts.items()))
-for st in ["MISMATCH", "UNRECOVERABLE"]:
-    s = rep[rep.status == st]
-    if len(s):
-        print(f"\n--- {st} ({len(s)}) ---")
-        print(s[["claim_id", "chapter", "label", "rig", "published", "recovered", "delta"]].to_string(index=False))
+print(f"{len(rep)} claims -> " + " | ".join(f"{k} {v}" for k, v in counts.items()))
+miss = rep[rep.status == "MISSING"]
+if len(miss):
+    print(f"\n--- NO LIVE SOURCE ({len(miss)}) ---")
+    print(miss[["claim_id", "chapter", "label", "source"]].to_string(index=False))
+d = rep[rep.drift.notna() & (rep.drift.abs() > TOL)].sort_values("drift")
+if len(d):
+    print(f"\n--- BOOK DRIFT: current run differs from the published book value ({len(d)}) ---")
+    print(d[["claim_id", "chapter", "label", "book", "current", "drift"]].to_string(index=False))
+    print("\nThese chapters need rewriting to the current numbers.")

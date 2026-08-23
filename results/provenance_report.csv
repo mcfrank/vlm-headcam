@@ -1,39 +1,50 @@
-claim_id,chapter,label,rig,published,recovered,delta,n_seeds,status,source
-ladder_pure,ch04,pure learning (mean-pooled),clean,61.3,,,0,UNRECOVERABLE,LOST_vlm_clean
-ladder_region,ch04,+ region MIL,clean,65.3,,,0,UNRECOVERABLE,LOST_vlm_clean
-ladder_frame2,ch04,+ frame MIL ±2s,clean,65.5,65.5,-0.0,3,MATCH,data2
-ladder_frame5,ch04,+ frame MIL ±5s,clean,66.8,66.78,-0.02,3,MATCH,data2
-ladder_filter,ch04,+ alignment filter,clean,69.9,,,0,UNRECOVERABLE,LOST_vlm_cleanoracle
-ladder_word,ch04,+ word selection,clean,74.0,,,0,UNRECOVERABLE,LOST_vlm_cleanoracle
-ladder_vision,ch04,+ vision binding,clean,81.5,,,0,UNRECOVERABLE,LOST_vlm_cleanoracle
-scale_rand_10k,ch06,random 10k,old,30.0,29.97,-0.03,3,MATCH,logs/scaling_chain.log
-scale_rand_30k,ch06,random 30k,old,38.3,38.33,0.03,3,MATCH,logs/scaling_chain.log
-scale_rand_100k,ch06,random 100k,old,40.2,40.23,0.03,3,MATCH,logs/scaling_chain.log
-scale_rand_300k,ch06,random 300k,old,56.2,56.2,-0.0,3,MATCH,logs/scaling_chain.log
-scale_rand_911k,ch06,random 911k,clean,65.3,,,0,UNRECOVERABLE,LOST_vlm_clean
-scale_full,ch06,full corpus 1.14M,clean,65.6,67.14,1.54,3,MISMATCH,data2
-scale_align_10k,ch06,aligned 10k,old,63.9,63.93,0.03,3,MATCH,logs/scaling_chain.log
-scale_align_30k,ch06,aligned 30k,old,68.0,67.97,-0.03,3,MATCH,logs/scaling_chain.log
-scale_align_85k,ch06,aligned 85k,old,71.4,71.43,0.03,3,MATCH,logs/scaling_chain.log
-div_1c,ch06,1 child,old,31.0,31.03,0.03,3,MATCH,logs/scaling_chain.log
-div_3c,ch06,3 children,old,33.0,32.97,-0.03,3,MATCH,logs/scaling_chain.log
-div_10c,ch06,10 children,old,36.9,36.9,0.0,3,MATCH,logs/scaling_chain.log
-div_36c,ch06,36 children,old,34.4,34.43,0.03,3,MATCH,logs/scaling_chain.log
-div_bigchild,ch06,biggest single child,old,35.8,35.77,-0.03,3,MATCH,logs/scaling_chain.log
-div_poolbig,ch06,pooled matched-count,old,42.8,42.83,0.03,3,MATCH,logs/scaling_chain.log
-enc_dinov3b_wf,ch08,DINOv3-B OTS whole-frame,clean,70.8,70.8,-0.0,3,MATCH,oak:vlm_enc
-enc_dinov3b_grid,ch08,DINOv3-B OTS region-MIL,clean,72.6,72.62,0.02,3,MATCH,oak:vlm_enc
-enc_dinov3l_wf,ch08,DINOv3-L BabyView whole-frame,clean,41.0,41.03,0.03,3,MATCH,oak:vlm_enc
-enc_dinov3l_grid,ch08,DINOv3-L BabyView region-MIL,clean,41.7,41.69,-0.01,3,MATCH,oak:vlm_enc
-enc_vjepa2_wf,ch08,V-JEPA2-L BabyView whole-frame,clean,30.8,30.81,0.01,3,MATCH,oak:vlm_enc
-enc_vjepa2_grid,ch08,V-JEPA2-L BabyView region-MIL,clean,31.4,31.37,-0.03,3,MATCH,oak:vlm_enc
-enc_zwm170_wf,ch08,ZWM-170M whole-frame,clean,31.6,31.64,0.04,3,MATCH,oak:vlm_enc
-enc_zwm170_grid,ch08,ZWM-170M region-MIL,clean,28.9,28.91,0.01,3,MATCH,oak:vlm_enc
-enc_zwm1b_wf,ch08,ZWM-1B whole-frame,clean,35.6,35.63,0.03,3,MATCH,oak:vlm_enc
-enc_zwm1b_grid,ch08,ZWM-1B region-MIL,clean,35.7,35.7,-0.0,3,MATCH,oak:vlm_enc
-arch_max,ch09,hard max (contrastive),clean,66.1,66.42,0.32,3,MATCH,oak:vlm_arch
-arch_soft05,ch09,soft pooling tau=0.05,clean,65.3,65.27,-0.03,3,MATCH,oak:vlm_arch
-arch_soft15,ch09,soft pooling tau=0.15,clean,63.1,63.05,-0.05,3,MATCH,oak:vlm_arch
-arch_soft50,ch09,soft pooling tau=0.50,clean,61.6,61.62,0.02,3,MATCH,oak:vlm_arch
-arch_attn,ch09,learned cross-attention,clean,60.2,60.23,0.03,3,MATCH,oak:vlm_arch
-arch_caption,ch09,from-scratch captioner,clean,62.1,,,0,UNRECOVERABLE,LOST_vlm_arch_cap
+claim_id,chapter,label,rig,book,current,drift,n_seeds,status,source
+ladder_pure,04,pure learning (whole-frame meanpatch),dv3,61.3,71.62,10.32,3,LIVE,metrics.json
+ladder_region,04,+ region MIL,dv3,65.3,72.55,7.25,3,LIVE,metrics.json
+ladder_filter,04,+ alignment filter,dv3,69.9,73.6,3.7,3,LIVE,metrics.json
+ladder_word,04,+ word selection,dv3,74.0,77.19,3.19,3,LIVE,metrics.json
+ladder_vision,04,+ vision binding,dv3,81.5,78.83,-2.67,3,LIVE,metrics.json
+ladder_pure_en,04,pure learning (English >=80%),dv3,,66.2,,3,LIVE,metrics.json
+ladder_region_en,04,+ region MIL (English),dv3,,67.5,,3,LIVE,metrics.json
+ladder_filter_en,04,+ alignment filter (English),dv3,,73.35,,3,LIVE,metrics.json
+ladder_word_en,04,+ word selection (English),dv3,,74.63,,3,LIVE,metrics.json
+ladder_vision_en,04,+ vision binding (English),dv3,,80.15,,3,LIVE,metrics.json
+scale_rand_10k,06,random 10k,dv3,30.0,26.95,-3.05,3,LIVE,metrics.json
+scale_rand_30k,06,random 30k,dv3,38.3,29.17,-9.13,3,LIVE,metrics.json
+scale_rand_100k,06,random 100k,dv3,40.2,46.72,6.52,3,LIVE,metrics.json
+scale_rand_300k,06,random 300k,dv3,56.2,58.67,2.47,3,LIVE,metrics.json
+scale_rand_905k,06,random 905k (train split),dv3,65.3,72.55,7.25,3,LIVE,metrics.json
+scale_full,06,full corpus 1.14M,dv3,65.6,,,0,MISSING,P5_sc_grid_baseline_full
+enc_dinov3b_wf,08,DINOv3-B OTS whole-frame,dv3,70.8,72.22,1.42,3,LIVE,reeval_corrected.csv
+enc_dinov3b_grid,08,DINOv3-B OTS region-MIL,dv3,72.6,72.33,-0.27,3,LIVE,reeval_corrected.csv
+enc_dinov3l_wf,08,DINOv3-L BabyView whole-frame,dv3,41.0,41.03,0.03,3,LIVE,reeval_corrected.csv
+enc_dinov3l_grid,08,DINOv3-L BabyView region-MIL,dv3,41.7,40.52,-1.18,3,LIVE,reeval_corrected.csv
+enc_vjepa2_wf,08,V-JEPA2-L BabyView whole-frame,dv3,30.8,29.29,-1.51,3,LIVE,reeval_corrected.csv
+enc_vjepa2_grid,08,V-JEPA2-L BabyView region-MIL,dv3,31.4,30.35,-1.05,3,LIVE,reeval_corrected.csv
+enc_zwm170_wf,08,ZWM-170M whole-frame,dv3,31.6,29.78,-1.82,3,LIVE,reeval_corrected.csv
+enc_zwm170_grid,08,ZWM-170M region-MIL,dv3,28.9,27.75,-1.15,3,LIVE,reeval_corrected.csv
+enc_zwm1b_wf,08,ZWM-1B whole-frame,dv3,35.6,34.46,-1.14,3,LIVE,reeval_corrected.csv
+enc_zwm1b_grid,08,ZWM-1B region-MIL,dv3,35.7,33.0,-2.7,3,LIVE,reeval_corrected.csv
+arch_max,09,hard max (contrastive),clean,66.1,66.42,0.32,3,LIVE,oak:vlm_arch
+arch_soft05,09,soft pooling tau=0.05,clean,65.3,65.27,-0.03,3,LIVE,oak:vlm_arch
+arch_soft15,09,soft pooling tau=0.15,clean,63.1,63.05,-0.05,3,LIVE,oak:vlm_arch
+arch_soft50,09,soft pooling tau=0.50,clean,61.6,61.62,0.02,3,LIVE,oak:vlm_arch
+arch_attn,09,learned cross-attention,clean,60.2,60.23,0.03,3,LIVE,oak:vlm_arch
+s1_zwm170_best,S1,ZWM-170M best layer (L16),pilot,,29.19,,3,LIVE,metrics.json
+s1_zwm170_final,S1,ZWM-170M final layer (L23),pilot,,26.99,,3,LIVE,metrics.json
+s1_zwm1b_best,S1,ZWM-1B best layer (L24),pilot,,30.09,,3,LIVE,metrics.json
+s1_zwm1b_final,S1,ZWM-1B final layer (L47),pilot,,28.04,,3,LIVE,metrics.json
+s1_vjepa2_best,S1,V-JEPA2 best layer (L20),pilot,,27.11,,3,LIVE,metrics.json
+s1_vjepa2_final,S1,V-JEPA2 final layer (L23),pilot,,26.77,,3,LIVE,metrics.json
+scale_rand_911k,06,random 911k (alias of the 905k train split),dv3,65.3,72.55,7.25,3,LIVE,metrics.json
+ladder_frame2,04,+ frame MIL ±2s,clean,65.5,65.5,-0.0,3,LIVE,data2
+scale_align_10k,06,aligned 10k,old,63.9,63.93,0.03,3,LIVE,logs/scaling_chain.log
+scale_align_30k,06,aligned 30k,old,68.0,67.97,-0.03,3,LIVE,logs/scaling_chain.log
+scale_align_85k,06,aligned 85k,old,71.4,71.43,0.03,3,LIVE,logs/scaling_chain.log
+div_1c,06,1 child,old,31.0,31.03,0.03,3,LIVE,logs/scaling_chain.log
+div_3c,06,3 children,old,33.0,32.97,-0.03,3,LIVE,logs/scaling_chain.log
+div_10c,06,10 children,old,36.9,36.9,0.0,3,LIVE,logs/scaling_chain.log
+div_36c,06,36 children,old,34.4,34.43,0.03,3,LIVE,logs/scaling_chain.log
+div_bigchild,06,biggest single child,old,35.8,35.77,-0.03,3,LIVE,logs/scaling_chain.log
+div_poolbig,06,pooled matched-count,old,42.8,42.83,0.03,3,LIVE,logs/scaling_chain.log
+arch_caption,09,from-scratch captioner,clean,62.1,,,0,MISSING,cap

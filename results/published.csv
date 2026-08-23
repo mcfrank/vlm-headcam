@@ -1,39 +1,50 @@
-claim_id,chapter,label,published_value,published_sd,rig,expected_family,metric,notes
-ladder_pure,04,pure learning (mean-pooled),61.3,,clean,LOST_vlm_clean,best_acc,DINOv2 whole-frame meanpatch; also ch8 DINOv2 wf row
-ladder_region,04,+ region MIL,65.3,,clean,LOST_vlm_clean,best_acc,also ch8 DINOv2 grid row and ch6 911k point
-ladder_frame2,04,+ frame MIL ±2s,65.5,,clean,G_framereg,best_acc,
-ladder_frame5,04,+ frame MIL ±5s,66.8,,clean,G_framereg5,best_acc,
-ladder_filter,04,+ alignment filter,69.9,,clean,LOST_vlm_cleanoracle,best_acc,
-ladder_word,04,+ word selection,74.0,,clean,LOST_vlm_cleanoracle,best_acc,
-ladder_vision,04,+ vision binding,81.5,,clean,LOST_vlm_cleanoracle,best_acc,clean-label ceiling
-scale_rand_10k,06,random 10k,30.0,3.5,old,scale_rand_10000,posthoc_test60,
-scale_rand_30k,06,random 30k,38.3,0.8,old,scale_rand_30000,posthoc_test60,
-scale_rand_100k,06,random 100k,40.2,3.1,old,scale_rand_100000,posthoc_test60,
-scale_rand_300k,06,random 300k,56.2,2.6,old,scale_rand_300000,posthoc_test60,
-scale_rand_911k,06,random 911k,65.3,1.7,clean,LOST_vlm_clean,best_acc,RIG MIX: curve's other points are old-rig
-scale_full,06,full corpus 1.14M,65.6,2.2,clean,G_base_mil_full,best_acc,
-scale_align_10k,06,aligned 10k,63.9,5.5,old,scale_align_10000,posthoc_test60,
-scale_align_30k,06,aligned 30k,68.0,1.3,old,scale_align_30000,posthoc_test60,
-scale_align_85k,06,aligned 85k,71.4,1.6,old,scale_align_85000,posthoc_test60,
-div_1c,06,1 child,31.0,2.7,old,scale_div_1c,posthoc_test60,
-div_3c,06,3 children,33.0,4.4,old,scale_div_3c,posthoc_test60,
-div_10c,06,10 children,36.9,3.0,old,scale_div_10c,posthoc_test60,
-div_36c,06,36 children,34.4,1.0,old,scale_div_36c,posthoc_test60,
-div_bigchild,06,biggest single child,35.8,,old,scale_bigchild,posthoc_test60,
-div_poolbig,06,pooled matched-count,42.8,,old,scale_poolbig,posthoc_test60,
-enc_dinov3b_wf,08,DINOv3-B OTS whole-frame,70.8,,clean,E_dinov3b_ots_wf,best_acc,
-enc_dinov3b_grid,08,DINOv3-B OTS region-MIL,72.6,,clean,E_dinov3b_ots_grid,best_acc,
-enc_dinov3l_wf,08,DINOv3-L BabyView whole-frame,41.0,,clean,E_dinov3l_bv_wf,best_acc,
-enc_dinov3l_grid,08,DINOv3-L BabyView region-MIL,41.7,,clean,E_dinov3l_bv_grid,best_acc,
-enc_vjepa2_wf,08,V-JEPA2-L BabyView whole-frame,30.8,,clean,E_vjepa2l_bv_wf,best_acc,
-enc_vjepa2_grid,08,V-JEPA2-L BabyView region-MIL,31.4,,clean,E_vjepa2l_bv_grid,best_acc,
-enc_zwm170_wf,08,ZWM-170M whole-frame,31.6,,clean,E_zwm170m_bv_wf,best_acc,
-enc_zwm170_grid,08,ZWM-170M region-MIL,28.9,,clean,E_zwm170m_bv_grid,best_acc,layer mismatch (known)
-enc_zwm1b_wf,08,ZWM-1B whole-frame,35.6,,clean,E_zwm1b_bv_wf,best_acc,
-enc_zwm1b_grid,08,ZWM-1B region-MIL,35.7,,clean,E_zwm1b_bv_grid,best_acc,
-arch_max,09,hard max (contrastive),66.1,,clean,max,best_acc,
-arch_soft05,09,soft pooling tau=0.05,65.3,,clean,soft05,best_acc,
-arch_soft15,09,soft pooling tau=0.15,63.1,,clean,soft15,best_acc,
-arch_soft50,09,soft pooling tau=0.50,61.6,,clean,soft50,best_acc,
-arch_attn,09,learned cross-attention,60.2,,clean,attn,best_acc,
-arch_caption,09,from-scratch captioner,62.1,,clean,LOST_vlm_arch_cap,best_acc,generative likelihood 4AFC
+claim_id,chapter,label,rig,expected_family,metric,book_value,notes
+ladder_pure,04,pure learning (whole-frame meanpatch),dv3,P5_lad_pure,reported,61.3,book value is DINOv2
+ladder_region,04,+ region MIL,dv3,P5_lad_region,reported,65.3,book value is DINOv2
+ladder_filter,04,+ alignment filter,dv3,P5_lad_filter,reported,69.9,book value is DINOv2
+ladder_word,04,+ word selection,dv3,P5_lad_word,reported,74.0,book value is DINOv2
+ladder_vision,04,+ vision binding,dv3,P5_lad_vision,reported,81.5,clean-label ceiling; book value is DINOv2
+ladder_pure_en,04,pure learning (English >=80%),dv3,P5_lad_pure_en,reported,,English-dominant arm; no book value
+ladder_region_en,04,+ region MIL (English),dv3,P5_lad_region_en,reported,,
+ladder_filter_en,04,+ alignment filter (English),dv3,P5_lad_filter_en,reported,,
+ladder_word_en,04,+ word selection (English),dv3,P5_lad_word_en,reported,,
+ladder_vision_en,04,+ vision binding (English),dv3,P5_lad_vision_en,reported,,
+scale_rand_10k,06,random 10k,dv3,P5_sc_scale_rand_10000,reported,30.0,
+scale_rand_30k,06,random 30k,dv3,P5_sc_scale_rand_30000,reported,38.3,seed sd 5.7 — may need more seeds
+scale_rand_100k,06,random 100k,dv3,P5_sc_scale_rand_100000,reported,40.2,
+scale_rand_300k,06,random 300k,dv3,P5_sc_scale_rand_300000,reported,56.2,
+scale_rand_905k,06,random 905k (train split),dv3,P5_sc_grid_baseline_train,reported,65.3,
+scale_full,06,full corpus 1.14M,dv3,P5_sc_grid_baseline_full,reported,65.6,
+enc_dinov3b_wf,08,DINOv3-B OTS whole-frame,dv3,E_dinov3b_ots_wf,reeval,70.8,dropout-corrected in reeval_corrected.csv
+enc_dinov3b_grid,08,DINOv3-B OTS region-MIL,dv3,E_dinov3b_ots_grid,reeval,72.6,
+enc_dinov3l_wf,08,DINOv3-L BabyView whole-frame,dv3,E_dinov3l_bv_wf,reeval,41.0,
+enc_dinov3l_grid,08,DINOv3-L BabyView region-MIL,dv3,E_dinov3l_bv_grid,reeval,41.7,
+enc_vjepa2_wf,08,V-JEPA2-L BabyView whole-frame,dv3,E_vjepa2l_bv_wf,reeval,30.8,
+enc_vjepa2_grid,08,V-JEPA2-L BabyView region-MIL,dv3,E_vjepa2l_bv_grid,reeval,31.4,
+enc_zwm170_wf,08,ZWM-170M whole-frame,dv3,E_zwm170m_bv_wf,reeval,31.6,
+enc_zwm170_grid,08,ZWM-170M region-MIL,dv3,E_zwm170m_bv_grid,reeval,28.9,layer mismatch (known)
+enc_zwm1b_wf,08,ZWM-1B whole-frame,dv3,E_zwm1b_bv_wf,reeval,35.6,
+enc_zwm1b_grid,08,ZWM-1B region-MIL,dv3,E_zwm1b_bv_grid,reeval,35.7,
+arch_max,09,hard max (contrastive),clean,max,best_acc,66.1,train_arch called m.eval() so unaffected by the dropout bug
+arch_soft05,09,soft pooling tau=0.05,clean,soft05,best_acc,65.3,
+arch_soft15,09,soft pooling tau=0.15,clean,soft15,best_acc,63.1,
+arch_soft50,09,soft pooling tau=0.50,clean,soft50,best_acc,61.6,
+arch_attn,09,learned cross-attention,clean,attn,best_acc,60.2,
+s1_zwm170_best,S1,ZWM-170M best layer (L16),pilot,S1_zwm170m_L16,reported,,supplement: depth matters for reconstruction models
+s1_zwm170_final,S1,ZWM-170M final layer (L23),pilot,S1_zwm170m_L23,reported,,
+s1_zwm1b_best,S1,ZWM-1B best layer (L24),pilot,S1_zwm1b_L24,reported,,
+s1_zwm1b_final,S1,ZWM-1B final layer (L47),pilot,S1_zwm1b_L47,reported,,
+s1_vjepa2_best,S1,V-JEPA2 best layer (L20),pilot,S1_vjepa2l_L20,reported,,flat — no depth effect
+s1_vjepa2_final,S1,V-JEPA2 final layer (L23),pilot,S1_vjepa2l_L23,reported,,
+scale_rand_911k,06,random 911k (alias of the 905k train split),dv3,P5_sc_grid_baseline_train,reported,65.3,alias kept so existing figures resolve
+ladder_frame2,04,+ frame MIL ±2s,clean,G_framereg,best_acc,65.5,DINOv2-only: no DINOv3 window cache exists; rung dropped from the new ladder
+scale_align_10k,06,aligned 10k,old,scale_align_10000,posthoc_test60,63.9,OLD RIG — manifests need the tie-break fix and a DINOv3 re-run
+scale_align_30k,06,aligned 30k,old,scale_align_30000,posthoc_test60,68.0,OLD RIG — see scale_align_10k
+scale_align_85k,06,aligned 85k,old,scale_align_85000,posthoc_test60,71.4,OLD RIG — see scale_align_10k
+div_1c,06,1 child,old,scale_div_1c,posthoc_test60,31.0,OLD RIG
+div_3c,06,3 children,old,scale_div_3c,posthoc_test60,33.0,OLD RIG
+div_10c,06,10 children,old,scale_div_10c,posthoc_test60,36.9,OLD RIG
+div_36c,06,36 children,old,scale_div_36c,posthoc_test60,34.4,OLD RIG
+div_bigchild,06,biggest single child,old,scale_bigchild,posthoc_test60,35.8,OLD RIG
+div_poolbig,06,pooled matched-count,old,scale_poolbig,posthoc_test60,42.8,OLD RIG
+arch_caption,09,from-scratch captioner,clean,cap,best_acc,62.1,run dir not on Oak; log-only

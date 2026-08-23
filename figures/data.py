@@ -25,15 +25,23 @@ def claim(claim_id):
     if not len(p):
         raise KeyError(f"unknown claim {claim_id!r}")
     p = p.iloc[0]
+    # published.csv gained a `book_value` column on 2026-08-23 (what the BOOK prints) while the
+    # live number now comes from the runs. Accept either schema so this keeps working.
+    if "published_value" not in p.index and "book_value" in p.index:
+        p = p.copy()
+        p["published_value"] = p["book_value"]
+        p["published_sd"] = float("nan")
     st, rec = "UNCHECKED", None
     if report is not None:
         rr = report[report.claim_id == claim_id]
         if len(rr):
-            st, rec = rr.iloc[0].status, rr.iloc[0].recovered
-    val = rec if (st == "MATCH" and pd.notna(rec)) else p.published_value
+            _r = rr.iloc[0]
+            st = _r.status
+            rec = _r.recovered if "recovered" in rr.columns else _r.get("current")
+    val = rec if (st in ("MATCH", "LIVE") and pd.notna(rec)) else p.published_value
     return dict(value=float(val), sd=None if pd.isna(p.published_sd) else float(p.published_sd),
                 status=st, recovered=rec, label=p.label, rig=p.rig,
-                provisional=st != "MATCH")
+                provisional=st not in ("MATCH", "LIVE"))
 
 
 def family(name, metric="best_acc"):
