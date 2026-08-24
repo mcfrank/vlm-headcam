@@ -47,14 +47,29 @@ FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | 
 echo "GPUs: $FREE"
 GPUS=($FREE); NG=${#GPUS[@]}; i=0
 
-run () {  # run <tag> <manifest>
+one () {  # one <tag> <manifest> <seed>
+  local tag=$1 man=$2 s=$3
+  local g=${GPUS[$((i % NG))]}; i=$((i+1))
+  CUDA_VISIBLE_DEVICES=$g $PY -B src/train_frame_mil.py --window 0 \
+    --manifest manifests/$man.parquet --caches $CACHES $EVAL $DEV $COV \
+    --seed $s --out runs/B26_${tag}_s$s > logs/b26_${tag}_s$s.log 2>&1 &
+  [ $((i % NG)) -eq 0 ] && wait
+}
+
+run () {  # run <tag> <manifest> — one FIXED manifest, 3 seeds (init variance only).
+          # Correct for the ladder rungs, which use the full corpus and do not subsample.
   local tag=$1 man=$2
-  for s in 0 1 2; do
-    local g=${GPUS[$((i % NG))]}; i=$((i+1))
-    CUDA_VISIBLE_DEVICES=$g $PY -B src/train_frame_mil.py --window 0 \
-      --manifest manifests/$man.parquet --caches $CACHES $EVAL $DEV $COV \
-      --seed $s --out runs/B26_${tag}_s$s > logs/b26_${tag}_s$s.log 2>&1 &
-    [ $((i % NG)) -eq 0 ] && wait
+  for s in 0 1 2; do one "$tag" "$man" "$s"; done
+}
+
+run_sub () {  # run_sub <tag> <manifest-prefix> <seed...> — seed s uses manifest <prefix>_s<s>.
+              # Each seed gets an INDEPENDENT subsample, so the spread across seeds captures
+              # subsample variance as well as init variance. At 10k of 1.8M the former dominates,
+              # and with a single shared manifest it was invisible.
+  local tag=$1 pre=$2; shift 2
+  for s in "$@"; do
+    [ -f "manifests/${pre}_s${s}.parquet" ] || { echo "  missing ${pre}_s${s}"; continue; }
+    one "$tag" "${pre}_s${s}" "$s"
   done
 }
 
@@ -63,11 +78,13 @@ for PFX in bv26en bv26; do              # English-filtered first: it is the prim
   for r in base filtnat t15 t2; do run ${PFX}_lad_$r ${PFX}_$r; done; wait
   echo "=== $PFX: scaling ==="
   for N in 10000 30000 100000 300000 1000000; do
-    [ -f manifests/${PFX}_rand_$N.parquet ] && run ${PFX}_rand_$N ${PFX}_rand_$N
+    # small N is noisiest -> 5 independent subsamples there, 3 above
+    if [ "$N" -le 100000 ]; then SD="0 1 2 3 4"; else SD="0 1 2"; fi
+    run_sub ${PFX}_rand_$N ${PFX}_rand_$N $SD
   done; wait
   echo "=== $PFX: diversity ==="
   for k in 1 3 10 25 51; do
-    [ -f manifests/${PFX}_div_${k}c.parquet ] && run ${PFX}_div_${k}c ${PFX}_div_${k}c
+    run_sub ${PFX}_div_${k}c ${PFX}_div_${k}c 0 1 2      # random child draw per seed
   done; wait
 done
 

@@ -24,6 +24,9 @@ ap.add_argument("--sizes", default="10000,30000,100000,300000,1000000")
 ap.add_argument("--aligned-sizes", default="10000,30000,85000,150000")
 ap.add_argument("--kids", default="1,3,10,25,51")
 ap.add_argument("--div-n", type=int, default=30000, help="fixed pair count for the diversity sweep")
+ap.add_argument("--seeds", default="0,1,2", help="one SUBSAMPLE per seed (not just one init)")
+ap.add_argument("--small-seeds", default="0,1,2,3,4", help="extra seeds for sizes <= --small-max")
+ap.add_argument("--small-max", type=int, default=100000)
 a = ap.parse_args()
 P, COLS = a.prefix, ["video_id", "frame_idx", "text"]
 
@@ -67,11 +70,20 @@ t2 = ref.copy(); t2["text"] = t2.referent.map(lambda x: sing(str(x).strip().lowe
 t2[COLS].to_parquet(f"manifests/{P}_t2.parquet", index=False)
 print(f"  t2       {len(t2):,}  ({t2.text.nunique():,} distinct labels)")
 
-# ---- scaling: random ------------------------------------------------------------
+# ---- scaling: random, ONE SUBSAMPLE PER SEED ------------------------------------
+# Previously a single manifest was reused by every seed, so the error bars measured only
+# initialisation and batch order. At 10k of 1.8M, WHICH 10k you draw is plausibly the larger
+# source of variance, and it was invisible. Drawing per seed captures both at no extra compute.
+SEEDS = [int(x) for x in a.seeds.split(",")]
+SMALL = [int(x) for x in a.small_seeds.split(",")]
 for N in [int(x) for x in a.sizes.split(",")]:
-    if N > len(G): print(f"  skip rand_{N} (only {len(G):,} pairs)"); continue
-    G.sample(N, random_state=0)[COLS].to_parquet(f"manifests/{P}_rand_{N}.parquet", index=False)
-print(f"  rand sizes: {a.sizes}")
+    if N > len(G):
+        print(f"  skip rand_{N} (only {len(G):,} pairs)"); continue
+    seeds = SMALL if N <= a.small_max else SEEDS      # small N is noisiest: more draws there
+    for s in seeds:
+        G.sample(N, random_state=1000 + s)[COLS].to_parquet(
+            f"manifests/{P}_rand_{N}_s{s}.parquet", index=False)
+    print(f"  rand_{N}: {len(seeds)} independent subsamples (seeds {seeds})")
 
 # ---- scaling: aligned. SHUFFLE first — alignment is an integer with huge tie groups,
 #      so a plain head(N) cuts inside a tie in file order (i.e. by video and child).
@@ -83,16 +95,29 @@ for N in [int(x) for x in a.aligned_sizes.split(",")]:
     s[COLS].to_parquet(f"manifests/{P}_align_{N}.parquet", index=False)
     print(f"  align_{N}: min alignment {s.alignment.min():.0f}, {s.child.nunique()} children")
 
-# ---- diversity at fixed count ---------------------------------------------------
+# ---- diversity at fixed count, RANDOM children per seed -------------------------
+# Previously this took the k BIGGEST children deterministically: no child-draw variance, and
+# biased toward large contributors (one child can be 7% of the corpus). Draw k at random per seed,
+# preferring children with enough pairs to fill their share.
 pc = G.groupby("child").size().sort_values(ascending=False)
 N = a.div_n
 for k in [int(x) for x in a.kids.split(",")]:
-    kids = list(pc.index[:k]) if k < len(pc) else list(pc.index)
-    per = max(1, N // len(kids))
-    parts = [G[G.child == c].sample(min(per, int(pc[c])), random_state=0) for c in kids]
-    sub = pd.concat(parts)
-    if len(sub) < N:                       # top up from the same children
-        extra = G[G.child.isin(kids)].drop(sub.index)
-        if len(extra): sub = pd.concat([sub, extra.sample(min(N - len(sub), len(extra)), random_state=0)])
-    sub[COLS].to_parquet(f"manifests/{P}_div_{k}c.parquet", index=False)
-    print(f"  div_{k}c: {len(sub):,} pairs / {sub.video_id.str.split('_').str[0].nunique()} children")
+    for s in SEEDS:
+        rng = np.random.default_rng(2000 + s)
+        if k >= len(pc):
+            kids = list(pc.index)
+        else:
+            # sample among children who could contribute their share, else fall back to all
+            per_need = N // k
+            elig = list(pc[pc >= min(per_need, pc.max())].index) or list(pc.index)
+            pool = elig if len(elig) >= k else list(pc.index)
+            kids = list(rng.choice(pool, k, replace=False))
+        per = max(1, N // len(kids))
+        parts = [G[G.child == c].sample(min(per, int(pc[c])), random_state=s) for c in kids]
+        sub = pd.concat(parts)
+        if len(sub) < N:
+            extra = G[G.child.isin(kids)].drop(sub.index)
+            if len(extra):
+                sub = pd.concat([sub, extra.sample(min(N - len(sub), len(extra)), random_state=s)])
+        sub[COLS].to_parquet(f"manifests/{P}_div_{k}c_s{s}.parquet", index=False)
+    print(f"  div_{k}c: {len(SEEDS)} random child draws of {k}")

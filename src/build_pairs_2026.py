@@ -80,7 +80,7 @@ def main():
         n0 = len(utt); utt = utt[np.array(exists)]
         print(f"  dropped {n0 - len(utt):,} pairs with no frame on disk", flush=True)
 
-    pairs = utt[["video_id", "frame_idx", "text", "child_id", "speaker"]].reset_index(drop=True)
+    pairs = utt[["video_id", "utterance_id", "frame_idx", "text", "child_id", "speaker"]].reset_index(drop=True)
     pairs.to_parquet(f"{a.out_prefix}_pairs.parquet", index=False)
     frames = pairs[["video_id", "frame_idx"]].drop_duplicates().reset_index(drop=True)
     frames.to_parquet(f"{a.out_prefix}_frames.parquet", index=False)
