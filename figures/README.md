@@ -25,7 +25,7 @@ the drawing (dashed / wine outline).
 `assets/frames/` holds face-blurred frames (src/blur_faces.py, eyeballed) for fig1; `assets/konkle/`
 four Konkle photos for the 4AFC icon; `assets/camera.png` the BabyView-site line drawing (CC-BY).
 `results/literature.csv` holds published reference points; `results/wordbank_anchors.csv` the
-Wordbank CDI child anchors (rebuild with `Rscript figures/make_wordbank_anchors.R`).
+Wordbank CDI child trajectories (rebuild with `Rscript figures/make_wordbank_anchors.R`).
 
 Conventions: PNAS widths (`theme.W1/W15/W2` = 3.42 / 4.5 / 7.0 in), 6.5–8 pt type, PDF with
 editable text (`pdf.fonttype 42`), panel letters via `theme.panel()`, project palette shared with

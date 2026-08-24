@@ -31,6 +31,9 @@ rng = np.random.default_rng(0)
 fams = sorted((int(m.group(1)), f) for f in D.runs.family.unique()
               if (m := re.fullmatch(r"B26_rand_(\d+)", str(f))))
 x = np.array([n for n, _ in fams], float)
+if "B26_lad_base" in set(D.runs.family.astype(str)):     # full-corpus run lands as the top point
+    fams.append((1_820_000, "B26_lad_base"))              # 2026.1 corpus size; repoint to corpus csv
+    x = np.array([n for n, _ in fams], float)
 fam = [D.family(f) for _, f in fams]
 y = np.array([f["mean"] for f in fam]); e = np.array([f["sd"] for f in fam])
 n_seeds = [f["n"] for f in fam]
@@ -74,13 +77,15 @@ lit = lit.sort_values("acc").reset_index(drop=True); dy = np.zeros(len(lit))
 for i in range(1, len(lit)):
     if lit.acc[i] - lit.acc[i - 1] < 1.5 and abs(np.log10(lit.n[i] / lit.n[i - 1])) < 0.1:
         dy[i - 1] -= 0.8; dy[i] += 0.8
-ax.scatter(lit.n, lit.acc, marker="D", s=14, color=T.LIT, zorder=5)
+LIT24, LIT26 = "#D8A6CD", T.LIT                       # light = 2024, dark = 2026
+lit["col"] = [LIT24 if "2024" in src else LIT26 for src in lit.source]
+ax.scatter(lit.n, lit.acc, marker="D", s=14, c=lit.col, zorder=5)
 for r, d in zip(lit.itertuples(), dy):
     if "2026" in r.source:
-        ax.text(r.n * 1.18, r.acc + d, r.split.split("-")[0], fontsize=5.4, color=T.LIT, va="center")
+        ax.text(r.n * 1.18, r.acc + d, r.split.split("-")[0], fontsize=5.4, color=LIT26, va="center")
     else:
-        ax.text(r.n, r.acc - 1.8, "CVCL 2024", fontsize=5.4, color=T.LIT, va="top", ha="center")
-ax.text(1.7e5, 30.5, "single-child models\n(SAYCam; Vong et al.)", fontsize=5.4, color=T.LIT,
+        ax.text(r.n * 1.15, r.acc - 1.0, "CVCL 2024", fontsize=5.4, color=LIT24, va="top", ha="left")
+ax.text(1.7e5, 30.5, "single-child models\n(SAYCam; Vong et al.)", fontsize=5.4, color=LIT26,
         ha="left", va="center")
 ax.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
 ax.text(3.5e6, 22.2, "chance", fontsize=5.6, color=T.SUB, ha="right")
@@ -101,44 +106,32 @@ for _ in range(500):
     except Exception:
         pass
 tlo, thi = np.percentile(np.array(tdraws), [10, 90], axis=0)
-bx.fill_between(tgrid, tlo, thi, color=T.FREE, alpha=0.14, lw=0, zorder=1)
-bx.plot(tgrid, logistic(ngrid, *popt), color=T.FREE, lw=1.1, zorder=2)
-obs_end = to_yr(x.max())
-bx.axvline(obs_end, color=T.SUB, lw=0.6, ls=(0, (1, 2)))
-bx.text(obs_end / 1.25, 92.5, "observed", fontsize=5.8, color=T.SUB, style="italic",
-        ha="right", va="top")
-bx.text(obs_end * 1.25, 92.5, "extrapolated", fontsize=5.8, color=T.SUB, style="italic", va="top")
+obs = tgrid <= to_yr(x.max())                      # solid where we have data, faded beyond
+ext = tgrid >= to_yr(x.max())
+bx.fill_between(tgrid[obs], tlo[obs], thi[obs], color=T.FREE, alpha=0.14, lw=0, zorder=1)
+bx.fill_between(tgrid[ext], tlo[ext], thi[ext], color=T.FREE, alpha=0.06, lw=0, zorder=1)
+bx.plot(tgrid[obs], logistic(ngrid[obs], *popt), color=T.FREE, lw=1.1, zorder=2)
+bx.plot(tgrid[ext], logistic(ngrid[ext], *popt), color=T.FREE, lw=1.1, alpha=0.45, zorder=2)
 # anchor lines: a child's first three years of waking input
 for yr in (1, 2, 3):
     bx.axvline(yr, color=T.GRID, lw=0.7, zorder=0)
     bx.text(yr, 19.3, f"{yr} yr" if yr == 1 else f"{yr}", fontsize=5.4, color=T.SUB,
             ha="center", va="bottom")
-# Wordbank CDI anchors over the same 60 words
-wb = {(r.form, r.age): r.pred_4afc for r in WB.itertuples()}
-comp = [(12, wb[("WG", 12)]), (18, wb[("WG", 18)])]
-prod = [(24, wb[("WS", 24)]), (30, wb[("WS", 30)])]
-bx.scatter([a / 12 for a, _ in comp], [v for _, v in comp], marker="o", s=17, color=T.CHILD,
-           edgecolors="#8a6d1f", lw=0.5, zorder=5)
-bx.scatter([a / 12 for a, _ in prod], [v for _, v in prod], marker="^", s=18, color=T.CHILD,
-           edgecolors="#8a6d1f", lw=0.5, zorder=5)
-for (a, v), (dx, ha, va, dv) in zip(comp + prod,
-        [(1.0, "center", "top", -2.2), (0.93, "right", "center", 0),
-         (1.08, "left", "center", 0), (1.0, "center", "bottom", 2.2)]):
-    bx.text(a / 12 * dx, v + dv, f"{a} mo", fontsize=4.8, color="#8a6d1f", ha=ha, va=va)
-from matplotlib.lines import Line2D
-mk = dict(color=T.CHILD, markeredgecolor="#8a6d1f", markeredgewidth=0.5, lw=0)
-bx.legend(handles=[Line2D([], [], marker="o", ms=3.6, label="understands", **mk),
-                   Line2D([], [], marker="^", ms=3.8, label="produces (lower bound)", **mk)],
-          title="children, Wordbank CDI", title_fontsize=5.4, fontsize=5.2,
-          loc="center left", bbox_to_anchor=(0.02, 0.42), labelspacing=0.3,
-          handletextpad=0.3, borderpad=0.2, alignment="left")
-bx.get_legend().get_title().set_color("#8a6d1f")
-for t in bx.get_legend().get_texts():
-    t.set_color("#8a6d1f")
-# children's measured 4AFC at school age
-bx.axhspan(72, 82, color=T.CHILD, alpha=0.28, lw=0, zorder=1)
-bx.text(11.5, 77, "children 5–12 yr\n(LEVANTE)", fontsize=5.2, color="#8a6d1f", ha="right",
-        va="center", linespacing=1.4)
+# Wordbank CDI trajectories over the same 60 words (children plotted at their age)
+CDI_INK = "#8a6d1f"
+for form, meas, mk in [("WG", "understands", "o"), ("WS", "produces", "^")]:
+    d = WB[WB.form == form].sort_values("age")
+    bx.plot(d.age / 12, d.pred_4afc, marker=mk, ms=2.6, lw=0.9, color=T.CHILD,
+            markeredgecolor=CDI_INK, markeredgewidth=0.4, zorder=5)
+    end = d.iloc[-1]
+    if form == "WS":
+        bx.text(end.age / 12 * 1.07, end.pred_4afc - 2.0, meas, fontsize=5.2, color=CDI_INK,
+                va="top", ha="left")
+    else:
+        bx.text(end.age / 12 * 1.06, end.pred_4afc - 4.5, meas, fontsize=5.2, color=CDI_INK,
+                va="top", ha="left")
+bx.text(WB.age.min() / 12 * 0.92, WB.pred_4afc.min() + 1.5, "children\n(Wordbank CDI)",
+        fontsize=5.2, color=CDI_INK, ha="right", va="center", linespacing=1.4)
 bx.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
 bx.set_xscale("log"); bx.set_xlim(3e-3, 12); bx.set_ylim(18, 95)
 bx.set_xlabel("developmental time (years of waking input)")

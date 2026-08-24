@@ -165,20 +165,24 @@ for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
     bx.text(x, yy - ch - 0.5, f"“{text}”", fontsize=4.9, color=T.INK, va="top")
     tag = f"aligned {score:.0f}  ·  referent: {ref}" if aligned else f"aligned {score:.0f}  ·  no referent"
     bx.text(x, yy - ch - 1.7, tag, fontsize=4.9, color=T.FREE if aligned else T.INDOM, va="top")
-# funnel
+# funnel: real bar chart, left-aligned, true linear scale
 tot = C["pairs"]
 levels = [("all pairs", tot, "#dcdad2", T.INK),
-          ("about something visible", C["aligned_pairs"], T.FREE, "white"),
-          ("…and the referent is spoken", C["aligned_spoken"], T.ORACLE, "white")]
-fy = y - 2 * (ch + 3.2) - 1.4
+          ("about something visible", C["aligned_pairs"], T.FREE, T.FREE),
+          ("…and the referent is spoken", C["aligned_spoken"], T.ORACLE, T.ORACLE)]
+fy = y - 2 * (ch + 3.2) - 1.6
+BX0, BW, BH = 0.8, 19.8, 1.7
+bx.plot([BX0, BX0], [fy - 3 * 3.1 + 1.0, fy], color=T.SUB, lw=0.6, zorder=3)   # the axis
 for lab, nn, col, tc in levels:
-    wfrac = 19.0 * (nn / tot) ** 0.42
-    bx.add_patch(Rectangle((0.8 + (20.0 - wfrac) / 2, fy - 1.8), wfrac, 1.8, fc=col, ec="none", zorder=2))
-    bx.text(10.8, fy - 0.9, f"{nn:,.0f}", ha="center", va="center", fontsize=5.6, color=tc,
-            fontweight="bold", zorder=3)
-    bx.text(10.8, fy - 2.1, f"{lab}  ({100 * nn / tot:.0f}%)", ha="center", va="top",
-            fontsize=5.2, color=T.SUB)
-    fy -= 3.7
+    w = BW * nn / tot
+    bx.add_patch(Rectangle((BX0, fy - BH), w, BH, fc=col, ec="none", zorder=2))
+    if w > 8:
+        bx.text(BX0 + w / 2, fy - BH / 2, f"{nn:,.0f}   {lab}  (100%)", ha="center",
+                va="center", fontsize=5.2, color=T.INK, zorder=3)
+    else:
+        bx.text(BX0 + w + 0.5, fy - BH / 2, f"{nn:,.0f}   {lab}  ({100 * nn / tot:.0f}%)",
+                ha="left", va="center", fontsize=5.2, color=tc, zorder=3)
+    fy -= 3.1
 
 # ================================================================ C: learner + eval
 cx = axes["C"]

@@ -46,8 +46,8 @@ run <- function(form, ages, measure_fun, measure_name) {
     mutate(form = form, measure = measure_name)
 }
 
-wg <- run("WG", c(12, 16, 18), \(v) v %in% c("understands", "produces"), "understands")
-ws <- run("WS", c(18, 24, 30), \(v) v == "produces", "produces")
+wg <- run("WG", seq(8, 18, 2), \(v) v %in% c("understands", "produces"), "understands")
+ws <- run("WS", seq(16, 30, 2), \(v) v == "produces", "produces")
 items <- bind_rows(wg, ws)
 write.csv(items, "results/wordbank_anchors_items.csv", row.names = FALSE)
 anchors <- items |>
