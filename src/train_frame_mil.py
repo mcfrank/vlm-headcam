@@ -100,8 +100,11 @@ def main():
     print(f"pairs {len(ds)} | manifest {len(man)} | coverage {100*cov:.1f}% | vocab {len(vocab)} "
           f"| window +-{a.window} | cls_only {a.cls_only} | emb_dim {emb_dim}", flush=True)
     if cov < 0.999:
-        print(f"  NOTE: {len(man) - len(ds):,} pairs dropped — their frames are not in the caches",
-              flush=True)
+        # attribute the drop: pairs die for TWO reasons (no in-vocab token / frame not cached);
+        # blaming the cache for vocab-empty pairs once triggered a false alarm at 1M scale
+        novocab = sum(not encode(t, vocab, 16) for t in man.text)
+        print(f"  NOTE: {len(man) - len(ds):,} pairs dropped "
+              f"(~{novocab:,} have no in-vocab token; the rest lack a cached frame)", flush=True)
     if cov < a.min_coverage:
         raise SystemExit(f"ABORT: cache coverage {100*cov:.1f}% < required {100*a.min_coverage:.0f}%. "
                          f"The cache does not span this manifest — check you are using the right one.")
