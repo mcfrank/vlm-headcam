@@ -98,6 +98,14 @@ migrating them to Oak; frames are deterministically regenerable (recipe + env pi
 overlap. Transfer via `oak-dtn` (key-based, Duo-free); verify with size+md5 listing on the
 Oak side; record the mirror date in MANIFEST.
 
+## 5b. Oak status (2026-08-24): blocked on INODES, not bytes
+`sh_quota`: 742.8G/10.0T bytes (7%) but **1.5M/1.5M inodes (100%)** — all writes EDQUOT.
+The group dir holds only 13,630 files (verified identically by DTN walk and login-node find),
+so ~1.49M gid=mcfrank inodes sit elsewhere on Oak. SRCC ticket filed by Mike (locate them +
+raise the limit). Consequence for the mirror: pose_1fps/ (~9.7M pkls) would alone cost 6x the
+whole limit — it now ships as ONE tarball (the 868hrs pattern; ~60 inodes for the entire
+mirror). Tarball pre-staged on /data2; mirror fires when quota clears. Retirement stays frozen.
+
 ## 6. Decisions (Mike, 2026-08-24)
 - `/ccn2b` df anomaly: likely volume-scope reporting; proceed (test-write sanity check kept in the script).
 - Pose CSV: **retire** after the parquet lands and Oak holds the original.
