@@ -19,12 +19,12 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--release", default="2026.1")
 ap.add_argument("--root", default="/ccn2b/dataset/babyview/2026.1")
 ap.add_argument("--airtable", default="/ccn2b/dataset/babyview/2026.1/outputs/videos_airtable_2026-07-24.csv")
-ap.add_argument("--transcript", default="/ccn2a/dataset/babyview/2026.1/outputs/merged_transcripts_parsed.csv")
-ap.add_argument("--pose", default="/ccn2b/dataset/babyview/2026.1/outputs/pose_1fps_bbox_limbs.csv")
-ap.add_argument("--referent", default="/data2/mcfrank/vlm-headcam/scored/bv2026_gemini.parquet")
-ap.add_argument("--language", default="/ccn2/dataset/babyview/annotations/language/lang_2026.1.parquet")
-ap.add_argument("--pairs", default="/data2/mcfrank/vlm-headcam/manifests/bv2026_pairs.parquet")
-ap.add_argument("--embed-glob", default="/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/dinov3b_grid4x4/shard_*/index.parquet")
+ap.add_argument("--transcript", default="/ccn2b/dataset/babyview/2026.1/outputs/merged_transcripts_parsed.csv")
+ap.add_argument("--pose", default="/ccn2b/dataset/babyview/2026.1/outputs/pose_1fps_bbox_limbs.parquet")
+ap.add_argument("--referent", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/referent/gemini_2026.1.parquet")
+ap.add_argument("--language", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/language/lang_2026.1.parquet")
+ap.add_argument("--pairs", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/referent/pairs_2026.1.parquet")
+ap.add_argument("--embed-glob", default="/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/dinov3b_grid4x4/index.parquet")
 ap.add_argument("--out", default="diagnostics/2026.1")
 a = ap.parse_args()
 
@@ -69,35 +69,19 @@ try:
 except Exception as e:
     note("transcripts", a.transcript, 0, ok=False); print(f"    {e}")
 
-# ---- 3. pose: person detections per video (2.6 GB -> chunked) ------------------------------
-# The pose table is the one layer NOT keyed on video_id: it uses the GCS name
-# (S00320003_2024-11-03_3_recuYc5uzv9dxPSYt, sometimes with a _rotated suffix) and a H:MM:SS
-# timestamp. The Airtable rec-id is embedded in that name, so we recover video_id from it and
-# frame_idx from the timestamp (frame index = second). Verified: 100% of recovered ids are in
-# the release. Documented here because it is exactly the kind of key mismatch that silently
-# drops rows when joined naively.
-print("pose (chunked)")
+# ---- 3. pose: person detections per video (rekeyed parquet; person_detected==1 only) -------
+print("pose")
 try:
-    REC = r"(rec[A-Za-z0-9]{14,})"
-    tot, nper = {}, []
-    for ch in pd.read_csv(a.pose, usecols=["superseded_gcp_name_feb25", "time_in_extended_iso"],
-                          chunksize=4_000_000, low_memory=False):
-        ch["video_id"] = ch.superseded_gcp_name_feb25.astype(str).str.extract(REC)[0]
-        t = ch.time_in_extended_iso.astype(str).str.split(":")
-        ch["frame_idx"] = (t.str[0].astype(int) * 3600 + t.str[1].astype(int) * 60
-                           + t.str[2].astype(float).astype(int))
-        ch = ch.dropna(subset=["video_id"])
-        for vid, sub in ch.groupby("video_id"):
-            d = tot.setdefault(vid, {"persons": 0, "frames": set()})
-            d["persons"] += len(sub)
-            d["frames"].update(sub.frame_idx.unique().tolist())
-        nper.append(ch.groupby(["video_id", "frame_idx"]).size().values)
-    P = pd.DataFrame([{"video_id": k, "pose_persons": v["persons"],
-                       "pose_frames_with_person": len(v["frames"])} for k, v in tot.items()])
+    pp = pd.read_parquet(a.pose, columns=["video_id", "frame_idx", "person_detected"])
+    det = pp[pp.person_detected == 1]
+    P = det.groupby("video_id").agg(pose_persons=("person_detected", "size"),
+                                    pose_frames_with_person=("frame_idx", "nunique")).reset_index()
+    P = P.merge(pp.groupby("video_id").frame_idx.nunique().rename("pose_frames").reset_index(),
+                on="video_id", how="right").fillna(0)
     V = V.merge(P, on="video_id", how="left")
     note("pose", a.pose, int(P.pose_persons.sum()))
-    pp = pd.Series(np.concatenate(nper)).clip(0, 10).value_counts().sort_index()
-    pd.DataFrame({"persons_in_frame": pp.index, "count": pp.values}).to_parquet(
+    npf = det.groupby(["video_id", "frame_idx"]).size().clip(0, 10).value_counts().sort_index()
+    pd.DataFrame({"persons_in_frame": npf.index, "count": npf.values}).to_parquet(
         OUT / "dist_persons_per_frame.parquet", index=False)
 except Exception as e:
     note("pose", a.pose, 0, ok=False); print(f"    {e}")
