@@ -38,20 +38,25 @@ def note(layer, path, n, ok=True):
     print(f"  {layer:12s} {'ok ' if ok else 'MISSING'} n={n:,}" if ok else f"  {layer:12s} MISSING ({path})")
 
 
-# ---- 1. registry: the spine. every other layer joins to this by video_id -------------------
+# ---- 1. registry: the spine. KEYED BY THE RELEASE NAME (the long composite id every layer
+# uses) via release_index.tsv; Airtable metadata joins on the bare rec-id. An earlier version
+# used unique_video_id (bare rec-id) as the spine, so every layer merge silently matched
+# nothing and fillna(0) hid it — the same key-mismatch class as the text-join bug.
 print("registry")
+ridx = pd.read_csv(Path(a.root) / "outputs/release_index.tsv", sep="\t")
 at = pd.read_csv(a.airtable, low_memory=False)
 at = at[at.release.astype(str).str.contains(a.release, na=False)].copy()
-at["video_id"] = at.unique_video_id.astype(str)
-at["child"] = at.subject_id.astype(str)
+at["rec_id"] = at.unique_video_id.astype(str)
 at["age_years"] = pd.to_numeric(at["age (years)"], errors="coerce")
-at["age_months"] = at.age_years * 12
 at["hours"] = pd.to_numeric(at.duration_hours, errors="coerce")
 at["survey_pct_english"] = pd.to_numeric(at.percent_english, errors="coerce")
-V = at[["video_id", "child", "age_years", "age_months", "hours", "camera",
-        "survey_pct_english", "participant_languages", "date"]].drop_duplicates("video_id")
+V = ridx.merge(at[["rec_id", "age_years", "hours", "camera", "survey_pct_english",
+                   "participant_languages", "date"]].drop_duplicates("rec_id"),
+               on="rec_id", how="left")
+V["child"] = V.subject_id.astype(str)
+V["age_months"] = V.age_years * 12
+assert V.hours.notna().mean() > 0.99, "registry join failed — rec_id mismatch"
 note("registry", a.airtable, len(V))
-
 # ---- 2. transcripts: utterances + tokens per video ----------------------------------------
 print("transcripts")
 try:
@@ -131,6 +136,8 @@ except Exception as ex:
     note("pairs", a.pairs, 0, ok=False); print(f"    {ex}")
 
 # ---- 7. roll up + write ----------------------------------------------------------------------
+if "n_utterances" in V and V.n_utterances.fillna(0).sum() == 0:
+    raise SystemExit("ABORT: transcript merge matched nothing — spine key mismatch")
 NUM = [c for c in V.columns if V[c].dtype.kind in "if" and c not in ("age_years", "age_months", "survey_pct_english")]
 V[NUM] = V[NUM].fillna(0)
 V.to_parquet(OUT / "video_level.parquet", index=False)
