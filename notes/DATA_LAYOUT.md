@@ -6,8 +6,10 @@ files); 11,735 are new. This file is the map; each layer should also carry its o
 
 ## The join key (read this first)
 
-Every layer resolves to the Airtable **rec-id** (`unique_video_id`, e.g. `recuYc5uzv9dxPSYt`),
-and from there to a child via `subject_id`. Within a video:
+Canonical id = the **release name** (`S00220001_2024-02-05_1_recfcw2yqs02gdskT`, with
+`_rotated` where a video was reprocessed; verified: frames dirs and transcripts match the
+release list exactly). The trailing rec-id equals Airtable `unique_video_id`; child via
+`subject_id`. See notes/MIGRATION.md for the verified agreement table. Within a video:
 
 | grain | key |
 |---|---|
