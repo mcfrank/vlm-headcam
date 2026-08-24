@@ -109,20 +109,47 @@ life.](figures/diag_age.png){#fig-diag-age}
 
 ![Hours recorded per child, sorted.](figures/diag_child_hours.png){#fig-diag-hours}
 
+**Video lengths and silent videos.** Videos are typically ~10 minutes (median 10.5 min);
+428 videos (2.6%) are under a minute but carry only 0.13% of utterances, so no length
+exclusion is applied. 298 videos (1.8%) have *no* transcribed speech at all — these are not
+short clips (median 8.7 min): they are real recordings without talk near the microphone.
+Rate figures below exclude videos under 2 minutes, whose tiny denominators otherwise produce
+implausible per-hour estimates (e.g. a 1.1 s clip with one utterance ≈ 3,300/hour).
+
+![Distribution of video lengths.](figures/diag_video_len.png){#fig-diag-vlen}
+
 **Speech density** is stable across videos and children (median ≈ 700 utterances/hour), with
 no outlier children that would indicate transcription failures:
 
-![Speech density per video (left) and per child against median age
-(right).](figures/diag_density.png){#fig-diag-density}
+![Speech density per video (left) and per child against median age (right); videos ≥ 2
+minutes.](figures/diag_density.png){#fig-diag-density}
 
-**Reported vs measured language.** The household survey's "% English" disagrees sharply with
-what is actually on the recordings (r = 0.46): children whose families report 0–1% English
-measure 88–94% English in their labelled utterances. This is why the English-language filter
-used for the main experiments is based on *measured* utterance labels, not the survey:
+**Change with age.** Speech density rises with child age (roughly 550 utterances/hour around
+12 months to ~950 by 30 months) while mean utterance length is comparatively flat (~4–5
+words); per-child trajectories (thin lines) track the corpus trend. The single child recorded
+beyond 48 months (S02170002, 8 videos at 54 months) is a genuine older participant from the
+preschool cohort:
 
-![Per-child measured % English (from the utterance-level language annotation) against the
-household survey report. The dashed line is identity.](figures/diag_english.png){#fig-diag-english}
+![Per-video speech measures across age (dots), per-child 3-month median trajectories (thin
+lines), and the corpus median (heavy line).](figures/diag_age_trends.png){#fig-diag-agetrends}
+
+**Reported vs measured language.** The Airtable registry's `percent_english` is a proportion
+(0–1) despite its name — an earlier draft of this figure plotted it as a percent, compressing
+all children to the left margin. Correctly scaled, the household survey still disagrees
+sharply with the recordings (r = 0.46), and the disagreement is one-sided: every child's
+*measured* English is at or above the survey report. The five children reported as 0%-English
+households measure 88–99% English in their labelled utterances. This is why the
+English-language filter for the main experiments is based on measured utterance labels, not
+the survey:
+
+![Per-child measured % English (utterance-level annotation) against the household survey
+report; children reported below 80% are labelled. The dashed line is
+identity.](figures/diag_english.png){#fig-diag-english}
+
+**Annotation distributions.** Long utterances are real, not segmentation failures: 0.97% of
+utterances have ≥20 words, and inspection shows storybook reading and adult conversation.
+Persons-per-frame includes the 35% of frames with no detected person:
 
 ![Distributions over the annotation layers: Gemini alignment scores (most speech is
-non-referential), persons per frame, and utterance
+non-referential), persons per frame (including zero), and utterance
 length.](figures/diag_dists.png){#fig-diag-dists}

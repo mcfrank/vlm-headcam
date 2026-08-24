@@ -49,7 +49,9 @@ at = at[at.release.astype(str).str.contains(a.release, na=False)].copy()
 at["rec_id"] = at.unique_video_id.astype(str)
 at["age_years"] = pd.to_numeric(at["age (years)"], errors="coerce")
 at["hours"] = pd.to_numeric(at.duration_hours, errors="coerce")
-at["survey_pct_english"] = pd.to_numeric(at.percent_english, errors="coerce")
+# Airtable percent_english is a PROPORTION (0-1) despite the name; convert to percent here so
+# no downstream consumer plots 1.0 as "1%" (which crushed all 51 children to x~0 once already)
+at["survey_pct_english"] = pd.to_numeric(at.percent_english, errors="coerce") * 100
 V = ridx.merge(at[["rec_id", "age_years", "hours", "camera", "survey_pct_english",
                    "participant_languages", "date"]].drop_duplicates("rec_id"),
                on="rec_id", how="left")
