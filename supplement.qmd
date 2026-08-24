@@ -1,0 +1,161 @@
+---
+title: "BabyView 2026.1 — data diagnostics"
+format:
+  html:
+    toc: true
+    fig-width: 9
+    fig-height: 5
+    embed-resources: true
+execute: {echo: false, warning: false, message: false}
+---
+
+```{python}
+#| label: setup
+import json
+from pathlib import Path
+import numpy as np, pandas as pd
+import matplotlib; matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+D = Path("diagnostics/2026.1")
+V = pd.read_parquet(D / "video_level.parquet")
+C = pd.read_parquet(D / "child_level.parquet")
+prov = json.loads((D / "provenance.json").read_text())
+
+# Tol colourblind-safe
+BLUE, CYAN, GREEN, YELLOW, RED, PURPLE = "#4477AA", "#66CCEE", "#228833", "#CCBB44", "#EE6677", "#AA3377"
+INK, SUB, GRID = "#2c2c2a", "#6b6a66", "#e1e0d9"
+def clean(ax):
+    for s in ("top", "right"): ax.spines[s].set_visible(False)
+    ax.spines["left"].set_color(GRID); ax.spines["bottom"].set_color(GRID)
+    ax.tick_params(colors=SUB, length=0)
+    ax.set_axisbelow(True); ax.grid(axis="y", color=GRID, lw=0.6)
+def has(*c): return all(x in V.columns for x in c)
+```
+
+Release **`{python} prov['release']`** — `{python} f"{prov['n_videos']:,}"` videos,
+`{python} prov['n_children']` children.
+
+## 1. Layer coverage — the check that catches missing shards
+
+Fraction of release videos with any data in each layer. **Gaps here mean a partial run**, which is
+how a truncated embedding cache once silently trained every model on 9% of the corpus.
+
+```{python}
+#| label: fig-coverage
+LAYERS = [("frames / pairs", "n_pairs"), ("transcripts", "n_utterances"), ("pose", "pose_persons"),
+          ("referent (Gemini)", "ref_scored"), ("language", "lang_utterances"), ("embeddings", "emb_frames")]
+rows = [(n, 100 * (V[c] > 0).mean()) for n, c in LAYERS if c in V.columns]
+miss = [n for n, c in LAYERS if c not in V.columns or V[c].sum() == 0]
+lab, val = zip(*rows) if rows else ((), ())
+fig, ax = plt.subplots(figsize=(9, 0.5 * len(lab) + 1.6))
+cols = [GREEN if v > 99 else (YELLOW if v > 90 else RED) for v in val]
+ax.barh(range(len(lab)), val, color=cols)
+for i, v in enumerate(val): ax.text(min(v + 1, 101), i, f"{v:.1f}%", va="center", fontsize=9, color=SUB)
+ax.axvline(100, color=SUB, lw=1, ls=(0, (4, 3)))
+ax.set_yticks(range(len(lab))); ax.set_yticklabels(lab); ax.set_xlim(0, 108)
+ax.set_xlabel("% of release videos covered"); ax.invert_yaxis(); clean(ax); ax.grid(axis="x", color=GRID, lw=0.6)
+ax.set_title("Layer coverage", loc="left", color=INK)
+plt.show()
+if miss: print("NOT YET EXTRACTED:", ", ".join(miss))
+```
+
+## 2. Per-child recording effort
+
+Unevenness is expected and fine — but it drives the diversity sweep, so it must be *visible*.
+
+```{python}
+#| label: fig-child-hours
+c = C.sort_values("hours", ascending=False)
+fig, ax = plt.subplots(figsize=(10, 4.6))
+sc = ax.bar(range(len(c)), c.hours, color=BLUE)
+ax.set_xticks(range(len(c))); ax.set_xticklabels(c.child, rotation=90, fontsize=6)
+ax.set_ylabel("hours recorded"); clean(ax)
+top = c.iloc[0]
+ax.set_title(f"Hours per child — {len(c)} children, {c.hours.sum():,.0f} h total; "
+             f"largest contributes {100*top.hours/c.hours.sum():.1f}%", loc="left", color=INK, fontsize=11)
+plt.show()
+```
+
+## 3. Age
+
+```{python}
+#| label: fig-age
+fig, ax = plt.subplots(1, 2, figsize=(11, 4))
+ax[0].hist(V.age_months, bins=40, weights=V.hours, color=GREEN)
+ax[0].set_xlabel("age at recording (months)"); ax[0].set_ylabel("hours"); clean(ax[0])
+ax[0].set_title("Recorded hours by age", loc="left", color=INK, fontsize=11)
+for k, g in V.sort_values("age_months").groupby("child"):     # spaghetti: longitudinal span
+    ax[1].plot(g.age_months, g.hours.cumsum(), lw=0.9, alpha=0.75, color=BLUE)
+ax[1].set_xlabel("age (months)"); ax[1].set_ylabel("cumulative hours"); clean(ax[1])
+ax[1].set_title("Longitudinal coverage (one line per child)", loc="left", color=INK, fontsize=11)
+plt.tight_layout(); plt.show()
+```
+
+## 4. Density — is speech rate plausible and stable?
+
+An outlier child here usually means a transcription failure, not a quiet child.
+
+```{python}
+#| label: fig-density
+if has("n_utterances"):
+    V2 = V[V.hours > 0].copy(); V2["utt_per_hr"] = V2.n_utterances / V2.hours
+    fig, ax = plt.subplots(1, 2, figsize=(11, 4))
+    ax[0].hist(V2.utt_per_hr.clip(0, 3000), bins=50, color=PURPLE)
+    ax[0].set_xlabel("utterances / hour (per video)"); ax[0].set_ylabel("videos"); clean(ax[0])
+    ax[0].set_title(f"Speech density — median {V2.utt_per_hr.median():.0f}/h", loc="left", color=INK, fontsize=11)
+    m = V2.groupby("child").apply(lambda d: d.n_utterances.sum() / d.hours.sum())
+    a_ = V2.groupby("child").age_months.median()
+    ax[1].scatter(a_, m, s=34, color=PURPLE, alpha=0.85)
+    ax[1].set_xlabel("median age (months)"); ax[1].set_ylabel("utterances / hour"); clean(ax[1])
+    ax[1].set_title("Speech density by child age", loc="left", color=INK, fontsize=11)
+    plt.tight_layout(); plt.show()
+```
+
+## 5. Language — survey vs measured
+
+The household survey and the recordings disagree sharply. Points far below the diagonal are
+children logged as low-English whose recordings are overwhelmingly English.
+
+```{python}
+#| label: fig-language
+if "measured_pct_english" in C.columns and C.measured_pct_english.notna().any():
+    fig, ax = plt.subplots(figsize=(6.2, 5.6))
+    ax.plot([0, 100], [0, 100], color=SUB, lw=1, ls=(0, (4, 3)))
+    ax.scatter(C.survey_pct_english, C.measured_pct_english, s=48, color=RED, alpha=0.85)
+    ax.set_xlabel("survey % English (household report)"); ax.set_ylabel("measured % English (utterances)")
+    r = C[["survey_pct_english", "measured_pct_english"]].corr().iloc[0, 1]
+    ax.set_title(f"Survey vs measured English  (r = {r:.2f})", loc="left", color=INK, fontsize=11)
+    clean(ax); plt.show()
+else:
+    print("language annotation not yet extracted")
+```
+
+## 6. Annotation distributions
+
+```{python}
+#| label: fig-dists
+def load(n): 
+    p = D / n
+    return pd.read_parquet(p) if p.exists() else None
+al, pp, ul = load("dist_alignment.parquet"), load("dist_persons_per_frame.parquet"), load("dist_utterance_len.parquet")
+panels = [(al, "alignment_bin", "Gemini alignment", GREEN), (pp, "persons_in_frame", "persons per frame", BLUE),
+          (ul, "n_words", "words per utterance", YELLOW)]
+panels = [p for p in panels if p[0] is not None]
+if panels:
+    fig, ax = plt.subplots(1, len(panels), figsize=(4 * len(panels), 3.6))
+    ax = np.atleast_1d(ax)
+    for a_, (df, xc, t, col) in zip(ax, panels):
+        a_.bar(df[xc], df["count"], color=col, width=(df[xc].diff().median() or 1) * 0.85)
+        a_.set_xlabel(t); a_.set_ylabel("count"); clean(a_); a_.set_title(t, loc="left", color=INK, fontsize=10)
+    plt.tight_layout(); plt.show()
+```
+
+## 7. Provenance
+
+```{python}
+#| label: tbl-prov
+p = pd.DataFrame([{"layer": k, "present": v["present"], "n": prov["counts"].get(k, 0), "path": v["path"]}
+                  for k, v in prov["sources"].items()])
+p.style.hide(axis="index")
+```
