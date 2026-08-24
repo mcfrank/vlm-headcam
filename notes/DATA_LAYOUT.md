@@ -38,7 +38,7 @@ the 7.8% `_rotated` rows.
 | registry (Airtable) | `/ccn2b/…/2026.1/outputs/videos_airtable_2026-07-24.csv` | `unique_video_id` | canonical |
 | release membership | `/ccn2b/…/2026.1/outputs/release_2026_1_ids.txt` (16,306) + `excluded_…txt` (3,995) | — | canonical |
 | DINOv3-B embeddings | `/ccn2b/…/2026.1/outputs/image_embeddings/dinov3b_grid4x4/` | `(video_id, frame_idx)` | ours |
-| audio | `/ccn2a/…/2026.1/mp3/` | `video_id` | **split off** |
+| audio | `/ccn2a/…/2026.1/mp3/` | `video_id` | **all but absent — 1 child** |
 | transcripts (parsed) | `/ccn2a/…/2026.1/outputs/merged_transcripts_parsed.csv` | `(video_id, utterance_id)` | **split off** |
 | language annotation | `/ccn2/dataset/babyview/annotations/language/lang_2026.1.parquet` | `(video_id, utterance_id)` | **outside the release tree** |
 | referent annotation | `/data2/mcfrank/vlm-headcam/scored/bv2026_gemini.parquet` | `(video_id, frame_idx, text)` | **node-local scratch — at risk** |
@@ -73,7 +73,23 @@ key**, coverage against the 16,306, known gaps, and the reader/consumer code. `R
 is the standard to match — it documents membership, the quarantined non-release videos, env pins,
 and even the 12 sub-second clips that yield no frames.
 
+## Sizes (2026-08-23)
+
+| | |
+|---|---|
+| `extracted_frames_1fps/` | 609 G |
+| `outputs/pose_1fps/` | 24 G |
+| `outputs/pose_1fps_bbox_limbs.csv` | 2.6 G |
+| `/ccn2a/…/2026.1/mp3/` | **671 K (1 child)** — cf. 2025.2's 121 G / 37 children |
+
 ## Known gaps / caveats
+
+- **Audio is effectively missing from 2026.1.** `/ccn2a/…/2026.1/mp3/` holds one child
+  (S00220001); 2025.2 has 37 children / 121 G. The *transcripts* are complete (all 1,838,288
+  utterances in `merged_transcripts_parsed.csv`), so ASR ran upstream and only its output was
+  copied over. Consequence: **no audio-derived feature can be recomputed on 2026.1** without
+  re-pulling audio from GCS — including the ch5 prosody cue (per-word RMS energy). Fine for
+  everything we currently plan (vision + text), but a blocker for any prosody follow-up.
 - 12 sub-second clips (<0.5 s; 11× S00270001, 1× S00560001) yield no 1 fps frame and have no
   directory. Listed as `fail_rc0` in `frames_manifest*.tsv`.
 - 3,995 processed-but-not-in-release videos live in `/ccn2b/dataset/babyview/_mcfrank_not_in_2026.1/`.
