@@ -97,7 +97,10 @@ embeddings cover every training-pair frame.](figures/diag_coverage.png){#fig-dia
   utterance–frame training pairs scored (99.996%).
 - **Language annotation** (two independent Gemini passes + agreement): all 1,838,288
   utterances; 99.4% pass agreement, 99.05% English among agreed utterances.
-- **Pose**: 8.3M person detections; 65% of frames contain at least one person.
+- **Pose**: 8.3M person detections. 65% of frames contain at least one detection, but only
+  **43%** contain a *social partner* (a detection with a visible face or body): a fifth of all
+  detections are hands-only — largely the wearing child's own hands entering the frame — so
+  analyses of social presence should use the face-or-body criterion, not raw detections.
 - **Embeddings**: DINOv3-B 4×4 region grid for all 1,745,489 training-pair frames.
 
 **Recording effort and age.** Contribution is uneven — the largest contributor provides 7.1%
@@ -127,8 +130,10 @@ minutes.](figures/diag_density.png){#fig-diag-density}
 **Change with age.** Speech density rises with child age (roughly 550 utterances/hour around
 12 months to ~950 by 30 months) while mean utterance length is comparatively flat (~4–5
 words); per-child trajectories (thin lines) track the corpus trend. The single child recorded
-beyond 48 months (S02170002, 8 videos at 54 months) is a genuine older participant from the
-preschool cohort:
+beyond 48 months (S02170002; 8 videos, 1.0 h) carries an inconsistent registry entry — an
+S02-range (preschool-series) id, but `dataset = BV-main` and `release = 2026.1`, while every
+other S02 subject is tagged `2025.1.preschool` or unreleased. Whether it belongs in this
+release is an open registry question; its footprint is negligible either way:
 
 ![Per-video speech measures across age (dots), per-child 3-month median trajectories (thin
 lines), and the corpus median (heavy line).](figures/diag_age_trends.png){#fig-diag-agetrends}
@@ -138,7 +143,15 @@ lines), and the corpus median (heavy line).](figures/diag_age_trends.png){#fig-d
 all children to the left margin. Correctly scaled, the household survey still disagrees
 sharply with the recordings (r = 0.46), and the disagreement is one-sided: every child's
 *measured* English is at or above the survey report. The five children reported as 0%-English
-households measure 88–99% English in their labelled utterances. This is why the
+households measure 88–99% English in their labelled utterances. Auditing the most extreme
+case (S00560001, survey 0%, measured 88%): the recorded caregiver speech really is fluent
+English child-directed talk ("Why did you jump like that?", "You can slide like Seoyeon"),
+with the non-English 5.7% dominated by short Korean interjections and vocatives (median one
+word). One caveat bounds the claim: language is labelled on ASR *transcripts*, and the
+brevity of the captured Korean is consistent with ASR under-transcribing longer non-English
+speech — so "measured % English" is a property of the transcribed stream (what a text-trained
+learner sees), a ceiling rather than an exact estimate of the audio environment. An
+audio-level audit of sampled segments would settle it. This is why the
 English-language filter for the main experiments is based on measured utterance labels, not
 the survey:
 

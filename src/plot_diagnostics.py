@@ -93,10 +93,15 @@ save(fig, "diag_english.png")
 # 6. distributions
 def load(n):
     return pd.read_parquet(D / n) if (D / n).exists() else None
-ppf = load("dist_persons_per_frame.parquet")
-if ppf is not None and 0 not in set(ppf.persons_in_frame) and "pose_frames" in V.columns:
-    zero = int(V.pose_frames.sum() - V.pose_frames_with_person.sum())
-    ppf = pd.concat([pd.DataFrame({"persons_in_frame": [0], "count": [zero]}), ppf], ignore_index=True)
+def with_zero(df, colname):
+    if df is not None and 0 not in set(df.persons_in_frame) and "pose_frames" in V.columns:
+        zero = int(V.pose_frames.sum() - V[colname].sum())
+        df = pd.concat([pd.DataFrame({"persons_in_frame": [0], "count": [zero]}), df], ignore_index=True)
+    return df
+ppf = with_zero(load("dist_persons_per_frame.parquet"), "pose_frames_with_person")
+pss = load("dist_partners_per_frame.parquet")
+if pss is not None and "pose_frames_with_partner" in V.columns:
+    pss = with_zero(pss, "pose_frames_with_partner")
 panels = [(load("dist_alignment.parquet"), "alignment_bin", "Gemini alignment", GREEN),
           (ppf, "persons_in_frame", "persons per frame", BLUE),
           (load("dist_utterance_len.parquet"), "n_words", "words per utterance", YELLOW)]
@@ -104,6 +109,10 @@ panels = [p for p in panels if p[0] is not None]
 fig, axs = plt.subplots(1, len(panels), figsize=(3.6 * len(panels), 3.2))
 for a_, (df, xc, t, col) in zip(np.atleast_1d(axs), panels):
     a_.bar(df[xc], df["count"], color=col, width=(df[xc].diff().median() or 1) * 0.85)
+    if t == "persons per frame" and pss is not None:
+        a_.bar(pss.persons_in_frame, pss["count"], color=INK, width=0.35,
+               label="face or body visible\n(social partners)")
+        a_.legend(frameon=False, fontsize=7.5)
     a_.set_xlabel(t); a_.set_ylabel("count"); clean(a_)
 save(fig, "diag_dists.png")
 print(f"release {prov['release']}: {prov['n_videos']:,} videos, {prov['n_children']} children")
@@ -130,9 +139,11 @@ for ax, col, ylab, ylim in [(axs[0], "uph", "utterances / hour", (0, 2200)),
     ax.scatter(V3.age_months, V3[col], s=4, color=BLUE, alpha=0.12, lw=0, zorder=2)
     for _, g in V3.groupby("child"):                 # per-child trajectory, smoothed in 3-mo bins
         if len(g) < 8: continue
-        b = g.groupby((g.age_months // 3) * 3)[col].median()
+        gb = g.groupby((g.age_months // 3) * 3)[col]
+        b = gb.median()[gb.size() >= 4]              # a child's bin needs >=4 videos
         if len(b) >= 3: ax.plot(b.index + 1.5, b.values, lw=1.0, alpha=0.55, color=PURPLE, zorder=3)
-    med = V3.groupby((V3.age_months // 3) * 3)[col].median()
+    mb = V3.groupby((V3.age_months // 3) * 3)[col]
+    med = mb.median()[mb.size() >= 30]               # corpus median only where >=30 videos/bin
     ax.plot(med.index + 1.5, med.values, lw=2.6, color=INK, zorder=4)
     ax.set_xlabel("age at recording (months)"); ax.set_ylabel(ylab); ax.set_ylim(*ylim); clean(ax)
 save(fig, "diag_age_trends.png")

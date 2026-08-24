@@ -90,6 +90,17 @@ try:
     npf = det.groupby(["video_id", "frame_idx"]).size().clip(0, 10).value_counts().sort_index()
     pd.DataFrame({"persons_in_frame": npf.index, "count": npf.values}).to_parquet(
         OUT / "dist_persons_per_frame.parquet", index=False)
+    # split: a detection with a visible face or body is a social partner; hands-only detections
+    # are largely the wearing child's own hands entering the frame (20% of all detections)
+    soc = pd.read_parquet(a.pose, columns=["video_id", "frame_idx", "person_detected",
+                                           "face_in_image", "body_in_image"])
+    soc = soc[(soc.person_detected == 1) &
+              (soc.face_in_image.astype(bool) | soc.body_in_image.astype(bool))]
+    nsf = soc.groupby(["video_id", "frame_idx"]).size().clip(0, 10).value_counts().sort_index()
+    pd.DataFrame({"persons_in_frame": nsf.index, "count": nsf.values}).to_parquet(
+        OUT / "dist_partners_per_frame.parquet", index=False)
+    P2 = soc.groupby("video_id").frame_idx.nunique().rename("pose_frames_with_partner").reset_index()
+    V = V.merge(P2, on="video_id", how="left")
 except Exception as e:
     note("pose", a.pose, 0, ok=False); print(f"    {e}")
 
