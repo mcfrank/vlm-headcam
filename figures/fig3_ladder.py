@@ -1,72 +1,74 @@
-"""Display item 3 — the referential gap on the production rig.
+"""Display item 3 — the ladder at three scales: what oracle information buys, and how it
+shrinks as raw experience grows.
 
-The B26 ladder: four training manifests, same 1.82M-pair English-filtered corpus, same model
-and eval throughout. base = every pair as spoken (what a learner gets for free). The oracle
-rungs answer, in turn: which moments are referential (filtnat), which word is the referent
-(t15), which object it names (t2 — text is the label itself, the clean-label ceiling).
+Each scale is a matched subsample of the 2026.1 corpus trained four ways (same model, same
+eval): base = every pair as spoken; then three oracle rungs answering which moments are
+referential (alignment filter), which word is the referent (word selection), and which object
+it names (vision binding — text is the label itself, the clean-label ceiling). x is the raw
+experience of the base arm; the oracle rungs keep only ~10% of it. The shaded wedge between
+the free line and the ceiling is the referential headroom, closing with scale.
 
-Read from runs.parquet directly (published.csv claim ids still point at the 2025.2 ladder;
-coordinate with the pipeline session before repointing).
+Read from runs.parquet directly (published.csv claim ids still point at the 2025.2 ladder).
 """
-import sys
+import sys, re
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
+import numpy as np
 
-RUNGS = [("B26_lad_base", "unfiltered\n(region MIL)", False),
-         ("B26_lad_filtnat", "+ alignment\nfilter", True),
-         ("B26_lad_t15", "+ word\nselection", True),
-         ("B26_lad_t2", "+ vision\nbinding", True)]
-fam = {f: D.family(f) for f, _, _ in RUNGS}
-if any(str(f).startswith("B26_lad1") or str(f).startswith("B26_lad3") for f in D.runs.family.unique()):
-    print("  NOTE fig3: B26 ladder-at-scale families exist (300k/100k) — panel candidate once "
-          "all rungs and seeds are in")
+RUNGS = [("base", "unfiltered (free)", None),
+         ("filtnat", "+ alignment filter", "which moments"),
+         ("t15", "+ word selection", "which word"),
+         ("t2", "+ vision binding", "which object")]
 
-fig, ax = plt.subplots(figsize=(T.W1, 2.5))
-base = fam["B26_lad_base"]["mean"]
-ceil = fam["B26_lad_t2"]["mean"]
-FLOOR, TOP = 74, 88.5
-X0, SPLIT, X1 = -0.62, 0.5, len(RUNGS) - 0.5
+# scales present in the scrape: B26_lad<scale>_<rung>, empty scale = full corpus
+scales = sorted({m.group(1) for f in D.runs.family.unique()
+                 if (m := re.fullmatch(r"B26_lad(\d*)_?(?:base|filtnat|t15|t2)", str(f)))},
+                key=lambda s: int(s or 10**9))
+fam = lambda sc, r: D.family(f"B26_lad{sc}_{r}" if sc else f"B26_lad_{r}")
+X = np.array([fam(sc, "base")["n_pairs"] for sc in scales])
+L = {r: dict(y=np.array([fam(sc, r)["mean"] for sc in scales]),
+             e=np.array([fam(sc, r)["sd"] for sc in scales])) for r, _, _ in RUNGS}
 
-ax.axvspan(X0, SPLIT, color=T.FREE, alpha=0.06, lw=0, zorder=0)
-ax.axvspan(SPLIT, X1, color=T.ORACLE, alpha=0.06, lw=0, zorder=0)
-ax.text(X0 + 0.10, TOP - 0.35, "free", color=T.FREE, fontsize=6.5, style="italic", va="top")
-ax.text(SPLIT + 0.10, TOP - 0.35, "oracle", color=T.ORACLE, fontsize=6.5, style="italic", va="top")
+fig, ax = plt.subplots(figsize=(T.W15, 2.7))
 
-prev = None
-for k, (f, lab, is_or) in enumerate(RUNGS):
-    v, sd = fam[f]["mean"], fam[f]["sd"]
-    bot = FLOOR if k == 0 else prev
-    lo, hi = min(bot, v), max(bot, v)
-    ax.bar(k, hi - lo, bottom=lo, width=0.62, color=T.ORACLE if is_or else T.FREE, zorder=3)
-    ax.errorbar(k, v, yerr=sd, fmt="none", ecolor=T.INK, elinewidth=0.7, capsize=2, zorder=5)
-    if k:
-        d = v - bot
-        if d >= 0:
-            ax.text(k, max(hi, v + sd) + 0.35, f"{d:+.1f}", ha="center", fontsize=6, color=T.INK)
-        else:
-            ax.text(k, min(lo, v - sd) - 0.35, f"{d:+.1f}", ha="center", va="top", fontsize=6,
-                    color=T.INDOM)
-    ax.text(k, lo + 0.3, f"{v:.1f}", ha="center", va="bottom", fontsize=6, color="white",
-            fontweight="bold", zorder=4)
-    prev = v
+ax.fill_between(X, L["base"]["y"], L["t2"]["y"], color=T.ORACLE, alpha=0.07, lw=0, zorder=1)
+STYLE = {"base": dict(color=T.FREE, ls="-", marker="o", lw=1.2),
+         "filtnat": dict(color=T.ORACLE, ls="-", marker="s", lw=1.0, alpha=0.75),
+         "t15": dict(color=T.ORACLE, ls=(0, (2, 1.5)), marker="^", lw=1.0, alpha=0.75),
+         "t2": dict(color=T.ORACLE, ls="-", marker="D", lw=1.4)}
+for r, lab, q in RUNGS:
+    st = STYLE[r]
+    ax.errorbar(X, L[r]["y"], yerr=L[r]["e"], ms=3.0, elinewidth=0.7, capsize=1.6, zorder=3, **st)
 
-ax.plot([X0, X1 + 0.1], [ceil, ceil], color=T.SUB, lw=0.6, ls=(0, (2, 2)), zorder=2)
-ax.text(X0 + 0.10, ceil - 0.35, "clean-label ceiling", ha="left", va="top", fontsize=5.8, color=T.SUB)
+# the headroom at each scale, above the ceiling point where nothing else lives
+for i, sc in enumerate(scales):
+    d = L["t2"]["y"][i] - L["base"]["y"][i]
+    lab = f"headroom +{d:.1f}" if i == 0 else f"+{d:.1f}"
+    ax.text(X[i], L["t2"]["y"][i] + L["t2"]["e"][i] + 1.2, lab, fontsize=5.6, color=T.SUB,
+            ha="center", va="bottom")
 
-HX = X1 + 0.40
-ax.annotate("", xy=(HX, base), xytext=(HX, ceil),
-            arrowprops=dict(arrowstyle="<->", color=T.SUB, lw=0.7, shrinkA=0, shrinkB=0))
-ax.text(HX + 0.28, (base + ceil) / 2, f"referential headroom\n+{ceil - base:.1f}",
-        fontsize=5.6, color=T.SUB, va="center", ha="center", rotation=90, linespacing=1.3)
+# direct labels at the right edge, spread apart, tied to their lines by thin leaders
+ends = {r: L[r]["y"][-1] for r, _, _ in RUNGS}
+ANCHOR = {"t2": 87.6, "filtnat": 84.4, "t15": 81.0, "base": 77.6}
+for r, lab, q in RUNGS:
+    col = T.FREE if r == "base" else T.ORACLE
+    a = STYLE[r].get("alpha", 1.0)
+    ax.plot([X[-1] * 1.06, X[-1] * 1.20], [ends[r], ANCHOR[r]], color=col, lw=0.5,
+            alpha=0.6 * a, zorder=2)
+    ax.text(X[-1] * 1.25, ANCHOR[r], lab if q is None else f"{lab}  ({q})", fontsize=5.6,
+            color=col, va="center", alpha=a)
 
-for k, q in zip((1, 2, 3), ("which\nmoments", "which\nword", "which\nobject")):
-    ax.text(k, FLOOR + 0.4, q, ha="center", fontsize=5.4, color=T.ORACLE, style="italic")
-ax.set_xticks(range(len(RUNGS)))
-ax.set_xticklabels([lab for _, lab, _ in RUNGS], fontsize=6.0)
-ax.set_xlim(X0, HX + 0.55); ax.set_ylim(FLOOR, TOP)
+ax.set_xscale("log")
+ax.set_xlim(6.5e4, 1.6e7)
+ax.set_xticks(X)
+ax.set_xticklabels([f"{x/1e3:.0f}k" if x < 1e6 else f"{x/1e6:.2f}M\n(full corpus)" for x in X],
+                   fontsize=6.2)
+ax.set_ylim(42, 90)
+ax.set_xlabel("raw experience (pairs; oracle rungs keep ~10% of it)")
 ax.set_ylabel("Konkle 4AFC (%)")
+ax.minorticks_off()
 T.clean(ax)
-print("  NOTE fig3: B26 ladder, n per rung =", [fam[f]["n"] for f, _, _ in RUNGS],
-      "· word selection is a negative step on this rig")
+print("  NOTE fig3: ladder at scales", [int(x) for x in X], "· n=3 per point ·",
+      "word selection inverts at full scale (82.8 < 84.6)")
 T.save(fig, "fig3_ladder")
