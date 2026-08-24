@@ -84,10 +84,14 @@ def main():
         for j, p in enumerate(pos):
             embs[p] = f[j]; ok[p] = True
 
+    n_missing = 0
     for i, r in enumerate(rows.itertuples(index=False)):
         try:
             img = Image.open(frame_path(r.video_id, r.frame_idx)).convert("RGB")
         except Exception:
+            n_missing += 1
+            if n_missing <= 3:
+                print(f"  MISSING: {frame_path(r.video_id, r.frame_idx)}", flush=True)
             continue
         buf.append(img); pos.append(i)
         if len(buf) >= args.batch:
@@ -102,6 +106,14 @@ def main():
         embs = np.concatenate([prev, embs], 0); rows = pd.concat([have, rows], ignore_index=True)
     np.save(emb_path, embs); rows.to_parquet(idx_path)
     print(f"done: {len(embs)} frames, shape {embs.shape}", flush=True)
+    if n_missing:
+        # A missing frame usually means frame_path() resolves to the WRONG RELEASE ROOT
+        # (BABYVIEW_ROOT unset -> 2025.2 default), which once produced 8 shards that all
+        # "succeeded" at 55% coverage. Save first (resume keeps the work), then fail loudly.
+        frac = n_missing / (n_missing + len(embs))
+        print(f"ERROR: {n_missing} frames unreadable ({100*frac:.1f}%) — check BABYVIEW_ROOT "
+              f"(frames root: {frame_path('X', 0).parent.parent})", flush=True)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
