@@ -50,8 +50,10 @@ def family(name, metric="best_acc"):
         s = evals[(evals.family == name) & (evals.eval_set == "test60")].acc
     else:
         s = runs[runs.family == name][metric]
+    sub = runs[runs.family == name]
+    npairs = float(sub.n_pairs.iloc[0]) if len(sub) and "n_pairs" in sub else None
     return dict(mean=float(s.mean()), sd=float(s.std()) if len(s) > 1 else 0.0,
-                n=int(len(s)), values=sorted(s.tolist()))
+                n=int(len(s)), values=sorted(s.tolist()), n_pairs=npairs)
 
 
 def ignition_band():

@@ -31,8 +31,8 @@ rng = np.random.default_rng(0)
 fams = sorted((int(m.group(1)), f) for f in D.runs.family.unique()
               if (m := re.fullmatch(r"B26_rand_(\d+)", str(f))))
 x = np.array([n for n, _ in fams], float)
-if "B26_lad_base" in set(D.runs.family.astype(str)):     # full-corpus run lands as the top point
-    fams.append((1_820_000, "B26_lad_base"))              # 2026.1 corpus size; repoint to corpus csv
+if "B26_lad_base" in set(D.runs.family.astype(str)):     # full-corpus run is the top point
+    fams.append((int(D.family("B26_lad_base")["n_pairs"]), "B26_lad_base"))
     x = np.array([n for n, _ in fams], float)
 fam = [D.family(f) for _, f in fams]
 y = np.array([f["mean"] for f in fam]); e = np.array([f["sd"] for f in fam])

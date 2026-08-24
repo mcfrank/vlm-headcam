@@ -9,9 +9,10 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 |---|---|
 | `fig1_pipeline.py` | design + pipeline: corpus → midpoint pairing → Gemini annotation → frozen two-tower → 4AFC |
 | `fig2_scaling.py` | B26 scaling: the data + fit (A); the developmental extrapolation with Wordbank child anchors (B) |
-| `fig3_ladder.py` | the alignment ladder, single panel |
+| `fig3_ladder.py` | the B26 ladder (base / filter / word / label), read from runs.parquet |
 | `fig4_cues.py` | cue information vs the ignition band (A) and the titration that sets the bar (B) |
 | `fig5_representation.py` | encoder comparison (A) and the ladder across encoders (B) |
+| `fig7_diversity.py` | B26 diversity sweep: k children at fixed 30k pairs (book fig 6.3) |
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)
