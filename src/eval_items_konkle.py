@@ -18,7 +18,7 @@ from train_frame_mil import load_region_cache
 from train_region_mil import RegionMIL, eval_4afc_region, encode
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--runs-glob", default="runs/B26_lad_*")
+ap.add_argument("--runs-glob", default="runs/B26_lad*")
 ap.add_argument("--out", default="results/item_eval_b26.csv")
 ap.add_argument("--n-trials", type=int, default=200, help="4AFC trials per category (item-level stability)")
 a = ap.parse_args()
@@ -32,8 +32,9 @@ rows = []
 for rd in sorted(glob.glob(a.runs_glob)):
     if not Path(rd, "model.pt").exists():
         continue
-    m = re.search(r"B26_lad_(\w+)_s(\d+)", rd)
-    rung, seed = m.group(1), int(m.group(2))
+    m = re.search(r"B26_lad(\d*)_(\w+?)_s(\d+)$", rd)
+    scale = m.group(1) or "full"
+    rung, seed = m.group(2), int(m.group(3))
     vocab = json.load(open(Path(rd) / "vocab.json"))
     model = RegionMIL(len(vocab)).to(dev)
     model.load_state_dict(torch.load(Path(rd) / "model.pt", map_location=dev))
@@ -42,9 +43,9 @@ for rd in sorted(glob.glob(a.runs_glob)):
                                         n_trials=a.n_trials, return_detail=True)
         per_cat = detail["per_cat"]
         for cat, acc in per_cat.items():
-            rows.append(dict(rung=rung, seed=seed, set=setname, category=cat,
+            rows.append(dict(rung=rung, scale=scale, seed=seed, set=setname, category=cat,
                              acc=round(100 * acc, 2), in_vocab=bool(encode(cat, vocab, 16))))
-    print(f"{rung}_s{seed}: test {100*sum(v for c,v in per_cat.items())/max(len(per_cat),1):.1f} done", flush=True)
+    print(f"{scale}/{rung}_s{seed}: test {100*sum(v for c,v in per_cat.items())/max(len(per_cat),1):.1f} done", flush=True)
 
 df = pd.DataFrame(rows)
 df.to_csv(a.out, index=False)
