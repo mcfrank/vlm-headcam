@@ -28,7 +28,7 @@ Deviations to fix — only two:
 | # | Action | Size | From → To |
 |---|---|---|---|
 | M1 | transcripts | 397M | `/ccn2a/…/2026.1/outputs/merged_transcripts_parsed.csv` → `outputs/` |
-| M2 | audio (1 child; gap documented) | 671K | `/ccn2a/…/2026.1/mp3/` → `mp3/` |
+| M2 | audio **recreate for all 51 children** (decision 2026-08-24): copy 2025.2 mp3s for the 8,566 shared videos (byte-identical sources), ffmpeg-extract the 11,735 new ones from the gcloud pull; verify count vs release list | ~250G est. | `/ccn2a/…/2025.2/mp3/` + `/ccn2b/…/gcloud/pull/` → `mp3/` |
 | M3 | language annotation | 1.6G | `/ccn2/dataset/babyview/annotations/language/` → `outputs/annotations/language/` |
 | M4 | referent annotation + pair/frame manifests | ~60M | `/data2/mcfrank/vlm-headcam/{scored,manifests}/bv2026*` → `outputs/annotations/referent/` |
 | M5 | **pose rekey**: regenerate flat table as `pose_1fps_bbox_limbs.parquet` keyed `(video_id, frame_idx, person_idx)` + `rotated` flag + `source_name` provenance column; retire CSV to Oak | 2.6G→~1G | in place |
@@ -98,9 +98,9 @@ migrating them to Oak; frames are deterministically regenerable (recipe + env pi
 overlap. Transfer via `oak-dtn` (key-based, Duo-free); verify with size+md5 listing on the
 Oak side; record the mirror date in MANIFEST.
 
-## 6. Open questions for Mike
-- `/ccn2b` quota anomaly — ask admin, or just test-write and watch `df`?
-- Retire the pose CSV entirely after the parquet lands (Oak keeps the original), or keep
-  both on ccn2b for khaiaw-compat?
-- mp3: pull the missing 36 children's audio from GCS into 2026.1 (121G-ish), or accept the
-  gap until a prosody follow-up needs it?
+## 6. Decisions (Mike, 2026-08-24)
+- `/ccn2b` df anomaly: likely volume-scope reporting; proceed (test-write sanity check kept in the script).
+- Pose CSV: **retire** after the parquet lands and Oak holds the original.
+- mp3: **recreate for the full release** (M2 above) — copy 2025.2's + extract the new
+  videos' audio from the gcloud pull. CPU job, runs alongside; not a blocker for the
+  data moves or for bundle 2.
