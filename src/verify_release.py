@@ -28,19 +28,25 @@ def check(name, cond, msg):
 
 idx = pd.read_csv(O / "release_index.tsv", sep="\t")
 ids = set(idx.video_id)
+# post-release exclusions (e.g. registry mislabels awaiting upstream fix): their files may
+# still exist in the layers; treat them as intentionally-absent, never as coverage
+xp = O / "excluded_post_release.tsv"
+excl = set(pd.read_csv(xp, sep="\t").video_id) if xp.exists() else set()
+if excl: print(f"post-release exclusions: {len(excl)} videos")
+ok_ids = ids | excl
 print(f"release_index: {len(idx):,} videos, {idx.subject_id.nunique()} children")
 check("index-unique", idx.video_id.is_unique and idx.rec_id.is_unique, "video_id + rec_id unique")
 
 # frames: dirs match the index exactly
 fd = {d.name for d in (R / "extracted_frames_1fps").iterdir() if d.is_dir()}
-check("frames", fd == ids, f"dirs {len(fd):,} vs index {len(ids):,} "
-      f"(missing {len(ids - fd)}, extra {len(fd - ids)})")
+check("frames", (ids <= fd) and (fd <= ok_ids), f"dirs {len(fd):,} vs index {len(ids):,} "
+      f"(missing {len(ids - fd)}, unexplained extra {len(fd - ok_ids)})")
 
 # transcripts
 t = pd.read_csv(O / "merged_transcripts_parsed.csv",
                 usecols=["video_id", "utterance_id"]).drop_duplicates()
 tv = set(t.video_id)
-check("transcripts-subset", tv <= ids, f"{len(tv):,} videos, {len(tv - ids)} outside the release")
+check("transcripts-subset", tv <= ok_ids, f"{len(tv):,} videos, {len(tv - ids)} outside the release")
 check("transcripts-count", len(t) == 1_838_288, f"{len(t):,} utterances (expect 1,838,288)")
 
 # pose parquet (post-rekey)
@@ -48,7 +54,7 @@ pp = O / "pose_1fps_bbox_limbs.parquet"
 if pp.exists():
     p = pd.read_parquet(pp, columns=["video_id"])
     pv = set(p.video_id.unique())
-    check("pose-subset", pv <= ids, f"{len(pv):,} videos, {len(pv - ids)} outside the release")
+    check("pose-subset", pv <= ok_ids, f"{len(pv):,} videos, {len(pv - ids)} outside the release")
     check("pose-coverage", len(pv) >= len(ids) - 15,
           f"{len(pv):,}/{len(ids):,} (floor: all but the ~12 sub-second clips)")
 else:
@@ -58,7 +64,7 @@ else:
 rf = O / "annotations/referent/gemini_2026.1.parquet"
 if rf.exists():
     r = pd.read_parquet(rf, columns=["video_id", "alignment"])
-    check("referent-subset", set(r.video_id.unique()) <= ids, f"{r.video_id.nunique():,} videos")
+    check("referent-subset", set(r.video_id.unique()) <= ok_ids, f"{r.video_id.nunique():,} videos")
     cov = r.alignment.notna().mean()
     check("referent-scored", cov > 0.999, f"{100*cov:.3f}% scored")
 else:

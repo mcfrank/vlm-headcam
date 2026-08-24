@@ -31,7 +31,7 @@
     }
   },
   "counts": {
-    "registry": 16306,
+    "registry": 16298,
     "transcripts": 1838288,
     "pose": 8308332,
     "referent": 1838061,
@@ -39,6 +39,6 @@
     "embeddings": 1745489,
     "pairs": 1838134
   },
-  "n_children": 51,
-  "n_videos": 16306
+  "n_children": 50,
+  "n_videos": 16298
 }

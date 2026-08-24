@@ -79,8 +79,8 @@ behind the preliminary experiments of the appendices.
 ## The 2026.1 consolidated release {#sec-data-2026}
 
 The chapters above describe the **2025.2** working release the experiments were developed on.
-For the paper-phase experiments, everything moves to **2026.1**: 16,306 videos from **51
-children** (2,701 hours; ages 2.9–54 months at recording, median 17.0), a strict superset of
+For the paper-phase experiments, everything moves to **2026.1**: 16,298 videos from **50
+children** (2,700 hours; ages 2.9–54 months at recording, median 17.0), a strict superset of
 2025.2 (8,566 shared videos, byte-identical; 11,735 new). All layers were consolidated under
 one root with a single key convention, and every claim below is generated from the committed
 diagnostics bundle (`diagnostics/2026.1/`, extracted on-cluster by `src/make_diagnostics.py`).
@@ -88,7 +88,7 @@ diagnostics bundle (`diagnostics/2026.1/`, extracted on-cluster by `src/make_dia
 **Annotation layers.** Each layer covers the release nearly completely, and every layer joins
 on the same keys (video, and utterance or frame within video):
 
-![Fraction of the 16,306 release videos covered by each data layer. Transcripts, referent, and
+![Fraction of the 16,298 release videos covered by each data layer. Transcripts, referent, and
 language cover the 16,008 videos with any speech; pose covers all but 10 sub-second clips;
 embeddings cover every training-pair frame.](figures/diag_coverage.png){#fig-diag-coverage}
 
@@ -132,8 +132,9 @@ minutes.](figures/diag_density.png){#fig-diag-density}
 words); per-child trajectories (thin lines) track the corpus trend. The single child recorded
 beyond 48 months (S02170002; 8 videos, 1.0 h) carries an inconsistent registry entry — an
 S02-range (preschool-series) id, but `dataset = BV-main` and `release = 2026.1`, while every
-other S02 subject is tagged `2025.1.preschool` or unreleased. Whether it belongs in this
-release is an open registry question; its footprint is negligible either way:
+other S02 subject is tagged `2025.1.preschool` or unreleased. It has been excluded from the working release
+(`outputs/excluded_post_release.tsv`; Airtable fix requested), leaving 16,298 videos from 50
+children — the counts used throughout:
 
 ![Per-video speech measures across age (dots), per-child 3-month median trajectories (thin
 lines), and the corpus median (heavy line).](figures/diag_age_trends.png){#fig-diag-agetrends}
