@@ -20,12 +20,16 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--scored", required=True)
 ap.add_argument("--prefix", required=True)
 ap.add_argument("--english-filter", default="", help="pair manifest to intersect with (video-level English rule)")
-ap.add_argument("--sizes", default="10000,30000,100000,300000,1000000")
+ap.add_argument("--sizes", default="3000,10000,30000,100000,300000,1000000")
+ap.add_argument("--index", default="", help="release_index.tsv: keep only these videos (post-release exclusions)")
+ap.add_argument("--ladder-scales", default="", help="also build all 4 rungs from a matched subsample at these sizes")
 ap.add_argument("--aligned-sizes", default="10000,30000,85000,150000")
-ap.add_argument("--kids", default="1,3,10,25,51")
+ap.add_argument("--kids", default="1,3,10,25,50")
 ap.add_argument("--div-n", type=int, default=30000, help="fixed pair count for the diversity sweep")
 ap.add_argument("--seeds", default="0,1,2", help="one SUBSAMPLE per seed (not just one init)")
-ap.add_argument("--small-seeds", default="0,1,2,3,4", help="extra seeds for sizes <= --small-max")
+ap.add_argument("--small-seeds", default="0,1,2,3,4,5,6,7", help="extra seeds for sizes <= --small-max")
+ap.add_argument("--mid-seeds", default="0,1,2,3,4", help="seeds for small-max < size <= --mid-max")
+ap.add_argument("--mid-max", type=int, default=400000)
 ap.add_argument("--small-max", type=int, default=100000)
 a = ap.parse_args()
 P, COLS = a.prefix, ["video_id", "frame_idx", "text"]
@@ -43,10 +47,18 @@ G = G[G.alignment.notna()].copy()
 G["child"] = G.video_id.str.split("_").str[0]
 print(f"scored pairs {len(G):,} | children {G.child.nunique()} | videos {G.video_id.nunique():,}")
 
+if a.index:   # post-release exclusions (e.g. the mislabeled S02 subject)
+    keep_v = set(pd.read_csv(a.index, sep="\t").video_id)
+    n0 = len(G); G = G[G.video_id.isin(keep_v)]
+    print(f"release_index filter: {n0:,} -> {len(G):,} pairs, {G.child.nunique()} children")
+
 if a.english_filter:
-    keep = pd.read_parquet(a.english_filter)[["video_id", "text"]].drop_duplicates()
+    # intersect on the FULL pair key — a (video_id, text) join duplicates rows when a text
+    # repeats within a video (the join-key failure class, again)
+    keep = pd.read_parquet(a.english_filter)[["video_id", "frame_idx", "text"]].drop_duplicates()
     n0, k0 = len(G), G.child.nunique()
-    G = G.merge(keep, on=["video_id", "text"], how="inner")
+    G = G.merge(keep, on=["video_id", "frame_idx", "text"], how="inner")
+    assert len(G) <= n0, "English intersect grew the manifest — join key is wrong"
     print(f"English filter: {n0:,} -> {len(G):,} pairs ({100*len(G)/n0:.1f}%), "
           f"children {k0} -> {G.child.nunique()}")
 
@@ -79,7 +91,10 @@ SMALL = [int(x) for x in a.small_seeds.split(",")]
 for N in [int(x) for x in a.sizes.split(",")]:
     if N > len(G):
         print(f"  skip rand_{N} (only {len(G):,} pairs)"); continue
-    seeds = SMALL if N <= a.small_max else SEEDS      # small N is noisiest: more draws there
+    MID = [int(x) for x in a.mid_seeds.split(",")]
+    # small N: draws nearly independent -> subsample variance dominates -> more of them.
+    # at 1M of 1.8M any two draws share >50% of pairs, so extra draws buy little.
+    seeds = SMALL if N <= a.small_max else (MID if N <= a.mid_max else SEEDS)
     for s in seeds:
         G.sample(N, random_state=1000 + s)[COLS].to_parquet(
             f"manifests/{P}_rand_{N}_s{s}.parquet", index=False)
@@ -89,11 +104,26 @@ for N in [int(x) for x in a.sizes.split(",")]:
 #      so a plain head(N) cuts inside a tie in file order (i.e. by video and child).
 ma = (G.sample(frac=1.0, random_state=0)
         .sort_values("alignment", ascending=False, kind="stable"))
-for N in [int(x) for x in a.aligned_sizes.split(",")]:
+for N in [int(x) for x in a.aligned_sizes.split(",") if x]:
     if N > len(ma): print(f"  skip align_{N}"); continue
     s = ma.head(N)
     s[COLS].to_parquet(f"manifests/{P}_align_{N}.parquet", index=False)
     print(f"  align_{N}: min alignment {s.alignment.min():.0f}, {s.child.nunique()} children")
+
+# ---- ladder at reduced scale: rung separations off the full-corpus ceiling ------
+# Within a (scale, seed) cell all four rungs derive from the SAME base subsample, so rung
+# differences are never confounded with which pairs were drawn.
+for N in [int(x) for x in a.ladder_scales.split(",") if x]:
+    for s_ in SEEDS:
+        sub = G.sample(min(N, len(G)), random_state=3000 + s_)
+        sub[COLS].to_parquet(f"manifests/{P}_lad{N}_base_s{s_}.parquet", index=False)
+        rsub = sub[sub.referent.fillna("").str.len() > 0].copy()
+        rsub[COLS].to_parquet(f"manifests/{P}_lad{N}_filtnat_s{s_}.parquet", index=False)
+        r15s = rsub.copy(); r15s["text"] = r15s.apply(t15_text, axis=1)
+        r15s[COLS].to_parquet(f"manifests/{P}_lad{N}_t15_s{s_}.parquet", index=False)
+        t2s = rsub.copy(); t2s["text"] = t2s.referent.map(lambda x: sing(str(x).strip().lower()))
+        t2s[COLS].to_parquet(f"manifests/{P}_lad{N}_t2_s{s_}.parquet", index=False)
+    print(f"  lad{N}: 4 rungs x {len(SEEDS)} matched subsamples (filtnat ~{len(rsub):,} of {len(sub):,})")
 
 # ---- diversity at fixed count, RANDOM children per seed -------------------------
 # Previously this took the k BIGGEST children deterministically: no child-draw variance, and
@@ -101,8 +131,9 @@ for N in [int(x) for x in a.aligned_sizes.split(",")]:
 # preferring children with enough pairs to fill their share.
 pc = G.groupby("child").size().sort_values(ascending=False)
 N = a.div_n
+DIV_SEEDS = [int(x) for x in a.mid_seeds.split(",")]     # 5 draws: child-draw variance is the point
 for k in [int(x) for x in a.kids.split(",")]:
-    for s in SEEDS:
+    for s in DIV_SEEDS:
         rng = np.random.default_rng(2000 + s)
         if k >= len(pc):
             kids = list(pc.index)
@@ -120,4 +151,4 @@ for k in [int(x) for x in a.kids.split(",")]:
             if len(extra):
                 sub = pd.concat([sub, extra.sample(min(N - len(sub), len(extra)), random_state=s)])
         sub[COLS].to_parquet(f"manifests/{P}_div_{k}c_s{s}.parquet", index=False)
-    print(f"  div_{k}c: {len(SEEDS)} random child draws of {k}")
+    print(f"  div_{k}c: {len(DIV_SEEDS)} random child draws of {k}")
