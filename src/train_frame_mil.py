@@ -35,14 +35,17 @@ class FramePairs(torch.utils.data.Dataset):
         self.caches, self.window, self.cls_only, self.max_len = caches, window, cls_only, max_len
         self.Fmax = 2 * window + 1
         self.locs, self.ids = [], []
+        self.n_novocab = self.n_noframe = 0
         for r in man.itertuples(index=False):
             toks = encode(r.text, vocab, max_len)
             if not toks:
+                self.n_novocab += 1
                 continue
             fi = int(r.frame_idx)
             here = [lut[frame_key(r.video_id, f)] for f in range(fi - window, fi + window + 1)
                     if frame_key(r.video_id, f) in lut]
             if not here:
+                self.n_noframe += 1
                 continue
             self.locs.append(here); self.ids.append(toks)
 
@@ -96,18 +99,17 @@ def main():
     caches, lut = load_multi(a.caches)
     emb_dim = a.emb_dim or caches[0].shape[-1]
     ds = FramePairs(caches, lut, man, vocab, a.window, a.cls_only)
-    cov = len(ds) / max(len(man), 1)
-    print(f"pairs {len(ds)} | manifest {len(man)} | coverage {100*cov:.1f}% | vocab {len(vocab)} "
+    # The guard exists to catch WRONG/PARTIAL CACHES, so it gates on frame coverage alone.
+    # Vocab-empty pairs are model semantics (min-count vocab), not a cache failure — gating on
+    # the combined number once aborted legitimate small-manifest t15 runs (11% vocab-empty).
+    denom = max(len(man) - ds.n_novocab, 1)
+    fcov = 1 - ds.n_noframe / denom
+    print(f"pairs {len(ds)} | manifest {len(man)} | frame-coverage {100*fcov:.1f}% "
+          f"({ds.n_novocab:,} no-vocab, {ds.n_noframe:,} frame-missing) | vocab {len(vocab)} "
           f"| window +-{a.window} | cls_only {a.cls_only} | emb_dim {emb_dim}", flush=True)
-    if cov < 0.999:
-        # attribute the drop: pairs die for TWO reasons (no in-vocab token / frame not cached);
-        # blaming the cache for vocab-empty pairs once triggered a false alarm at 1M scale
-        novocab = sum(not encode(t, vocab, 16) for t in man.text)
-        print(f"  NOTE: {len(man) - len(ds):,} pairs dropped "
-              f"(~{novocab:,} have no in-vocab token; the rest lack a cached frame)", flush=True)
-    if cov < a.min_coverage:
-        raise SystemExit(f"ABORT: cache coverage {100*cov:.1f}% < required {100*a.min_coverage:.0f}%. "
-                         f"The cache does not span this manifest — check you are using the right one.")
+    if fcov < a.min_coverage:
+        raise SystemExit(f"ABORT: cache frame-coverage {100*fcov:.1f}% < required "
+                         f"{100*a.min_coverage:.0f}%. The cache does not span this manifest.")
     dl = torch.utils.data.DataLoader(ds, batch_size=a.batch, shuffle=True, drop_last=True,
                                      collate_fn=collate, num_workers=4)
     m = RegionMIL(len(vocab), emb_dim=emb_dim).to(dev)
