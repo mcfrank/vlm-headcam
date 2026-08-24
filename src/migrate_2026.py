@@ -73,9 +73,12 @@ def do_copy(label, src, dst):
         assert m1 == m2, f"MD5 MISMATCH {f} -> {out}"
         log.append((label, str(f), str(out), m1))
     crumb = (src if src.is_dir() else src.parent) / "MOVED.txt"
-    crumb.write_text(f"{date.today()}: migrated to {dst}\nsee {R}/outputs/migration_log.tsv\n"
-                     f"source retained until the Oak mirror is verified; do not add new files here.\n")
-    print(f"  copied + verified; breadcrumb at {crumb}")
+    try:
+        crumb.write_text(f"{date.today()}: migrated to {dst}\nsee {R}/outputs/migration_log.tsv\n"
+                         f"source retained until the Oak mirror is verified; do not add new files here.\n")
+        print(f"  copied + verified; breadcrumb at {crumb}")
+    except PermissionError:   # source tree owned by someone else (e.g. /ccn2a) — log is the record
+        print(f"  copied + verified; NO breadcrumb (no write access to {crumb.parent})")
 
 
 for label, src, dst in COPIES:
