@@ -24,6 +24,10 @@ def main():
     ap.add_argument("--grid", type=int, default=4, help="GxG region grid")
     ap.add_argument("--model", default=None, help="HF model id (default: common.DINO_MODEL = DINOv2)")
     ap.add_argument("--batch", type=int, default=192)
+    # 2025.2's DINOv3 training cache is Khai's grid4x4: 16 cells, NO CLS row. Emit the same
+    # convention here so both releases share one readout and one set of eval caches — mismatched
+    # readouts are how the 2026-08-22 numbers went wrong.
+    ap.add_argument("--drop-cls", action="store_true", help="write R=G*G (no CLS row)")
     ap.add_argument("--shard", type=int, default=0, help="this worker's index (parallel embedding)")
     ap.add_argument("--nshards", type=int, default=1)
     args = ap.parse_args()
@@ -57,7 +61,7 @@ def main():
     print(f'model {MODEL_ID} | dim {DIM} | register tokens {NREG}', flush=True)
 
     rows = want.reset_index(drop=True)
-    R = 1 + G * G
+    R = (G * G) if args.drop_cls else (1 + G * G)
     embs = np.zeros((len(rows), R, DIM), dtype=np.float16)
     ok = np.zeros(len(rows), dtype=bool)
     buf, pos = [], []
@@ -75,7 +79,7 @@ def main():
         grid = patch[:, :s * s].transpose(1, 2).reshape(-1, DIM, s, s)
         pooled = torch.nn.functional.adaptive_avg_pool2d(grid, (G, G))  # [B,768,G,G]
         pooled = pooled.flatten(2).transpose(1, 2)       # [B, G*G, 768]
-        feat = torch.cat([cls.unsqueeze(1), pooled], 1)  # [B, 1+G*G, 768]
+        feat = pooled if args.drop_cls else torch.cat([cls.unsqueeze(1), pooled], 1)  # [B, 1+G*G, 768]
         f = feat.to(torch.float16).cpu().numpy()
         for j, p in enumerate(pos):
             embs[p] = f[j]; ok[p] = True
