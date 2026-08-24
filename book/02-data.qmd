@@ -75,3 +75,54 @@ one on the clean eval, and its referent labels open a much larger headroom (@sec
 Throughout the rest of the book, **Gemini is the gold definition of alignment** (and its
 referent the gold label), with CLIP kept as the cheaper, weaker comparison and as the annotation
 behind the preliminary experiments of the appendices.
+
+## The 2026.1 consolidated release {#sec-data-2026}
+
+The chapters above describe the **2025.2** working release the experiments were developed on.
+For the paper-phase experiments, everything moves to **2026.1**: 16,306 videos from **51
+children** (2,701 hours; ages 2.9–54 months at recording, median 17.0), a strict superset of
+2025.2 (8,566 shared videos, byte-identical; 11,735 new). All layers were consolidated under
+one root with a single key convention, and every claim below is generated from the committed
+diagnostics bundle (`diagnostics/2026.1/`, extracted on-cluster by `src/make_diagnostics.py`).
+
+**Annotation layers.** Each layer covers the release nearly completely, and every layer joins
+on the same keys (video, and utterance or frame within video):
+
+![Fraction of the 16,306 release videos covered by each data layer. Transcripts, referent, and
+language cover the 16,008 videos with any speech; pose covers all but 10 sub-second clips;
+embeddings cover every training-pair frame.](figures/diag_coverage.png){#fig-diag-coverage}
+
+- **Transcripts**: 1,838,288 ASR utterances (16,008 videos have speech).
+- **Referent annotation** (Gemini alignment 0–100 + referent word): 1,838,061 of 1,838,134
+  utterance–frame training pairs scored (99.996%).
+- **Language annotation** (two independent Gemini passes + agreement): all 1,838,288
+  utterances; 99.4% pass agreement, 99.05% English among agreed utterances.
+- **Pose**: 8.3M person detections; 65% of frames contain at least one person.
+- **Embeddings**: DINOv3-B 4×4 region grid for all 1,745,489 training-pair frames.
+
+**Recording effort and age.** Contribution is uneven — the largest contributor provides 7.1%
+of all hours — which motivates the child-diversity analyses of @sec-scaling:
+
+![Hours per child (left: sorted). Right: recorded hours by child age, and each child's
+cumulative hours across age — the corpus is densest in the second year of
+life.](figures/diag_age.png){#fig-diag-age}
+
+![Hours recorded per child, sorted.](figures/diag_child_hours.png){#fig-diag-hours}
+
+**Speech density** is stable across videos and children (median ≈ 700 utterances/hour), with
+no outlier children that would indicate transcription failures:
+
+![Speech density per video (left) and per child against median age
+(right).](figures/diag_density.png){#fig-diag-density}
+
+**Reported vs measured language.** The household survey's "% English" disagrees sharply with
+what is actually on the recordings (r = 0.46): children whose families report 0–1% English
+measure 88–94% English in their labelled utterances. This is why the English-language filter
+used for the main experiments is based on *measured* utterance labels, not the survey:
+
+![Per-child measured % English (from the utterance-level language annotation) against the
+household survey report. The dashed line is identity.](figures/diag_english.png){#fig-diag-english}
+
+![Distributions over the annotation layers: Gemini alignment scores (most speech is
+non-referential), persons per frame, and utterance
+length.](figures/diag_dists.png){#fig-diag-dists}

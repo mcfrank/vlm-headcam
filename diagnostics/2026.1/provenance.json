@@ -1,0 +1,44 @@
+{
+  "release": "2026.1",
+  "sources": {
+    "registry": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/videos_airtable_2026-07-24.csv",
+      "present": true
+    },
+    "transcripts": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/merged_transcripts_parsed.csv",
+      "present": true
+    },
+    "pose": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/pose_1fps_bbox_limbs.parquet",
+      "present": true
+    },
+    "referent": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/annotations/referent/gemini_2026.1.parquet",
+      "present": true
+    },
+    "language": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/annotations/language/lang_2026.1.parquet",
+      "present": true
+    },
+    "embeddings": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/dinov3b_grid4x4/index.parquet",
+      "present": true
+    },
+    "pairs": {
+      "path": "/ccn2b/dataset/babyview/2026.1/outputs/annotations/referent/pairs_2026.1.parquet",
+      "present": true
+    }
+  },
+  "counts": {
+    "registry": 16306,
+    "transcripts": 1838288,
+    "pose": 8308332,
+    "referent": 1838061,
+    "language": 1838288,
+    "embeddings": 1745489,
+    "pairs": 1838134
+  },
+  "n_children": 51,
+  "n_videos": 16306
+}

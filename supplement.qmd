@@ -1,5 +1,6 @@
 ---
 title: "BabyView 2026.1 — data diagnostics"
+jupyter: vlmhc
 format:
   html:
     toc: true
@@ -14,7 +15,6 @@ execute: {echo: false, warning: false, message: false}
 import json
 from pathlib import Path
 import numpy as np, pandas as pd
-import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 D = Path("diagnostics/2026.1")
@@ -155,7 +155,8 @@ if panels:
 
 ```{python}
 #| label: tbl-prov
-p = pd.DataFrame([{"layer": k, "present": v["present"], "n": prov["counts"].get(k, 0), "path": v["path"]}
-                  for k, v in prov["sources"].items()])
-p.style.hide(axis="index")
+from IPython.display import Markdown
+rows = [f"| {k} | {'yes' if v['present'] else 'NO'} | {prov['counts'].get(k, 0):,} | `{v['path']}` |"
+        for k, v in prov["sources"].items()]
+Markdown("| layer | present | n | path |\n|---|---|---|---|\n" + "\n".join(rows))
 ```
