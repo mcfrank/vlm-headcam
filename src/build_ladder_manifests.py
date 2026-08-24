@@ -1,0 +1,98 @@
+"""Build the four ladder manifests + scaling + diversity subsets for any release, from a Gemini
+scored parquet. Consolidates logic that was split across build_grid_manifests.py (baseline, t2)
+and build_phase2.py (t15_filtnat, t15), which only ever worked for 2025.2.
+
+Ladder rungs (each is a training manifest; the model and eval never change):
+  base      all pairs, natural utterance                  -> pure / region-MIL
+  filtnat   referent-bearing pairs, natural utterance     -> + alignment filter
+  t15       referent-bearing, referent word WHERE SPOKEN  -> + word selection
+  t2        referent-bearing, text = the referent label   -> + vision binding (clean-label ceiling)
+
+usage: python src/build_ladder_manifests.py --scored scored/bv2026_gemini.parquet \
+         --prefix bv26 [--english-filter manifests/bv26_en.parquet] \
+         --sizes 10000,30000,100000,300000,1000000 --kids 1,3,10,25,51
+"""
+import argparse, re
+import numpy as np, pandas as pd
+from common import tokenize
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--scored", required=True)
+ap.add_argument("--prefix", required=True)
+ap.add_argument("--english-filter", default="", help="pair manifest to intersect with (video-level English rule)")
+ap.add_argument("--sizes", default="10000,30000,100000,300000,1000000")
+ap.add_argument("--aligned-sizes", default="10000,30000,85000,150000")
+ap.add_argument("--kids", default="1,3,10,25,51")
+ap.add_argument("--div-n", type=int, default=30000, help="fixed pair count for the diversity sweep")
+a = ap.parse_args()
+P, COLS = a.prefix, ["video_id", "frame_idx", "text"]
+
+
+def sing(w):
+    if w.endswith("ies") and len(w) > 4: return w[:-3] + "y"
+    if re.search(r"(ses|xes|zes|ches|shes)$", w): return w[:-2]
+    if w.endswith("s") and not w.endswith("ss") and len(w) > 3: return w[:-1]
+    return w
+
+
+G = pd.read_parquet(a.scored)
+G = G[G.alignment.notna()].copy()
+G["child"] = G.video_id.str.split("_").str[0]
+print(f"scored pairs {len(G):,} | children {G.child.nunique()} | videos {G.video_id.nunique():,}")
+
+if a.english_filter:
+    keep = pd.read_parquet(a.english_filter)[["video_id", "text"]].drop_duplicates()
+    n0, k0 = len(G), G.child.nunique()
+    G = G.merge(keep, on=["video_id", "text"], how="inner")
+    print(f"English filter: {n0:,} -> {len(G):,} pairs ({100*len(G)/n0:.1f}%), "
+          f"children {k0} -> {G.child.nunique()}")
+
+# ---- ladder ---------------------------------------------------------------------
+G[COLS].to_parquet(f"manifests/{P}_base.parquet", index=False)
+print(f"  base     {len(G):,}")
+ref = G[G.referent.fillna("").str.len() > 0].copy()
+ref[COLS].to_parquet(f"manifests/{P}_filtnat.parquet", index=False)
+print(f"  filtnat  {len(ref):,}")
+
+def t15_text(row):
+    r = sing(str(row.referent).strip().lower())
+    toks = set(tokenize(row.text)); toks |= {sing(t) for t in toks}
+    return r if r in toks else row.text
+
+r15 = ref.copy(); r15["text"] = r15.apply(t15_text, axis=1)
+r15[COLS].to_parquet(f"manifests/{P}_t15.parquet", index=False)
+print(f"  t15      {len(r15):,}  ({100*(r15.text.values != ref.text.values).mean():.0f}% relabeled)")
+
+t2 = ref.copy(); t2["text"] = t2.referent.map(lambda x: sing(str(x).strip().lower()))
+t2[COLS].to_parquet(f"manifests/{P}_t2.parquet", index=False)
+print(f"  t2       {len(t2):,}  ({t2.text.nunique():,} distinct labels)")
+
+# ---- scaling: random ------------------------------------------------------------
+for N in [int(x) for x in a.sizes.split(",")]:
+    if N > len(G): print(f"  skip rand_{N} (only {len(G):,} pairs)"); continue
+    G.sample(N, random_state=0)[COLS].to_parquet(f"manifests/{P}_rand_{N}.parquet", index=False)
+print(f"  rand sizes: {a.sizes}")
+
+# ---- scaling: aligned. SHUFFLE first — alignment is an integer with huge tie groups,
+#      so a plain head(N) cuts inside a tie in file order (i.e. by video and child).
+ma = (G.sample(frac=1.0, random_state=0)
+        .sort_values("alignment", ascending=False, kind="stable"))
+for N in [int(x) for x in a.aligned_sizes.split(",")]:
+    if N > len(ma): print(f"  skip align_{N}"); continue
+    s = ma.head(N)
+    s[COLS].to_parquet(f"manifests/{P}_align_{N}.parquet", index=False)
+    print(f"  align_{N}: min alignment {s.alignment.min():.0f}, {s.child.nunique()} children")
+
+# ---- diversity at fixed count ---------------------------------------------------
+pc = G.groupby("child").size().sort_values(ascending=False)
+N = a.div_n
+for k in [int(x) for x in a.kids.split(",")]:
+    kids = list(pc.index[:k]) if k < len(pc) else list(pc.index)
+    per = max(1, N // len(kids))
+    parts = [G[G.child == c].sample(min(per, int(pc[c])), random_state=0) for c in kids]
+    sub = pd.concat(parts)
+    if len(sub) < N:                       # top up from the same children
+        extra = G[G.child.isin(kids)].drop(sub.index)
+        if len(extra): sub = pd.concat([sub, extra.sample(min(N - len(sub), len(extra)), random_state=0)])
+    sub[COLS].to_parquet(f"manifests/{P}_div_{k}c.parquet", index=False)
+    print(f"  div_{k}c: {len(sub):,} pairs / {sub.video_id.str.split('_').str[0].nunique()} children")
