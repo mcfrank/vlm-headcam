@@ -37,8 +37,11 @@ if "B26_lad_base" in set(D.runs.family.astype(str)):     # full-corpus run is th
 fam = [D.family(f) for _, f in fams]
 y = np.array([f["mean"] for f in fam]); e = np.array([f["sd"] for f in fam])
 n_seeds = [f["n"] for f in fam]
-if any(D.runs.family.astype(str).str.startswith("B26_lad")):
-    print("  NOTE fig2: B26_lad* families exist — add the aligned arm to panel A")
+# the aligned (oracle-filter) arm: filtnat rungs of the ladder at every scale run so far
+afams = sorted(((f, D.family(f)) for f in D.runs.family.unique()
+                if re.fullmatch(r"B26_lad\d*_?filtnat", str(f))), key=lambda t: t[1]["n_pairs"])
+ax_ = np.array([f["n_pairs"] for _, f in afams])
+ay = np.array([f["mean"] for _, f in afams]); ae = np.array([f["sd"] for _, f in afams])
 
 
 def logistic(N, m, s, A):
@@ -48,15 +51,22 @@ def logistic(N, m, s, A):
 popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e,
                        bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
 grid = np.logspace(3.3, 7.8, 260)
-draws = []
+agrid = np.logspace(3.6, np.log10(ax_.max()), 140)   # the aligned arm ends at all aligned pairs
+apopt, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, popt[2]), ax_, ay, p0=(4.3, 0.5),
+                     sigma=ae, maxfev=40000)
+draws, adraws = [], []
 for _ in range(500):
     try:
         p, _ = curve_fit(logistic, x, y + rng.normal(0, np.maximum(e, 0.5)), p0=popt,
                          bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
         draws.append(logistic(grid, *p))
+        pa, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, p[2]), ax_,
+                          ay + rng.normal(0, np.maximum(ae, 0.5)), p0=apopt, maxfev=40000)
+        adraws.append(logistic(agrid, *pa, p[2]))
     except Exception:
         pass
 lo, hi = np.percentile(np.array(draws), [10, 90], axis=0)
+alo, ahi = np.percentile(np.array(adraws), [10, 90], axis=0)
 A_fit, A_sd = popt[2], np.sqrt(pcov[2, 2])
 print(f"  NOTE fig2: fitted asymptote {A_fit:.1f} ± {A_sd:.1f}; seeds per point {n_seeds}")
 
@@ -69,7 +79,18 @@ ax.errorbar(x, y, yerr=e, fmt="o", color=T.FREE, ms=3.2, lw=0, elinewidth=0.7,
             capsize=1.6, zorder=4)
 ax.axhline(A_fit, color=T.FREE, lw=0.6, ls=(0, (2, 2)), zorder=1)
 ax.text(4.3e3, A_fit + 1, f"fitted asymptote {A_fit:.0f} ± {A_sd:.0f}", fontsize=5.6, color=T.FREE)
-ax.text(1.05e6, 70.5, "BabyView\nunfiltered", fontsize=6, color=T.FREE, ha="right", va="top")
+ax.text(1.35e6, 70.5, "unfiltered", fontsize=6, color=T.FREE, ha="left", va="center")
+# aligned arm: what the same corpus buys if an oracle keeps only the referential moments
+ax.fill_between(agrid, alo, ahi, color=T.ORACLE, alpha=0.14, lw=0, zorder=1)
+ax.plot(agrid, logistic(agrid, *apopt, popt[2]), color=T.ORACLE, lw=1.0, zorder=2)
+ax.errorbar(ax_, ay, yerr=ae, fmt="o", color=T.ORACLE, ms=3.2, lw=0, elinewidth=0.7,
+            capsize=1.6, zorder=4)
+ax.plot([agrid[-1]] * 2, [logistic(agrid[-1], *apopt, popt[2]) - 2.5,
+                          logistic(agrid[-1], *apopt, popt[2]) + 2.5], color=T.ORACLE, lw=0.8)
+ax.text(3.6e3, 73, "aligned\n(oracle filter)", fontsize=5.6, color=T.ORACLE, ha="left",
+        va="top", linespacing=1.4)
+ax.text(agrid[-1], 79.8, "all aligned\npairs", fontsize=5.0, color=T.ORACLE, ha="center",
+        va="top", linespacing=1.3)
 # external references: single-child SAYCam models, same 60 Konkle categories
 lit = LIT.groupby(["source", "split"], sort=False).agg(n=("n_utterances", "first"),
                                                         acc=("konkle_acc", "mean")).reset_index()
