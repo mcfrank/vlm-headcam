@@ -37,8 +37,10 @@ KONKLE = [("cat", "ACAT6.jpg"), ("ball", "ball8.JPG"), ("dog", "Adog120.jpg"), (
 FR = lambda vid, i: A / "frames" / f"{vid}_{i:05d}.jpg"
 
 
-def load(path, crop=None, anchor="center"):
+def load(path, crop=None, anchor="center", crop_px=None):
     im = Image.open(path).convert("RGB")
+    if crop_px:
+        im = im.crop(crop_px)
     if crop:                                               # crop to w:h ratio
         w, h = im.size; tw, th = crop
         if w / h > tw / th: nw, nh = int(h * tw / th), h
@@ -85,20 +87,10 @@ TOP = FH * 10 - 3.2
 
 # ================================================================ A: corpus -> pairs
 ax = axes["A"]
-# camera (optional asset: figures/assets/camera.png from the BabyView site, CC-BY)
-cam = A / "camera.png"
 y = TOP
-if cam.exists():
-    arr = load(cam)
-    img(ax, arr, 1.0, y, 7.0)
-    ax.text(8.6, y - 1.2, f"BabyView head camera\n{C['children']:.0f} children · "
-            f"{C['videos']:,.0f} recordings", fontsize=5.6, color=T.INK, va="top", linespacing=1.4)
-    y -= 7.0 * arr.shape[0] / arr.shape[1] + 1.6
-else:
-    print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
-    ax.text(1.0, y - 0.2, f"BabyView head camera · {C['children']:.0f} children · "
-            f"{C['videos']:,.0f} recordings", fontsize=5.6, color=T.INK, va="top")
-    y -= 2.2
+ax.text(1.0, y - 0.2, f"BabyView head camera · {C['children']:.0f} children · "
+        f"{C['videos']:,.0f} recordings", fontsize=5.6, color=T.INK, va="top")
+y -= 2.2
 
 # frame strip: 7 consecutive seconds, 1 fps
 n = len(STRIP); gap = 0.25; x0 = 1.0; usable = 22.5 - 2 * x0
@@ -148,6 +140,14 @@ ax.text(x0 + usable / 2, cy, f"{C['frames_total']:,.0f} frames  ·  {C['utteranc
 arrow(ax, x0 + usable / 2, cy - 1.6, x0 + usable / 2, cy - 3.0)
 chip(ax, x0 + 2, cy - 3.2, usable - 4, 2.6, f"{C['pairs']:,.0f} pairs", fc="#f2f1ec", ec=T.SUB,
      fs=6.2, bold=True)
+# the wearable itself: line drawing from the BabyView site (CC-BY), child + head camera
+cam = A / "camera.png"
+if cam.exists():
+    arr = load(cam, crop_px=(250, 150, 1408, 1700))
+    cw_ = 10.5
+    img(ax, arr, (22.5 - cw_) / 2, cy - 7.0, cw_)
+else:
+    print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
 
 # ================================================================ B: referential annotation
 bx = axes["B"]
