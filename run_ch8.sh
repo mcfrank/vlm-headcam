@@ -20,6 +20,7 @@ i=0; echo "GPUs: $FREE"
 one () {  # one <enc> <tag> <manifest> <seed>
   local enc=$1 tag=$2 man=$3 s=$4
   [ -f "runs/C8_${enc}_${tag}_s$s/metrics.json" ] && return
+  pgrep -f "out runs/C8_${enc}_${tag}_s$s( |$)" > /dev/null && return   # already training
   local g=${GPUS[$((i % NG))]}; i=$((i+1))
   CUDA_VISIBLE_DEVICES=$g $PY -B src/train_frame_mil.py --window 0 \
     --manifest manifests/$man.parquet \
