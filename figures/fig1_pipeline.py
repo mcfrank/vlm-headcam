@@ -11,7 +11,7 @@ C: the frozen two-tower learner (region grid over a frozen encoder; bag-of-words
 All frames are face-blurred copies (src/blur_faces.py) staged in figures/assets/frames; counts
 come from results/corpus.csv.
 """
-import sys, pandas as pd, numpy as np
+import sys, json, pandas as pd, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T
 import matplotlib.pyplot as plt
@@ -22,6 +22,11 @@ HERE = __import__("pathlib").Path(__file__).resolve().parent
 R = HERE.parent / "results"
 A = HERE / "assets"
 C = pd.read_csv(R / "corpus.csv").set_index("key").value.to_dict()
+J = json.loads((R / "pipeline_counts.json").read_text())
+STEP = {st["step"]: st for st in J["steps"]}
+if "referent-scored" in STEP and "aligned" not in STEP:
+    print("  NOTE fig1: panel B referential funnel still uses 2025.2 corpus.csv counts — "
+          "repoint when pipeline_counts.json gains the aligned/spoken steps")
 
 CAT_VID = "S00400001_2023-08-08_1_recSJfNNDLfxCQail"
 STRIP = list(range(603, 610))                                 # seconds shown in panel A
@@ -88,8 +93,8 @@ TOP = FH * 10 - 3.2
 # ================================================================ A: corpus -> pairs
 ax = axes["A"]
 y = TOP
-ax.text(1.0, y - 0.2, f"BabyView head camera · {C['children']:.0f} children · "
-        f"{C['videos']:,.0f} recordings", fontsize=5.6, color=T.INK, va="top")
+ax.text(1.0, y - 0.2, f"BabyView {J['release']} · {STEP['release']['children']} children · "
+        f"{STEP['release']['videos']:,} recordings", fontsize=5.6, color=T.INK, va="top")
 y -= 2.2
 
 # frame strip: 7 consecutive seconds, 1 fps
@@ -133,19 +138,26 @@ for k, (t0, t1, text) in enumerate(UTTS):
 ax.text(x0 + usable / 2, uy - 4.6, "pair each utterance with the frame at its midpoint second\n"
         "no score selects the frame", fontsize=5.4, color=T.INK, ha="center", va="top",
         style="italic", linespacing=1.4)
-# counts
+# counts, from the committed pipeline funnel (results/pipeline_counts.json)
 cy = uy - 8.6
-ax.text(x0 + usable / 2, cy, f"{C['frames_total']:,.0f} frames  ·  {C['utterances']:,.0f} utterances",
-        fontsize=5.6, color=T.SUB, ha="center", va="top")
+ax.text(x0 + usable / 2, cy,
+        f"{STEP['transcribed']['utterances']:,} utterances  ·  "
+        f"{STEP['pairs']['frames']:,} frames on disk",
+        fontsize=5.4, color=T.SUB, ha="center", va="top")
 arrow(ax, x0 + usable / 2, cy - 1.6, x0 + usable / 2, cy - 3.0)
-chip(ax, x0 + 2, cy - 3.2, usable - 4, 2.6, f"{C['pairs']:,.0f} pairs", fc="#f2f1ec", ec=T.SUB,
+chip(ax, x0 + 2, cy - 3.2, usable - 4, 2.6,
+     f"{STEP['training-corpus']['pairs']:,} training pairs", fc="#f2f1ec", ec=T.SUB,
      fs=6.2, bold=True)
+ef = STEP["english-filter"]
+ax.text(x0 + usable / 2, cy - 6.3,
+        f"after English filter: −{ef['videos_dropped']:,} videos, {ef['children']} children",
+        fontsize=5.0, color=T.SUB, ha="center", va="top", style="italic")
 # the wearable itself: line drawing from the BabyView site (CC-BY), child + head camera
 cam = A / "camera.png"
 if cam.exists():
     arr = load(cam, crop_px=(250, 150, 1408, 1700))
     cw_ = 10.5
-    img(ax, arr, (22.5 - cw_) / 2, cy - 7.0, cw_)
+    img(ax, arr, (22.5 - cw_) / 2, cy - 8.0, cw_)
 else:
     print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
 
