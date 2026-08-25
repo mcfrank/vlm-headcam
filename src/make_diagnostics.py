@@ -23,6 +23,7 @@ ap.add_argument("--transcript", default="/ccn2b/dataset/babyview/2026.1/outputs/
 ap.add_argument("--pose", default="/ccn2b/dataset/babyview/2026.1/outputs/pose_1fps_bbox_limbs.parquet")
 ap.add_argument("--referent", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/referent/gemini_2026.1.parquet")
 ap.add_argument("--language", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/language/lang_2026.1.parquet")
+ap.add_argument("--audio-lang", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/language/audio/audio_lang_2026.1.parquet")
 ap.add_argument("--pairs", default="/ccn2b/dataset/babyview/2026.1/outputs/annotations/referent/pairs_2026.1.parquet")
 ap.add_argument("--embed-glob", default="/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/dinov3b_grid4x4/index.parquet")
 ap.add_argument("--out", default="diagnostics/2026.1")
@@ -131,6 +132,17 @@ try:
 except Exception as e:
     note("language", a.language, 0, ok=False); print(f"    {e}")
 
+# ---- 5b. AUDIO language (authoritative: transcript labels are Whisper-translation-blind) ----
+print("audio-language")
+try:
+    AL = pd.read_parquet(a.audio_lang)
+    aok = AL[(AL.speech == True) & AL.langs.notna()]
+    g = aok.groupby("video_id").english_prop.mean().rename("audio_pct_english").mul(100)
+    V = V.merge(g, on="video_id", how="left")
+    note("audio-language", a.audio_lang, len(aok))
+except Exception as e:
+    note("audio-language", a.audio_lang, 0, ok=False); print(f"    {e}")
+
 # ---- 6. embeddings + training pairs (coverage only) -----------------------------------------
 print("embeddings / pairs")
 import glob
@@ -166,6 +178,8 @@ if {"lang_english", "lang_utterances"} <= set(C.columns):
     C["measured_pct_english"] = 100 * C.lang_english / C.lang_utterances.replace(0, np.nan)
 if {"ref_mean_alignment"} <= set(V.columns):
     C = C.merge(V.groupby("child").ref_mean_alignment.mean().reset_index(), on="child", how="left")
+if "audio_pct_english" in V.columns:
+    C = C.merge(V.groupby("child").audio_pct_english.mean().reset_index(), on="child", how="left")
 C.to_parquet(OUT / "child_level.parquet", index=False)
 
 prov["n_children"] = int(V.child.nunique())

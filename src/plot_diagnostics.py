@@ -76,17 +76,25 @@ ax[1].scatter(V2.groupby("child").age_months.median(), m, s=30, color=PURPLE, al
 ax[1].set_xlabel("child median age (months)"); ax[1].set_ylabel("utterances / hour"); clean(ax[1])
 save(fig, "diag_density.png")
 
-# 5. survey vs measured English
-fig, ax = plt.subplots(figsize=(5.6, 5.2))
+# 5. survey vs measured English — audio (authoritative) vs transcript (the ASR artifact)
+fig, ax = plt.subplots(figsize=(6.2, 5.4))
 ax.plot([0, 100], [0, 100], color=SUB, lw=1, ls=(0, (4, 3)))
-ax.scatter(C.survey_pct_english, C.measured_pct_english, s=44, color=RED, alpha=0.85)
-r = C[["survey_pct_english", "measured_pct_english"]].corr().iloc[0, 1]
-for x in C[C.survey_pct_english < 80].itertuples():        # the informative points
-    ax.annotate(x.child, (x.survey_pct_english, x.measured_pct_english),
-                xytext=(5, -4), textcoords="offset points", fontsize=6.5, color=SUB)
+if "audio_pct_english" in C.columns and C.audio_pct_english.notna().any():
+    ax.scatter(C.survey_pct_english, C.measured_pct_english, s=30, color="#b8b6ae",
+               alpha=0.8, zorder=2, label="transcript-based (Whisper-translated)")
+    ax.scatter(C.survey_pct_english, C.audio_pct_english, s=48, color=RED,
+               alpha=0.9, zorder=3, label="audio-based (Gemini, audio input)")
+    for x in C[C.audio_pct_english < 80].itertuples():
+        ax.annotate(x.child, (x.survey_pct_english, x.audio_pct_english),
+                    xytext=(5, -4), textcoords="offset points", fontsize=6.5, color=SUB)
+    ra = C.survey_pct_english.corr(C.audio_pct_english)
+    rt = C.survey_pct_english.corr(C.measured_pct_english)
+    ax.set_title(f"audio r = {ra:.2f}   transcript r = {rt:.2f}", loc="left", fontsize=11, color=INK)
+    ax.legend(frameon=False, fontsize=8.5, loc="lower right")
+else:
+    ax.scatter(C.survey_pct_english, C.measured_pct_english, s=44, color=RED, alpha=0.85)
 ax.set_xlabel("survey % English (household report)")
-ax.set_ylabel("measured % English (labelled utterances)")
-ax.set_title(f"r = {r:.2f}", loc="left", fontsize=11, color=INK)
+ax.set_ylabel("measured % English")
 clean(ax)
 save(fig, "diag_english.png")
 

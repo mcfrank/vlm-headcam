@@ -139,26 +139,26 @@ children — the counts used throughout:
 ![Per-video speech measures across age (dots), per-child 3-month median trajectories (thin
 lines), and the corpus median (heavy line).](figures/diag_age_trends.png){#fig-diag-agetrends}
 
-**Reported vs measured language.** The Airtable registry's `percent_english` is a proportion
-(0–1) despite its name — an earlier draft of this figure plotted it as a percent, compressing
-all children to the left margin. Correctly scaled, the household survey still disagrees
-sharply with the recordings (r = 0.46), and the disagreement is one-sided: every child's
-*measured* English is at or above the survey report. The five children reported as 0%-English
-households measure 88–99% English in their labelled utterances. Auditing the most extreme
-case (S00560001, survey 0%, measured 88%): the recorded caregiver speech really is fluent
-English child-directed talk ("Why did you jump like that?", "You can slide like Seoyeon"),
-with the non-English 5.7% dominated by short Korean interjections and vocatives (median one
-word). One caveat bounds the claim: language is labelled on ASR *transcripts*, and the
-brevity of the captured Korean is consistent with ASR under-transcribing longer non-English
-speech — so "measured % English" is a property of the transcribed stream (what a text-trained
-learner sees), a ceiling rather than an exact estimate of the audio environment. An
-audio-level audit of sampled segments would settle it. This is why the
-English-language filter for the main experiments is based on measured utterance labels, not
-the survey:
+**Reported vs measured language — and an ASR artifact.** An earlier draft of this section
+claimed the household survey sharply under-reported English, based on transcript-level
+language labels. That claim was wrong, and the error is instructive: **Whisper auto-translates
+non-English speech**, rendering Korean or Japanese caregiver talk as fluent English text, so
+transcript-based measurement reads ~90% English even for households speaking almost none. An
+audio-level re-measurement (Gemini language ID on 47,826 sampled 60-s windows, bypassing
+transcripts entirely; `annotations/language/audio/`) settles it: the survey correlates r = 0.91
+with audio-measured English, while the transcript-based measure correlates only r = 0.46 —
+the family reports were approximately right all along. Ten children fall below 80%
+audio-measured English. The English training filter is therefore **audio-based and
+video-level**: videos with < 50% audio-measured English are excluded (1,258 videos, 7.7% of
+pairs; plus 0.9% of utterances the transcript layer itself flags as non-English), which keeps
+bilingual households' genuinely-English recordings. This matters beyond our corpus: any
+project measuring language environments from Whisper transcripts will overestimate English by
+construction.
 
-![Per-child measured % English (utterance-level annotation) against the household survey
-report; children reported below 80% are labelled. The dashed line is
-identity.](figures/diag_english.png){#fig-diag-english}
+![Per-child measured % English against the household survey. Grey: transcript-based
+measurement, inflated to ~90–100% for every child by Whisper auto-translation. Red:
+audio-based measurement, which tracks the survey (r = 0.91); children below 80% audio-English
+are labelled. Dashed line is identity.](figures/diag_english.png){#fig-diag-english}
 
 **Annotation distributions.** Long utterances are real, not segmentation failures: 0.97% of
 utterances have ≥20 words, and inspection shows storybook reading and adult conversation.
