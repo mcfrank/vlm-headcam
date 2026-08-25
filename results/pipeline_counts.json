@@ -37,6 +37,18 @@
       "step": "training-corpus",
       "rule": "final word-learning corpus",
       "pairs": 1686105
+    },
+    {
+      "step": "aligned",
+      "rule": "Gemini alignment >= 50 (a named object is visible)",
+      "pairs": 171793,
+      "of_corpus": 0.1019
+    },
+    {
+      "step": "referent-spoken",
+      "rule": "referent word appears in the utterance (tokenized + singularized match)",
+      "pairs": 110577,
+      "of_corpus": 0.0656
     }
   ]
 }

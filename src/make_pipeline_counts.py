@@ -34,6 +34,35 @@ steps.append(dict(step="english-filter",
                   children=int(en.video_id.str.split("_").str[0].nunique())))
 steps.append(dict(step="training-corpus", rule="final word-learning corpus",
                   pairs=len(en)))
+
+# ---- panel-B referential funnel (WITHIN the filtered training corpus, so percentages are
+# internally consistent): all pairs -> Gemini says a referent is visible -> referent word
+# actually spoken in the utterance (same tokenize+singularize test as the t15 manifests).
+import re as _re
+import sys as _sys
+_sys.path.insert(0, "src")
+from common import tokenize
+
+def _sing(w):
+    if w.endswith("ies") and len(w) > 4: return w[:-3] + "y"
+    if _re.search(r"(ses|xes|zes|ches|shes)$", w): return w[:-2]
+    if w.endswith("s") and not w.endswith("ss") and len(w) > 3: return w[:-1]
+    return w
+
+GF = G.merge(en[["video_id", "frame_idx", "text"]].drop_duplicates(),
+             on=["video_id", "frame_idx", "text"], how="inner")
+al = GF[GF.alignment >= 50]
+steps.append(dict(step="aligned", rule="Gemini alignment >= 50 (a named object is visible)",
+                  pairs=len(al), of_corpus=round(len(al) / len(en), 4)))
+def _spoken(row):
+    r = _sing(str(row.referent).strip().lower())
+    toks = set(tokenize(row.text)); toks |= {_sing(t) for t in toks}
+    return bool(r) and r in toks
+ref = al[al.referent.fillna("").str.len() > 0]
+sp = ref[[_spoken(r) for r in ref.itertuples()]]
+steps.append(dict(step="referent-spoken", rule="referent word appears in the utterance "
+                  "(tokenized + singularized match)", pairs=len(sp),
+                  of_corpus=round(len(sp) / len(en), 4)))
 out = dict(release="2026.1", generated_from="release artifacts (see MANIFEST.tsv)",
            note="regenerate with src/make_pipeline_counts.py after any filter change",
            steps=steps)
