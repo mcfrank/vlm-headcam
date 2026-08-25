@@ -1,0 +1,42 @@
+{
+  "release": "2026.1",
+  "generated_from": "release artifacts (see MANIFEST.tsv)",
+  "note": "regenerate with src/make_pipeline_counts.py after any filter change",
+  "steps": [
+    {
+      "step": "release",
+      "rule": "BabyView 2026.1 release (Airtable-tagged)",
+      "videos": 16306,
+      "children": 51
+    },
+    {
+      "step": "transcribed",
+      "rule": "ASR utterances (videos with speech)",
+      "videos": 16008,
+      "utterances": 1838288
+    },
+    {
+      "step": "pairs",
+      "rule": "utterance x frame-at-utterance-time; frame on disk",
+      "pairs": 1838134,
+      "frames": 1745489
+    },
+    {
+      "step": "referent-scored",
+      "rule": "Gemini alignment 0-100 + referent word",
+      "pairs": 1838061
+    },
+    {
+      "step": "english-filter",
+      "rule": "drop videos <50% audio-measured English (Gemini audio ID); drop transcript-flagged non-English utterances",
+      "videos_dropped": 1258,
+      "pairs": 1686105,
+      "children": 48
+    },
+    {
+      "step": "training-corpus",
+      "rule": "final word-learning corpus",
+      "pairs": 1686105
+    }
+  ]
+}

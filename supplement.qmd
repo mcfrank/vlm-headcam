@@ -160,3 +160,101 @@ rows = [f"| {k} | {'yes' if v['present'] else 'NO'} | {prov['counts'].get(k, 0):
         for k, v in prov["sources"].items()]
 Markdown("| layer | present | n | path |\n|---|---|---|---|\n" + "\n".join(rows))
 ```
+
+# Methods (draft) {#sec-methods-draft}
+
+::: {.callout-warning}
+**AI-generated draft text** (Claude, 2026-08-25). Every paragraph in this section is a
+stub for rephrasing by MCF; numbers are generated from the pipeline and correct as of
+the date above, prose is not to be quoted as-is. Prompts are verbatim from the code.
+:::
+
+## Corpus and filtering
+
+```{python}
+#| label: methods-funnel
+#| echo: false
+import json
+fun = json.load(open("results/pipeline_counts.json"))
+import pandas as pd
+pd.DataFrame(fun["steps"]).fillna("").style.hide(axis="index") if False else None
+rows = []
+for s in fun["steps"]:
+    rows.append("| " + s["step"] + " | " + s["rule"] + " | " +
+                ", ".join(f"{k}={v:,}" for k, v in s.items() if k not in ("step","rule")) + " |")
+from IPython.display import Markdown
+Markdown("| step | rule | counts |\n|---|---|---|\n" + "\n".join(rows))
+```
+
+[AI DRAFT] We trained on the BabyView 2026.1 release: 16,306 videos from 51 children
+(2,701 h; ages 2.9–54 months). Utterance–frame training pairs were formed by pairing each
+ASR utterance with the 1 fps frame at its onset time. The training corpus applies a
+language filter measured at the *audio* level (below): videos with <50% audio-measured
+English speech are excluded, along with utterances the transcript-level annotation flags
+as non-English, yielding 1,686,105 pairs from 48 children.
+
+## Referent annotation (Gemini)
+
+[AI DRAFT] Every utterance–frame pair was annotated by Gemini-2.5-Flash on Vertex AI
+(no data used for Google training) with a referential-alignment score and referent word;
+99.996% of pairs were scored. The verbatim prompt (with the frame attached and the
+utterance appended):
+
+> Return JSON with:
+> - "alignment": integer 0-100 for how strongly the utterance refers to a concrete object
+>   VISIBLE in the frame. 100 = clearly names a prominent, plainly-visible, central object;
+>   ~50 = the named object is present but small, partial, or one of many; 0 = no visible
+>   referent (small talk, the object is absent or unidentifiable, or the utterance is not
+>   about a concrete object). Use the full range, not just the ends.
+> - "referent": the single visible object referred to, as a lowercase common noun
+>   (e.g. "cup", "dog"); "" if alignment is low or none applies.
+> Utterance: …
+
+## Language annotation: transcript level
+
+[AI DRAFT] Each of the 1,838,288 utterances was labelled for language twice by
+Gemini-2.5-Flash, in two independent passes over numbered blocks of consecutive utterances
+whose boundaries were offset by half a block between passes; cross-pass agreement was 99.4%.
+System prompt (verbatim):
+
+> You label the language of utterances transcribed from home audio recordings of families
+> with young children. The text is ASR output: fragmentary, sometimes misspelled, sometimes
+> code-switched, and often only one or two words. You are given a numbered block of
+> CONSECUTIVE utterances from one recording so that you can use the surrounding conversation
+> to judge the short ones.
+
+Task prompt (verbatim):
+
+> For EVERY numbered line, return its language. Use the surrounding lines as context: a bare
+> "mama" or "no" in an otherwise Portuguese conversation is Portuguese.
+> Return JSON: {"labels": [{"i": <line number>, "lang": "<ISO 639-1, e.g. en es pt ja ko zh>",
+> "mixed": <true if the line itself contains more than one language>,
+> "undecidable": <true if genuinely impossible even with context>}]}
+> Return one entry per line, in order, and do not skip lines.
+
+[AI DRAFT] Transcript-level labels proved unreliable for non-English households because the
+ASR system auto-translates non-English speech into fluent English text; we therefore treat
+them as a secondary signal only (used to drop residual non-English fragments).
+
+## Language annotation: audio level
+
+[AI DRAFT] To measure the language actually spoken, we sampled three 60-s windows per video
+(at 20/50/80% of duration; 47,826 windows over 16,274 videos) and had Gemini-2.5-Flash
+classify the audio directly. Audio-measured English correlates r = 0.91 with the household
+survey, against r = 0.46 for the transcript-based measure, confirming ASR translation as
+the source of the discrepancy. System prompt (verbatim):
+
+> You identify the languages SPOKEN in short audio clips from home recordings of families
+> with young children. Judge only from the audio. Ignore singing wordlessly, babbling, and
+> TV/background media unless it is the only speech present.
+
+Task prompt (verbatim):
+
+> Listen to this clip. Return JSON only:
+> {"speech": <true if any intelligible speech>,
+> "langs": {"<ISO 639-1>": <proportion of the SPOKEN content in that language, summing to 1>},
+> "child_directed": <true if most speech is to/with a child>}
+
+[AI DRAFT] Reliability: 94.2% of multi-window videos have all windows on the same side of
+the 50% English threshold; window agreement across the three time-separated samples serves
+the role that pass-agreement serves for the transcript annotation.
