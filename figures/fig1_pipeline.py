@@ -24,9 +24,6 @@ A = HERE / "assets"
 C = pd.read_csv(R / "corpus.csv").set_index("key").value.to_dict()
 J = json.loads((R / "pipeline_counts.json").read_text())
 STEP = {st["step"]: st for st in J["steps"]}
-if "referent-scored" in STEP and "aligned" not in STEP:
-    print("  NOTE fig1: panel B referential funnel still uses 2025.2 corpus.csv counts — "
-          "repoint when pipeline_counts.json gains the aligned/spoken steps")
 
 CAT_VID = "S00400001_2023-08-08_1_recSJfNNDLfxCQail"
 STRIP = list(range(603, 610))                                 # seconds shown in panel A
@@ -156,21 +153,21 @@ ax.text(x0 + usable / 2, cy - 6.3,
 cam = A / "camera.png"
 if cam.exists():
     arr = load(cam, crop_px=(250, 150, 1408, 1700))
-    cw_ = 10.5
-    img(ax, arr, (22.5 - cw_) / 2, cy - 8.0, cw_)
+    cw_ = 8.8
+    img(ax, arr, (22.5 - cw_) / 2, cy - 7.2, cw_)
 else:
     print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
 
 # ================================================================ B: referential annotation
 bx = axes["B"]
 y = TOP
-bx.text(0.8, y + 0.2, "Gemini reads each pair:  alignment 0–100  +  referent noun",
-        fontsize=5.4, color=T.INK, va="bottom")
+bx.text(0.8, y - 0.2, "Gemini reads each pair:  alignment 0–100  +  referent noun",
+        fontsize=5.4, color=T.INK, va="top")
 cw, ch = 9.6, 9.6
 for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
     col, row = k % 2, k // 2
     x = 0.8 + col * (cw + 0.9)
-    yy = y - 0.6 - row * (ch + 3.2)
+    yy = y - 1.8 - row * (ch + 3.2)
     aligned = score >= 50
     img(bx, load(FR(vid, fi), crop=(1, 1), anchor=anchor), x, yy, cw,
         ec=T.FREE if aligned else T.INDOM, lw=1.0)
@@ -178,11 +175,11 @@ for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
     tag = f"aligned {score:.0f}  ·  referent: {ref}" if aligned else f"aligned {score:.0f}  ·  no referent"
     bx.text(x, yy - ch - 1.7, tag, fontsize=4.9, color=T.FREE if aligned else T.INDOM, va="top")
 # funnel: real bar chart, left-aligned, true linear scale
-tot = C["pairs"]
+tot = STEP["training-corpus"]["pairs"]
 levels = [("all pairs", tot, "#dcdad2", T.INK),
-          ("about something visible", C["aligned_pairs"], T.FREE, T.FREE),
-          ("…and the referent is spoken", C["aligned_spoken"], T.ORACLE, T.ORACLE)]
-fy = y - 2 * (ch + 3.2) - 1.6
+          ("about something visible", STEP["aligned"]["pairs"], T.FREE, T.FREE),
+          ("…and the referent is spoken", STEP["referent-spoken"]["pairs"], T.ORACLE, T.ORACLE)]
+fy = y - 2 * (ch + 3.2) - 2.8
 BX0, BW, BH = 0.8, 19.8, 1.7
 bx.plot([BX0, BX0], [fy - 3 * 3.1 + 1.0, fy], color=T.SUB, lw=0.6, zorder=3)   # the axis
 for lab, nn, col, tc in levels:
@@ -199,59 +196,65 @@ for lab, nn, col, tc in levels:
 # ================================================================ C: learner + eval
 cx = axes["C"]
 y = TOP
-# two inputs: a frame with the region grid, and the utterance as a bag of words
+iy = y - 1.8                                       # tops of the two towers
+# left tower: the frame through the frozen encoder's region grid
 fwC = 6.4; fhC = fwC * 910 / 512
 arr = load(FR(CAT_VID, 606))
-img(cx, arr, 1.0, y, fwC)
+img(cx, arr, 1.0, iy, fwC)
 for i in range(1, 4):                                            # 4x4 region grid
-    cx.plot([1.0 + fwC * i / 4] * 2, [y - fhC, y], color="white", lw=0.5, alpha=0.9, zorder=3)
-    cx.plot([1.0, 1.0 + fwC], [y - fhC * i / 4] * 2, color="white", lw=0.5, alpha=0.9, zorder=3)
-cx.text(1.0, y + 0.5, "frame", fontsize=5.4, color=T.FREE, va="bottom")
-cx.text(1.0, y - fhC - 0.4, "frozen encoder\nCLS + 4×4 region grid", fontsize=5.0, color=T.FREE,
-        va="top", linespacing=1.3)
-# utterance -> word chips
+    cx.plot([1.0 + fwC * i / 4] * 2, [iy - fhC, iy], color="white", lw=0.5, alpha=0.9, zorder=3)
+    cx.plot([1.0, 1.0 + fwC], [iy - fhC * i / 4] * 2, color="white", lw=0.5, alpha=0.9, zorder=3)
+cx.text(1.0, y - 0.2, "frame", fontsize=5.4, color=T.FREE, va="top")
+cx.text(1.0, iy - fhC - 0.4, "frozen encoder\nwhole-image (CLS) token\n+ 4×4 region grid",
+        fontsize=5.0, color=T.FREE, va="top", linespacing=1.3)
+FX = 1.0 + fwC / 2                                  # frame tower centerline
+# right tower: the utterance as a bag of words
 ux = 10.0
-cx.text(ux, y + 0.5, "utterance", fontsize=5.4, color=T.ORACLE, va="bottom")
-cx.text(ux, y - 0.3, "“Which cat is it?”", fontsize=5.2, color=T.INK, va="top")
+cx.text(ux, y - 0.2, "utterance", fontsize=5.4, color=T.ORACLE, va="top")
+cx.text(ux, iy, "“Which cat is it?”", fontsize=5.2, color=T.INK, va="top")
 words = ["which", "cat", "is", "it"]
-wy = y - 2.4
+wy = iy - 2.2
 for i, w in enumerate(words):
     chip(cx, ux + (i % 2) * 5.2, wy - (i // 2) * 2.3, 4.6, 1.8, w, fc="#ecebf5", ec=T.ORACLE, fs=5.2)
-cx.text(ux, wy - 5.2, "bag of words, learned\nfrom scratch", fontsize=5.0, color=T.ORACLE,
+cx.text(ux, wy - 5.0, "bag of words, learned\nfrom scratch", fontsize=5.0, color=T.ORACLE,
         va="top", linespacing=1.3)
-# score = max over regions: a 4x4 similarity map with the max highlighted
-sy = y - fhC - 4.6
+WX = ux + 4.9                                       # word tower centerline
+# the Y: both routes converge on the word-region similarity map
 sim = np.array([[.1, .2, .1, .1], [.2, .3, .2, .1], [.1, .9, .4, .1], [.1, .3, .2, .1]])
 cell = 1.25
-sx = 9.2
+sx = (FX + WX) / 2 - 2 * cell
+sy = 21.2
 for i in range(4):
     for j in range(4):
-        v = sim[i, j]
         cx.add_patch(Rectangle((sx + j * cell, sy - (i + 1) * cell), cell, cell,
-                               fc=plt.cm.Purples(0.15 + 0.75 * v), ec="white", lw=0.4, zorder=2))
+                               fc=plt.cm.Purples(0.15 + 0.75 * sim[i, j]), ec="white", lw=0.4,
+                               zorder=2))
 im_ = np.unravel_index(sim.argmax(), sim.shape)
 cx.add_patch(Rectangle((sx + im_[1] * cell, sy - (im_[0] + 1) * cell), cell, cell, fc="none",
                        ec=T.INK, lw=1.0, zorder=3))
-arrow(cx, 1.0 + fwC / 2, y - fhC - 3.4, sx - 0.6, sy - 2 * cell, color=T.FREE)
-arrow(cx, ux + 4.8, wy - 4.7, sx + 4 * cell + 0.6, sy - 2 * cell, color=T.ORACLE)
-cx.text(sx + 2 * cell, sy - 4 * cell - 0.4, "word · region similarity\nscore = max over regions",
-        fontsize=5.0, color=T.INK, ha="center", va="top", linespacing=1.3)
+arrow(cx, FX, 23.6, sx + 0.7, sy + 0.15, color=T.FREE)
+arrow(cx, WX, wy - 8.0, sx + 4 * cell - 0.7, sy + 0.15, color=T.ORACLE)
+cx.text(sx + 4 * cell + 0.7, sy - 2 * cell, "word · region\nsimilarity\nscore = max\nover regions",
+        fontsize=5.0, color=T.INK, va="center", ha="left", linespacing=1.35)
 # InfoNCE: batch similarity matrix, diagonal = true pairs
-ny = sy - 4 * cell - 4.2
-nb = 5; nc = 1.0; nx = sx + 2 * cell - nb * nc / 2
+nb = 5; nc = 1.0
+nx = sx + 2 * cell - nb * nc / 2
+ny = sy - 4 * cell - 2.2
 rng = np.random.default_rng(1)
 M = rng.uniform(0.05, 0.4, (nb, nb)); np.fill_diagonal(M, rng.uniform(0.75, 0.95, nb))
 for i in range(nb):
     for j in range(nb):
         cx.add_patch(Rectangle((nx + j * nc, ny - (i + 1) * nc), nc, nc,
                                fc=plt.cm.Greys(0.1 + 0.8 * M[i, j]), ec="white", lw=0.3, zorder=2))
-arrow(cx, sx + 2 * cell, sy - 4 * cell - 3.0, sx + 2 * cell, ny + 0.2)
-cx.text(nx - 0.6, ny - nb * nc / 2, "frames", fontsize=4.8, color=T.FREE, ha="right", va="center", rotation=90)
-cx.text(nx + nb * nc / 2, ny - nb * nc - 0.3, "utterances", fontsize=4.8, color=T.ORACLE, ha="center", va="top")
-cx.text(nx + nb * nc + 0.6, ny - nb * nc / 2, "InfoNCE\ntrue pairs on\nthe diagonal", fontsize=5.0,
-        color=T.INK, va="center", linespacing=1.3)
+arrow(cx, sx + 2 * cell, sy - 4 * cell - 0.4, sx + 2 * cell, ny + 0.2)
+cx.text(nx - 0.6, ny - nb * nc / 2, "frames", fontsize=4.8, color=T.FREE, ha="right",
+        va="center", rotation=90)
+cx.text(nx + nb * nc / 2, ny - nb * nc - 0.3, "utterances", fontsize=4.8, color=T.ORACLE,
+        ha="center", va="top")
+cx.text(nx + nb * nc + 0.7, ny - nb * nc / 2, "InfoNCE\ntrue pairs on\nthe diagonal",
+        fontsize=5.0, color=T.INK, va="center", linespacing=1.3)
 # evaluation: 4AFC over out-of-corpus object photos
-ey = ny - nb * nc - 4.0
+ey = ny - nb * nc - 3.0
 cx.text(1.0, ey + 0.3, f"evaluation: “cat”?   {C['konkle_cats']:.0f}-way 4AFC, out-of-corpus photos",
         fontsize=5.4, color=T.INK, va="bottom")
 kw = 4.6
