@@ -1,31 +1,43 @@
 """Display item 7 — does it matter WHOSE data it is, holding the amount fixed?
 
-The B26 diversity sweep: 30k pairs throughout, drawn from k children (k random per seed),
-as a line over k so further budgets can join as lines. The within-child-ceiling
-comparison (biggest single child vs pooled at matched count) returns when it is re-run on the
-B26 rig — detected below.
+The B26 diversity sweeps: at each pair budget, draw the pairs from k children (k random per
+seed). One line per budget. At 30k pairs any child's data is as good as any mix; by 100k-300k
+a diversity effect opens up — a few children's experience is exhausted before the budget is.
+Budgets missing small k (300k from 1 or 3 children) are impossible: those children don't have
+that many pairs.
 """
 import sys, re
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
-fams = sorted((int(m.group(1)), f) for f in D.runs.family.unique()
-              if (m := re.fullmatch(r"B26_div_(\d+)c", str(f))))
+fams = {}
+for f in D.runs.family.unique():
+    if m := re.fullmatch(r"B26_div(\w*?)_?(\d+)c", str(f)):
+        fams.setdefault(m.group(1) or "30k", []).append((int(m.group(2)), f))
 if any(re.match(r"B26_(bigchild|pool)", str(f)) for f in D.runs.family.unique()):
-    print("  NOTE fig7: B26 within-child-ceiling families exist — add the matched-count panel")
+    print("  NOTE fig7: B26 within-child-ceiling families exist — add the matched-count comparison")
 
-fig, ax = plt.subplots(figsize=(T.W1, 2.2))
-ks, fam = [k for k, _ in fams], [D.family(f) for _, f in fams]
-ax.errorbar(ks, [f["mean"] for f in fam], yerr=[f["sd"] for f in fam], fmt="-o", color=T.FREE,
-            ms=3.2, lw=1.1, elinewidth=0.7, capsize=2, zorder=3)
+SHADE = {"30k": "#9ec9b8", "100k": "#4d9971", "300k": T.FREE}
+fig, ax = plt.subplots(figsize=(T.W15, 2.5))
+for budget in ["30k", "100k", "300k"]:
+    pts = sorted(fams.get(budget, []))
+    if not pts:
+        continue
+    ks = [k for k, _ in pts]; fam = [D.family(f) for _, f in pts]
+    col = SHADE[budget]
+    ax.errorbar(ks, [f["mean"] for f in fam], yerr=[f["sd"] for f in fam], fmt="-o", color=col,
+                ms=3.0, lw=1.1, elinewidth=0.7, capsize=1.8, zorder=3)
+    ax.text(ks[-1] * 1.18, fam[-1]["mean"], f"{budget} pairs", fontsize=5.8, color=col,
+            va="center")
+    print(f"  NOTE fig7 {budget}: k={ks}, n per point =", [f['n'] for f in fam])
 ax.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=2)
-ax.text(50, 25.7, "chance", fontsize=5.6, color=T.SUB, ha="right")
+ax.text(1, 25.8, "chance", fontsize=5.6, color=T.SUB, ha="left")
 ax.set_xscale("log")
-ax.set_xticks(ks); ax.set_xticklabels(ks); ax.minorticks_off()
-ax.set_xlabel("children contributing (30,000 pairs throughout)")
+ax.set_xticks([1, 3, 10, 25, 50]); ax.set_xticklabels([1, 3, 10, 25, 50]); ax.minorticks_off()
+ax.set_xlim(0.8, 110)
+ax.set_ylim(20, 70)
+ax.set_xlabel("children contributing the pairs")
 ax.set_ylabel("Konkle 4AFC (%)")
-ax.set_ylim(20, 42)
 T.clean(ax)
-print("  NOTE fig7: n per bar =", [f["n"] for f in fam], "· seed sd error bars")
 T.save(fig, "fig7_diversity")
