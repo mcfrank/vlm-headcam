@@ -1,76 +1,54 @@
-"""Display item 2 — how does word learning scale with the input a child actually receives?
+"""Display item 2 — how word learning scales with input: the data.
 
 Bundle-2 (B26) production scaling curve: 2026.1 English-filtered corpus, 50 children, DINOv3-B
 region-MIL, dev-117 selection, test-60 reporting. Each seed is an independent subsample, so the
 sd across a family is subsample+init variance.
 
-A: the data. 4AFC vs training pairs with a free-asymptote logistic in log N (chance floor; the
-   asymptote is now identified by the curve itself). Published single-child SAYCam models
-   (CVCL 2024; Vong & Lake 2026 — same 60 Konkle categories) as external reference points.
-B: the extrapolation. The fitted curve alone, carried out over child developmental time, with
-   1/2/3-yr anchor lines, Wordbank CDI child anchors (predicted 4AFC over the same 60 words:
-   know the word -> correct, else guess), and children's LEVANTE vocabulary band at 5-12 yr.
-
-When the B26 ladder families land (B26_lad*), the aligned arm belongs on panel A again —
-detected below and currently absent.
+4AFC vs training pairs, both arms: unfiltered (free-asymptote logistic in log N, fit shared
+with fig9 via scaling_fit) and aligned — the filtnat rungs of the ladder at each scale, fit
+with the same logistic constrained to the unfiltered asymptote, ending at the aligned pairs
+that exist. Published single-child SAYCam models as external reference points. The
+developmental extrapolation lives in fig9.
 """
 import sys, re, numpy as np, pandas as pd
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
+from scaling_fit import fit, logistic, CHANCE
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 LIT = pd.read_csv(R / "literature.csv")
 WB = pd.read_csv(R / "wordbank_anchors.csv")
 
-UTT_PER_HR, HR_PER_YEAR = 820, 4000          # caregiver utterances/hr; waking hrs/yr
-CHANCE = 25.0
 rng = np.random.default_rng(0)
 
-fams = sorted((int(m.group(1)), f) for f in D.runs.family.unique()
-              if (m := re.fullmatch(r"B26_rand_(\d+)", str(f))))
-x = np.array([n for n, _ in fams], float)
-if "B26_lad_base" in set(D.runs.family.astype(str)):     # full-corpus run is the top point
-    fams.append((int(D.family("B26_lad_base")["n_pairs"]), "B26_lad_base"))
-    x = np.array([n for n, _ in fams], float)
-fam = [D.family(f) for _, f in fams]
-y = np.array([f["mean"] for f in fam]); e = np.array([f["sd"] for f in fam])
-n_seeds = [f["n"] for f in fam]
+F = fit(rng)
+x, y, e, popt = F["x"], F["y"], F["e"], F["popt"]
+grid = np.logspace(3.3, 7.8, 260)
+lo, hi = F["band"](grid)
+A_fit, A_sd = popt[2], F["A_sd"]
+print(f"  NOTE fig2: fitted asymptote {A_fit:.1f} ± {A_sd:.1f}; seeds per point {F['n']}")
+
 # the aligned (oracle-filter) arm: filtnat rungs of the ladder at every scale run so far
+from scipy.optimize import curve_fit
 afams = sorted(((f, D.family(f)) for f in D.runs.family.unique()
                 if re.fullmatch(r"B26_lad\d*_?filtnat", str(f))), key=lambda t: t[1]["n_pairs"])
 ax_ = np.array([f["n_pairs"] for _, f in afams])
 ay = np.array([f["mean"] for _, f in afams]); ae = np.array([f["sd"] for _, f in afams])
-
-
-def logistic(N, m, s, A):
-    return CHANCE + (A - CHANCE) / (1 + np.exp(-(np.log10(N) - m) / s))
-
-
-popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e,
-                       bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
-grid = np.logspace(3.3, 7.8, 260)
-agrid = np.logspace(3.6, np.log10(ax_.max()), 140)   # the aligned arm ends at all aligned pairs
+agrid = np.logspace(3.6, np.log10(ax_.max()), 140)
 apopt, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, popt[2]), ax_, ay, p0=(4.3, 0.5),
                      sigma=ae, maxfev=40000)
-draws, adraws = [], []
-for _ in range(500):
+adraws = []
+for _ in range(400):
     try:
-        p, _ = curve_fit(logistic, x, y + rng.normal(0, np.maximum(e, 0.5)), p0=popt,
-                         bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
-        draws.append(logistic(grid, *p))
-        pa, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, p[2]), ax_,
+        pa, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, popt[2]), ax_,
                           ay + rng.normal(0, np.maximum(ae, 0.5)), p0=apopt, maxfev=40000)
-        adraws.append(logistic(agrid, *pa, p[2]))
+        adraws.append(logistic(agrid, *pa, popt[2]))
     except Exception:
         pass
-lo, hi = np.percentile(np.array(draws), [10, 90], axis=0)
 alo, ahi = np.percentile(np.array(adraws), [10, 90], axis=0)
-A_fit, A_sd = popt[2], np.sqrt(pcov[2, 2])
-print(f"  NOTE fig2: fitted asymptote {A_fit:.1f} ± {A_sd:.1f}; seeds per point {n_seeds}")
 
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
+fig, ax = plt.subplots(figsize=(T.W15, 2.6))
 
 # ---- A: the data -----------------------------------------------------------------
 ax.fill_between(grid, lo, hi, color=T.FREE, alpha=0.14, lw=0, zorder=1)
@@ -113,51 +91,4 @@ ax.text(3.5e6, 22.2, "chance", fontsize=5.6, color=T.SUB, ha="right")
 ax.set_xscale("log"); ax.set_xlim(3e3, 4e6); ax.set_ylim(18, 95)
 ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
-
-# ---- B: the extrapolation --------------------------------------------------------
-to_yr = lambda n: n / UTT_PER_HR / HR_PER_YEAR
-tgrid = np.logspace(np.log10(3e-3), np.log10(12), 260)
-ngrid = tgrid * UTT_PER_HR * HR_PER_YEAR
-tdraws = []
-for _ in range(500):
-    try:
-        p, _ = curve_fit(logistic, x, y + rng.normal(0, np.maximum(e, 0.5)), p0=popt,
-                         bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
-        tdraws.append(logistic(ngrid, *p))
-    except Exception:
-        pass
-tlo, thi = np.percentile(np.array(tdraws), [10, 90], axis=0)
-obs = tgrid <= to_yr(x.max())                      # solid where we have data, faded beyond
-ext = tgrid >= to_yr(x.max())
-bx.fill_between(tgrid[obs], tlo[obs], thi[obs], color=T.FREE, alpha=0.14, lw=0, zorder=1)
-bx.fill_between(tgrid[ext], tlo[ext], thi[ext], color=T.FREE, alpha=0.06, lw=0, zorder=1)
-bx.plot(tgrid[obs], logistic(ngrid[obs], *popt), color=T.FREE, lw=1.1, zorder=2)
-bx.plot(tgrid[ext], logistic(ngrid[ext], *popt), color=T.FREE, lw=1.1, alpha=0.45, zorder=2)
-# anchor lines: a child's first three years of waking input
-for yr in (1, 2, 3):
-    bx.axvline(yr, color=T.GRID, lw=0.7, zorder=0)
-    bx.text(yr, 19.3, f"{yr} yr" if yr == 1 else f"{yr}", fontsize=5.4, color=T.SUB,
-            ha="center", va="bottom")
-# Wordbank CDI trajectories over the same 60 words (children plotted at their age)
-CDI_INK = "#8a6d1f"
-for form, meas, mk in [("WG", "understands", "o"), ("WS", "produces", "^")]:
-    d = WB[WB.form == form].sort_values("age")
-    bx.plot(d.age / 12, d.pred_4afc, marker=mk, ms=2.6, lw=0.9, color=T.CHILD,
-            markeredgecolor=CDI_INK, markeredgewidth=0.4, zorder=5)
-    end = d.iloc[-1]
-    if form == "WS":
-        bx.text(end.age / 12 * 1.07, end.pred_4afc - 2.0, meas, fontsize=5.2, color=CDI_INK,
-                va="top", ha="left")
-    else:
-        bx.text(end.age / 12 * 1.06, end.pred_4afc - 4.5, meas, fontsize=5.2, color=CDI_INK,
-                va="top", ha="left")
-bx.text(WB.age.min() / 12 * 0.92, WB.pred_4afc.min() + 1.5, "children\n(Wordbank CDI)",
-        fontsize=5.2, color=CDI_INK, ha="right", va="center", linespacing=1.4)
-bx.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
-bx.set_xscale("log"); bx.set_xlim(3e-3, 12); bx.set_ylim(18, 95)
-bx.set_xlabel("developmental time (years of waking input)")
-T.clean(bx)
-
-for a, l in zip((ax, bx), "AB"):
-    T.panel(a, l)
 T.save(fig, "fig2_scaling")

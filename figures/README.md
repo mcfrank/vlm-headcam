@@ -8,7 +8,7 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | Script | Display item |
 |---|---|
 | `fig1_pipeline.py` | design + pipeline: corpus → midpoint pairing → Gemini annotation → frozen two-tower → 4AFC |
-| `fig2_scaling.py` | B26 scaling: the data + fit (A); the developmental extrapolation with Wordbank child anchors (B) |
+| `fig2_scaling.py` | B26 scaling: both arms, fit, single-child reference points |
 | `fig3_ladder.py` | the ladder at three scales — rungs as lines over raw experience, headroom wedge |
 | `fig4_cues.py` | cue information vs the ignition band (A) and the titration that sets the bar (B) |
 | `fig5_representation.py` | encoder comparison (A) and the ladder across encoders (B) |
