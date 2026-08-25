@@ -112,3 +112,14 @@ mirror). Tarball pre-staged on /data2; mirror fires when quota clears. Retiremen
 - mp3: **recreate for the full release** (M2 above) — copy 2025.2's + extract the new
   videos' audio from the gcloud pull. CPU job, runs alongside; not a blocker for the
   data moves or for bundle 2.
+
+
+## 7. Post-consolidation corrections (2026-08-25)
+- S02170002 is a SIBLING, not a Bing participant — exclusion reverted (51 children again).
+- **Whisper auto-translation invalidates the transcript-level English measurement** for
+  non-English families: audio-level Gemini ID shows S00370002 (transcript "94% English")
+  speaking Japanese in most sampled windows. The transcript language layer's README must
+  carry this caveat; the AUDIO layer (outputs/annotations/language/audio/) is the
+  authoritative language measurement. Book §2 survey-vs-measured section to be corrected
+  once the full audio run lands; English filter to be rebuilt on audio labels before the
+  final rerun.
