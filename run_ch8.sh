@@ -10,9 +10,13 @@ PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 OUTROOT=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings
 until grep -q "CH8_EMBED_ALL_DONE" logs/ch8_embed_driver.log 2>/dev/null; do
   echo "$(date +%H:%M) waiting for ch8 embeddings"; sleep 900; done
-FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk '$2<2000{print $1}' | tr '\n' ' ')
-GPUS=($FREE); NG=${#GPUS[@]}; i=0
-echo "GPUs: $FREE"
+while :; do
+  FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F", " '$2<20000{print $1}' | tr '\n' ' ')
+  GPUS=($FREE); NG=${#GPUS[@]}
+  [ "$NG" -ge 1 ] && break
+  echo "$(date +%H:%M) no usable GPU"; sleep 600
+done
+i=0; echo "GPUs: $FREE"
 one () {  # one <enc> <tag> <manifest> <seed>
   local enc=$1 tag=$2 man=$3 s=$4
   [ -f "runs/C8_${enc}_${tag}_s$s/metrics.json" ] && return
