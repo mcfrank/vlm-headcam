@@ -8,8 +8,15 @@ PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 CACHES=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/dinov3b_grid4x4
 until [ "$(ls manifests/bv26_div100k_* manifests/bv26_div300k_* 2>/dev/null | wc -l)" -ge 30 ]; do
   echo "$(date +%H:%M) waiting for div2 manifests"; sleep 300; done
-FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk '$2<2000{print $1}' | tr '\n' ' ')
-GPUS=($FREE); NG=${#GPUS[@]}; i=0; echo "GPUs: $FREE"
+# wait for at least one usable GPU (an A40 with <20G used has ample room for these runs);
+# an empty list once made NG=0 and every launch died on a modulo — never assume GPUs exist
+while :; do
+  FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F", " '$2<20000{print $1}' | tr '\n' ' ')
+  GPUS=($FREE); NG=${#GPUS[@]}
+  [ "$NG" -ge 1 ] && break
+  echo "$(date +%H:%M) no usable GPU"; sleep 600
+done
+i=0; echo "GPUs: $FREE"
 one () {
   local tag=$1 s=$2
   [ -f "runs/B26_${tag}_s$s/metrics.json" ] && return
