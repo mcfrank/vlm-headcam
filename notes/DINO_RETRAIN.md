@@ -101,3 +101,13 @@ L-OTS 54.0.
   which would put numbers on "more/diverse developmental data helps, but how much".
 - dino_chain.sh armed: on clean Stage-2 exit -> probes (100k, final) -> **Stage 3 ViT-B
   auto-launches** (same config, drop_path 0.2, ~2.5-3 days) -> final probe. All cluster-side.
+
+
+## Leak + mitigation (2026-08-26 10:45)
+Second host-RAM OOM at ~25k iterations after restart — cache_dataset was NOT the cause; a
+~200G/h leak across the 80 dataloader workers kills the node ~3h in, reproducibly. Until
+diagnosed (memlog_* now records free RAM every 5 min for the post-mortem), training runs in
+**2h10m timed slices** via dino_train_loop.sh: timeout -> DCP auto-resume from the last 10k
+checkpoint -> next slice. Worst case per slice-death: ~70 min of progress. The chain
+(stage2 -> probes -> ViT-B -> probe) uses the loop for both stages; sentinel re-armed.
+Resumed from 40k; ETA now ~27-30h for Stage 2 including restart overhead.
