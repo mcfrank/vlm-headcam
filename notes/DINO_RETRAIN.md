@@ -65,3 +65,15 @@ Gates, pre-registered: no rank collapse; prototype > 90 by 10k iters; 100k word-
 ## Compute plan
 S: ~1 day on 8xA40 at 200k iters. B: ~2 days. L: ~3.5 days or Marlowe (Mike exploring).
 Node etiquette: coordinate around the shared queue; runs are resumable from ckpts.
+
+
+## Stage 1 log (2026-08-25)
+- ViT-S, batch 512 (8 GPUs), 20k iters, 1M-frame subset, local mirror. Launched ~20:13.
+- CE gate PASSED: dinoG left ln(K) on Khai's trajectory at matched samples (10.80 @ it 2,240).
+- Effective LR verified IDENTICAL to the reference run (the sqrt_wrt_1024 rule includes a x4:
+  0.001 -> 0.00283 for batch 512 in both runs).
+- Probe harness live (dino_probe.py: DCP ckpt -> teacher backbone via repo builder -> grid
+  readout -> prototype + 100k word-probe; appends to <run>/probes.jsonl).
+- Probe @ ckpt 2499 (~1.3M samples): word 22.45 (below the 27.0 random floor — expected
+  early-SSL transient), prototype 66.8 (object structure forming). Verdict on the SLOPE
+  across 2.5k/10k/20k.
