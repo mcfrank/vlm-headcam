@@ -77,3 +77,15 @@ Node etiquette: coordinate around the shared queue; runs are resumable from ckpt
 - Probe @ ckpt 2499 (~1.3M samples): word 22.45 (below the 27.0 random floor — expected
   early-SSL transient), prototype 66.8 (object structure forming). Verdict on the SLOPE
   across 2.5k/10k/20k.
+
+
+## Stage 1 verdict + Stage 2 launch (2026-08-25 23:19)
+Stage 1 PASSED all gates: CE on the reference trajectory; probes across 1.3M/5M/10M samples:
+word 22.45 -> 23.10 -> 23.32 (monotone, above the >=23 hold-line), prototype 66.8 -> 78.4 ->
+80.5. Note for the paper: the word-probe's shallow slope against a fast-climbing prototype is
+the L-BV phenomenon in miniature (BV-DINO builds prototype separability much faster than
+word-learnable geometry) — visible already at ViT-S/10M samples.
+STAGE 2 LAUNCHED: full ViT-S, all 9,726,507 frames, 200k iters x 512 ~= 102M samples,
+ETA ~29 h (out dir /data2/mcfrank/dino_s2_vits, ckpt every 10k). Probe checkpoints offline
+at ~25k/50k/100k/200k against anchors: floor 27.0 | L-BV(64M smpl) 29.6 | B-OTS 47.9 |
+L-OTS 54.0.
