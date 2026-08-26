@@ -89,3 +89,12 @@ STAGE 2 LAUNCHED: full ViT-S, all 9,726,507 frames, 200k iters x 512 ~= 102M sam
 ETA ~29 h (out dir /data2/mcfrank/dino_s2_vits, ckpt every 10k). Probe checkpoints offline
 at ~25k/50k/100k/200k against anchors: floor 27.0 | L-BV(64M smpl) 29.6 | B-OTS 47.9 |
 L-OTS 54.0.
+
+
+## Autonomous chain (2026-08-26, Mike offline for a few days)
+- Stage 2 resumed from 20k after a host-RAM OOM (cache_dataset=true at 9.7M frames x 8 ranks;
+  now false). Sentinel monitor armed. dinoG back on the reference curve.
+- s2 ckpt-19999 probe: **prototype 91.6** vs Stage-1's 80.5 at matched 10M samples ->
+  frame diversity is worth ~+11 prototype points at fixed exposure.
+- dino_chain.sh armed: on clean Stage-2 exit -> probes (100k, final) -> **Stage 3 ViT-B
+  auto-launches** (same config, drop_path 0.2, ~2.5-3 days) -> final probe. All cluster-side.
