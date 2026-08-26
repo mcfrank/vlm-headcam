@@ -37,24 +37,30 @@ training verified by probes, ≥100M samples seen. NOT a curation/augmentation r
 - [x] Config located + read; grad-accum bug mechanism identified (per-micro-batch SK)
 - [x] Probe anchors: prototype (saturated; collapse-detector only), word-probe spread
 - [x] Redundancy analysis (numbers above)
-- [ ] Random-init ViT word-probe floor
-- [ ] Crop audit: dump stock multi-crop on portrait frames; blank-local-crop rate
-- [ ] **Data wiring** — NOT in the repo (config still says ImageNet). Ask Khai how his run
-      read frames; else build an index-file dataset over extracted_frames_1fps, with a
-      node-local packed copy (/data2, ~600G, fits) to avoid 9.7M NFS reads/epoch
-- [ ] 10k-frame overfit test (loss must fall; features must cluster)
+- [~] Random-init ViT word-probe floor (chain running)
+- [x] Crop audit PASSED: local crops 90% of global variance, 0.1% flat -> stock geometry
+- [x] Data wiring: BabyView dataset plugin registered (spec BabyView:root=..:index=..:limit=..);
+      frame index built: **9,726,507 frames** (frames_index.npy, shuffled, seed 0);
+      node-local mirror copying (/data2/mcfrank/frames_1fps_local)
+- [~] 10k-frame overfit test (running; first attempt failed on a missing dep, fixed)
 - [ ] vits/vitb config variants (arch + size-appropriate drop_path; all else identical)
 
 ## Stage 1 (after Stage 0): ViT-S, 20k iters (~10M samples), 1M-frame subset
 Gates, pre-registered: no rank collapse; prototype > 90 by 10k iters; 100k word-probe at
 20k iters ABOVE the random-init floor and climbing. Pass -> Stage 2 (full ViT-S, 200k iters).
 
-## Questions for Khai (blocking marked *)
-1. *How did the good run load BabyView frames (dataset class/path/packing)? Not committed.
-2. Config says WEIGHTS='' / pretrained_weights='' => FROM SCRATCH — but dataset_path is
-   stale in the same file, so: confirm the run's actual overrides (need his launch command).
-3. Which release/frame set did ckpt 119999 train on?
-4. How many GPUs (=> true global batch for the good run)?
+## Khai's answers (2026-08-25) — provenance CLOSED
+1. Data wiring: he packed frames into ImageNet format and used the stock ImageNet loader
+   (dataset_path=ImageNet:...:root=babyview/dataset/). No custom loader existed; our
+   BabyView index plugin is the clean replacement.
+2. FROM SCRATCH confirmed (Mike + config WEIGHTS=''). Run config archived at
+   /ccn2/u/khaiaw/Code/baselines/dinov3/babyview/outputs/grad_accum_1/config.yaml
+   (differences vs repo template = config-schema version skew only).
+3. **Trained on the 868-hours release** (/ccn2a/dataset/babyview/868_hours/sampled_frames) —
+   i.e. ~1/3 of 2026.1's hours, oldest packaging. The retrain is a genuine 3x data upgrade.
+4. 8 GPUs -> global batch 512, grad_accum_1 (no accumulation), 125k iters ~= 64M samples.
+   grad_accum_4 diverged around iter 70k (slow drift — consistent with the per-micro-batch
+   Sinkhorn statistics bug found in the code); he retried rollbacks, then abandoned accum.
 
 ## Compute plan
 S: ~1 day on 8xA40 at 200k iters. B: ~2 days. L: ~3.5 days or Marlowe (Mike exploring).
