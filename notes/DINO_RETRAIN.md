@@ -94,7 +94,10 @@ L-OTS 54.0.
 ## Autonomous chain (2026-08-26, Mike offline for a few days)
 - Stage 2 resumed from 20k after a host-RAM OOM (cache_dataset=true at 9.7M frames x 8 ranks;
   now false). Sentinel monitor armed. dinoG back on the reference curve.
-- s2 ckpt-19999 probe: **prototype 91.6** vs Stage-1's 80.5 at matched 10M samples ->
-  frame diversity is worth ~+11 prototype points at fixed exposure.
+- s2 ckpt-19999 probe (10M samples, full corpus): **word 26.0, prototype 91.6** vs
+  Stage-1 subset run's 23.3/80.5 at matched exposure -> frame diversity helps BOTH probes
+  (+2.7 word, +11 proto). At 10% of schedule this ViT-S is within 3.6 word-probe points of
+  the fully-trained 868h ViT-L (29.6) — the 102M-sample run has a live chance to pass it,
+  which would put numbers on "more/diverse developmental data helps, but how much".
 - dino_chain.sh armed: on clean Stage-2 exit -> probes (100k, final) -> **Stage 3 ViT-B
   auto-launches** (same config, drop_path 0.2, ~2.5-3 days) -> final probe. All cluster-side.
