@@ -123,3 +123,18 @@ mirror). Tarball pre-staged on /data2; mirror fires when quota clears. Retiremen
   authoritative language measurement. Book §2 survey-vs-measured section to be corrected
   once the full audio run lands; English filter to be rebuilt on audio labels before the
   final rerun.
+
+
+## 8. Oak mirror executed (2026-08-29, post inode-quota fix)
+Contents: outputs/ (all layers incl. audio language annotation; dinov3b merged embedding;
+dinov3l + dinov3l_bv shard caches; pose parquet AND original CSV) + pose_1fps tar (19.2G,
+~9.7M pkls as one file) + project/ tars (eval assets ~0.5G: Konkle + LEVANTE images,
+manifests, per-encoder caches; runs 9G: every B26/C8 checkpoint behind committed results;
+runs_invalid forensics). Excluded: frames (regenerable from GCS), dinov3b shards (superseded).
+~195G total, ~350 inodes. Legacy emb_lev_vocab + bv2026_pairs_noutt retired to
+/data2/mcfrank/_retired_20260829/.
+
+RETIREMENT (pending verify + Mike's go): pose_1fps_bbox_limbs.csv on ccn2b;
+/ccn2a/.../2026.1/outputs/merged_transcripts_parsed.csv (copy);
+/ccn2/dataset/babyview/annotations/language/ (copy); /data2 scored/manifests originals
+(MOVED.txt breadcrumbs already in place).
