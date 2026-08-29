@@ -5,10 +5,7 @@ difficulty-calibrated on real children) is scored two ways because vocabulary co
 with the corpus (1% -> 70% of items in-vocab): solid = all 159 items with chance credited for
 out-of-vocab items (the fair floor); dotted = in-vocab items only (upper bound; item set grows
 with scale, so composition shifts). Konkle items are all in-vocab from 30k on, so the two
-conventions coincide there. Children's LEVANTE band (5-12 yr) shown on the LEVANTE panel —
-the one eval where children did the same task.
-
-Preview corpus families (see fig10 note).
+conventions coincide there. Preview corpus families (see fig10 note).
 """
 import sys, re, numpy as np, pandas as pd
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
@@ -63,8 +60,6 @@ cov = S[S.encoder == "B-OTS"].sort_values("N")
 for n, c in zip(cov.N, cov.coverage):
     bx.text(n, 19.8, f"{100*c:.0f}", fontsize=4.6, color=T.SUB, ha="center", va="bottom")
 bx.text(2.6e7, 19.8, "% of words in vocab", fontsize=4.6, color=T.SUB, ha="right", va="bottom")
-bx.axhspan(72, 82, color=T.CHILD, alpha=0.28, lw=0, zorder=1)
-bx.text(3.6e3, 77, "children 5–12 yr", fontsize=5.4, color="#8a6d1f", ha="left", va="center")
 from matplotlib.lines import Line2D
 bx.legend(handles=[Line2D([], [], color=T.SUB, lw=1.0, marker="o", ms=2.8,
                           label="all 159 items (chance if out-of-vocab)"),
