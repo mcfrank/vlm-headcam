@@ -56,3 +56,4 @@ data/
 
 # Scratch dirs from exploration
 scratch_lev/
+._lexicon_cache/
