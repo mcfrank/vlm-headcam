@@ -2,19 +2,18 @@
 data diversity, each against raw experience. B-OTS throughout; the encoder breakdown joins
 when the C8 ladder / diversity families land (detected below).
 
-A: the ladder at three scales — matched subsamples trained with increasing oracle
-   information; the wedge between free and clean-label is the referential headroom.
-B: the aligned arm — keeping only the ~10% referential moments (the first rung) as its own
-   scaling curve beside the unfiltered one: same fitted ceiling, reached ~10x sooner, and
-   the aligned supply ends where the corpus runs out.
+A: the ladder at three scales — matched subsamples trained unfiltered, with the oracle
+   alignment filter, and with everything perfectly labeled (topline); the wedge is the
+   referential headroom. (Word-selection rung dropped for clarity; it lives in the SI.)
+B: the headroom decomposed — what the filter buys (filter - unfiltered) and what perfect
+   labels add on top (topline - filter), per-seed paired differences on matched subsamples.
 C: diversity at three budgets — whose data it is matters only once there is enough of it.
 """
 import sys, re, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-from scaling_fit import fit, logistic, CHANCE
+from scaling_fit import CHANCE
 
 if any(re.match(r"C8_.*(filtnat|div)", str(f)) for f in D.runs.family.unique()):
     print("  NOTE fig3: C8 ladder/diversity families exist — add the encoder breakdown")
@@ -25,7 +24,7 @@ fig, (ax, bx, cx) = plt.subplots(1, 3, figsize=(T.W2, 2.5),
 
 # ---- A: the ladder at three scales ----------------------------------------------
 RUNGS = [("base", "unfiltered", None), ("filtnat", "+ align filter", "which moments"),
-         ("t15", "+ word select", "which word"), ("t2", "+ vision bind", "which object")]
+         ("t2", "topline: all\nperfectly labeled", "which object")]
 scales = sorted({m.group(1) for f in D.runs.family.unique()
                  if (m := re.fullmatch(r"B26_lad(\d*)_?(?:base|filtnat|t15|t2)", str(f)))},
                 key=lambda s: int(s or 10**9))
@@ -36,17 +35,18 @@ L = {r: dict(y=np.array([fam(sc, r)["mean"] for sc in scales]),
 ax.fill_between(X, L["base"]["y"], L["t2"]["y"], color=T.ORACLE, alpha=0.07, lw=0, zorder=1)
 STYLE = {"base": dict(color=T.FREE, ls="-", marker="o", lw=1.2),
          "filtnat": dict(color=T.ORACLE, ls="-", marker="s", lw=0.9, alpha=0.75),
-         "t15": dict(color=T.ORACLE, ls=(0, (2, 1.5)), marker="^", lw=0.9, alpha=0.75),
          "t2": dict(color=T.ORACLE, ls="-", marker="D", lw=1.3)}
 for r, lab, q in RUNGS:
     ax.errorbar(X, L[r]["y"], yerr=L[r]["e"], ms=2.6, elinewidth=0.6, capsize=1.3, zorder=3,
                 **STYLE[r])
 for i in range(len(scales)):
     d = L["t2"]["y"][i] - L["base"]["y"][i]
-    ax.text(X[i] / 1.06, L["t2"]["y"][i] + L["t2"]["e"][i] + 1.1, f"+{d:.1f}",
-            fontsize=5.2, color=T.SUB, ha="right", va="bottom")
+    ha = "left" if i == 0 else "right"
+    ax.text(X[i] * (1.10 if i == 0 else 1 / 1.06),
+            L["t2"]["y"][i] + L["t2"]["e"][i] + (2.6 if i == 0 else 1.1),
+            f"+{d:.1f}", fontsize=5.2, color=T.SUB, ha=ha, va="bottom")
 ends = {r: L[r]["y"][-1] for r, _, _ in RUNGS}
-ANCHOR = {"t2": 88.6, "filtnat": 84.4, "t15": 80.2, "base": 76.0}
+ANCHOR = {"t2": 89.4, "filtnat": 83.6, "base": 77.0}
 for r, lab, q in RUNGS:
     col = T.FREE if r == "base" else T.ORACLE
     a_ = STYLE[r].get("alpha", 1.0)
@@ -62,44 +62,37 @@ ax.set_xlabel("raw experience (pairs)")
 ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
 
-# ---- B: the aligned arm as a scaling curve --------------------------------------
-F = fit(rng)
-grid = np.logspace(3.3, 6.5, 200)
-lo, hi = F["band"](grid)
-bx.fill_between(grid, lo, hi, color=T.FREE, alpha=0.13, lw=0, zorder=1)
-bx.plot(grid, logistic(grid, *F["popt"]), color=T.FREE, lw=1.0, zorder=2)
-bx.errorbar(F["x"], F["y"], yerr=F["e"], fmt="o", color=T.FREE, ms=2.6, lw=0,
-            elinewidth=0.6, capsize=1.3, zorder=4)
-afams = sorted(((f, D.family(f)) for f in D.runs.family.unique()
-                if re.fullmatch(r"B26_lad\d*_?filtnat", str(f))), key=lambda t: t[1]["n_pairs"])
-ax_ = np.array([f["n_pairs"] for _, f in afams])
-ay = np.array([f["mean"] for _, f in afams]); ae = np.array([f["sd"] for _, f in afams])
-agrid = np.logspace(3.6, np.log10(ax_.max()), 120)
-apopt, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, F["popt"][2]), ax_, ay,
-                     p0=(4.3, 0.5), sigma=ae, maxfev=40000)
-adraws = []
-for _ in range(300):
-    try:
-        pa, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, F["popt"][2]), ax_,
-                          ay + rng.normal(0, np.maximum(ae, 0.5)), p0=apopt, maxfev=40000)
-        adraws.append(logistic(agrid, *pa, F["popt"][2]))
-    except Exception:
-        pass
-alo, ahi = np.percentile(np.array(adraws), [10, 90], axis=0)
-bx.fill_between(agrid, alo, ahi, color=T.ORACLE, alpha=0.13, lw=0, zorder=1)
-bx.plot(agrid, logistic(agrid, *apopt, F["popt"][2]), color=T.ORACLE, lw=1.0, zorder=2)
-bx.errorbar(ax_, ay, yerr=ae, fmt="o", color=T.ORACLE, ms=2.6, lw=0, elinewidth=0.6,
-            capsize=1.3, zorder=4)
-aend = logistic(agrid[-1], *apopt, F["popt"][2])
-bx.plot([agrid[-1]] * 2, [aend - 2.5, aend + 2.5], color=T.ORACLE, lw=0.8)
-bx.text(agrid[-1], aend - 3.6, "all aligned\npairs", fontsize=4.8, color=T.ORACLE,
-        ha="center", va="top", linespacing=1.25)
-bx.text(3.4e3, 76, "aligned\n(oracle filter)", fontsize=5.2, color=T.ORACLE, ha="left",
-        va="top", linespacing=1.3)
-bx.text(2.6e5, 38, "unfiltered", fontsize=5.2, color=T.FREE, ha="left")
-bx.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
-bx.set_xscale("log"); bx.set_xlim(3e3, 4e6); bx.set_ylim(18, 92)
-bx.set_xlabel("training pairs")
+# ---- B: the headroom decomposed (paired per-seed differences, matched subsamples) ----
+def per_seed(sc, rung):
+    fname = f"B26_lad{sc}_{rung}" if sc else f"B26_lad_{rung}"
+    d = D.runs[D.runs.family == fname]
+    return dict(zip(d.seed, d.best_acc))
+
+DELTAS = [("referential headroom\n(topline − unfiltered)", "t2", "base", T.SUB, "-", "o"),
+          ("alignment filter\n− unfiltered", "filtnat", "base", T.ORACLE, "-", "s"),
+          ("perfect labels\n− filter", "t2", "filtnat", T.ORACLE, (0, (2, 1.5)), "D")]
+for lab, hi_r, lo_r, col, ls, mk in DELTAS:
+    m_, e_ = [], []
+    for sc in scales:
+        a, b = per_seed(sc, hi_r), per_seed(sc, lo_r)
+        diffs = [a[k] - b[k] for k in a if k in b]
+        m_.append(np.mean(diffs)); e_.append(np.std(diffs, ddof=1))
+    light = lo_r == "filtnat"
+    bx.errorbar(X, m_, yerr=e_, color=col, ls=ls, marker=mk, ms=2.6, lw=1.0,
+                elinewidth=0.6, capsize=1.3, zorder=3, alpha=0.75 if light else 1.0)
+    anchor = {"referential": 8.2, "alignment": 4.6, "perfect": 0.9}[lab.split()[0]]
+    bx.plot([X[-1] * 1.05, X[-1] * 1.25], [m_[-1], anchor], color=col, lw=0.45,
+            alpha=0.5 if light else 0.7, zorder=2)
+    bx.text(X[-1] * 1.3, anchor, lab, fontsize=5.0, color=col, va="center",
+            linespacing=1.25, alpha=0.75 if light else 1.0)
+bx.axhline(0, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
+bx.set_xscale("log"); bx.set_xlim(6.5e4, 3e7)
+bx.set_xticks(X)
+bx.set_xticklabels([f"{x/1e3:.0f}k" if x < 1e6 else "1.82M" for x in X], fontsize=6)
+bx.minorticks_off()
+bx.set_ylim(-2, 15)
+bx.set_xlabel("raw experience (pairs)")
+bx.set_ylabel("oracle gain (Δ 4AFC points)")
 T.clean(bx)
 
 # ---- C: diversity at three budgets ----------------------------------------------
