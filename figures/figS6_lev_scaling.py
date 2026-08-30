@@ -75,4 +75,4 @@ for a, ylab in [(ax, "Konkle 4AFC (%)"), (bx, "LEVANTE vocabulary 4AFC (%)")]:
 ax.text(2.6e7, 22.2, "chance", fontsize=5.4, color=T.SUB, ha="right")
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
-T.save(fig, "fig11_lev_scaling")
+T.save(fig, "figS6_lev_scaling")

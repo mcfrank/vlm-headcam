@@ -7,12 +7,17 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 
 | Script | Display item |
 |---|---|
-| `fig1_pipeline.py` | design + pipeline: corpus → midpoint pairing → Gemini annotation → frozen two-tower → 4AFC |
-| `fig2_scaling.py` | B26 scaling: both arms, fit, single-child reference points |
-| `fig3_ladder.py` | the ladder at three scales — rungs as lines over raw experience, headroom wedge |
-| `fig4_cues.py` | cue information vs the ignition band (A) and the titration that sets the bar (B) |
-| `fig5_representation.py` | encoder comparison (A) and the ladder across encoders (B) |
-| `fig7_diversity.py` | B26 diversity sweep: k children at fixed 30k pairs (book fig 6.3) |
+| `fig1_pipeline.py` | design + pipeline: corpus, referential annotation, two-tower learner (counts from `results/pipeline_counts.json`) |
+| `fig2_encoders.py` | scaling across three encoders (B-OTS, L-OTS, L-BV) on the same draws |
+| `fig3_composite.py` | what closes the gap: ladder at scale (A), the aligned arm (B), diversity by budget (C) |
+| `fig4_development.py` | both evals in developmental time, against Wordbank CDI (A) and measured LEVANTE children (B) |
+| `fig5_lexicon.py` | interpretability: t-SNE lexicon, relatedness vs scale, CDI-category structure |
+| `figS1_scaling_saycam.py` | S (provisional): the unfiltered+aligned curves with single-child SAYCam reference points |
+| `figS2_cues.py` | S: accessible cues vs the ignition band + the titration |
+| `figS3_representation.py` | S: encoder bars + the ladder across encoders |
+| `figS4_levante.py` | S: LEVANTE vs generative VLMs + item frequency scatter |
+| `figS5_items.py` | S: item-level AoA scatters + child-alignment across scale |
+| `figS6_lev_scaling.py` | S: the scaling experiment under Konkle and LEVANTE side by side |
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)

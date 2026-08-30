@@ -105,6 +105,6 @@ T.clean(cx, grid_axis="x")
 T.panel(ax, "A", dx=0.01, dy=0.995)
 T.panel(bx, "B", dx=-0.32)
 T.panel(cx, "C", dx=-0.32)
-print("  NOTE fig11: map = B26_lad_base_s0 nouns above 4x null; B/C shared noun pairs, "
+print("  NOTE fig5: map = B26_lad_base_s0 nouns above 4x null; B/C shared noun pairs, "
       "w2v = SGNS s0 per scale")
-T.save(fig, "fig11_lexicon")
+T.save(fig, "fig5_lexicon")

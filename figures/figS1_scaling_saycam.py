@@ -27,7 +27,7 @@ x, y, e, popt = F["x"], F["y"], F["e"], F["popt"]
 grid = np.logspace(3.3, 7.8, 260)
 lo, hi = F["band"](grid)
 A_fit, A_sd = popt[2], F["A_sd"]
-print(f"  NOTE fig2: fitted asymptote {A_fit:.1f} ± {A_sd:.1f}; seeds per point {F['n']}")
+print(f"  NOTE figS1: fitted asymptote {A_fit:.1f} ± {A_sd:.1f}; seeds per point {F['n']}")
 
 # the aligned (oracle-filter) arm: filtnat rungs of the ladder at every scale run so far
 from scipy.optimize import curve_fit
@@ -91,4 +91,4 @@ ax.text(3.5e6, 22.2, "chance", fontsize=5.6, color=T.SUB, ha="right")
 ax.set_xscale("log"); ax.set_xlim(3e3, 4e6); ax.set_ylim(18, 95)
 ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
-T.save(fig, "fig2_scaling")
+T.save(fig, "figS1_scaling_saycam")

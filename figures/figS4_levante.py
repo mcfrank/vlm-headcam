@@ -63,6 +63,6 @@ cb.ax.tick_params(labelsize=5.4)
 T.clean(bx)
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
-print(f"  NOTE fig6: A scores ours across all {len(it)} items ({known.sum()} attemptable, chance on "
+print(f"  NOTE figS4: A scores ours across all {len(it)} items ({known.sum()} attemptable, chance on "
       f"{(~known).sum()}); other models prompted generatively. B: {len(d)} items with a child difficulty.")
-T.save(fig, "fig6_levante")
+T.save(fig, "figS4_levante")

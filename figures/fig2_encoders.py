@@ -51,7 +51,7 @@ for lab, rx, full, col in ENCODERS:
     va = "top" if "B\n" in lab else "bottom"                  # B-OTS labels below its curve
     ax.text(1.6e7, A + (-2.6 if va == "top" else 2.2), lab.replace("\n", " "), fontsize=5.6,
             color=col, ha="right", va=va)
-    print(f"  NOTE fig10 {lab.replace(chr(10), ' ')}: asymptote "
+    print(f"  NOTE fig2 {lab.replace(chr(10), ' ')}: asymptote "
           f"{popt[2]:.1f} ± {np.sqrt(pcov[2, 2]):.1f}, n per point {[fm['n'] for fm in fam]}")
 
 ax.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
@@ -59,4 +59,4 @@ ax.text(3.5e6, 22.2, "chance", fontsize=5.6, color=T.SUB, ha="right")
 ax.set_xscale("log"); ax.set_xlim(3e3, 2e7); ax.set_ylim(18, 95)
 ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
-T.save(fig, "fig10_encoders")
+T.save(fig, "fig2_encoders")

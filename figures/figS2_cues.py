@@ -60,5 +60,5 @@ T.clean(bx)
 
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l, dx=-0.14 if a is bx else -0.55)
-print("  NOTE fig4: panel B is Phase-2 rig; absolute values not comparable to the Konkle ladder")
-T.save(fig, "fig4_cues")
+print("  NOTE figS2: panel B is Phase-2 rig; absolute values not comparable to the Konkle ladder")
+T.save(fig, "figS2_cues")

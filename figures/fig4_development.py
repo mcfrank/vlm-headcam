@@ -74,7 +74,7 @@ for _ in range(400):
     except Exception:
         pass
 band = np.percentile(np.array(draws), [10, 90], axis=0)
-print(f"  NOTE fig9 LEVANTE fair-score asymptote {popt[2]:.1f} ± {np.sqrt(pcov[2,2]):.1f} "
+print(f"  NOTE fig4 LEVANTE fair-score asymptote {popt[2]:.1f} ± {np.sqrt(pcov[2,2]):.1f} "
       "— a guess; the fair ceiling depends on vocabulary growth beyond this corpus")
 curve_with_fade(bx, popt, band, x.max(), T.FREE)
 bx.text(0.02, 45, "BabyView model\n(all 159 items;\nchance if out-of-vocab)", fontsize=5.4,
@@ -99,4 +99,4 @@ for a, ylab in [(ax, "Konkle 4AFC (%)"), (bx, "LEVANTE vocabulary 4AFC (%)")]:
     T.clean(a)
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
-T.save(fig, "fig9_development")
+T.save(fig, "fig4_development")
