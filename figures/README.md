@@ -10,14 +10,14 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | `fig1_pipeline.py` | design + pipeline: corpus, referential annotation, two-tower learner (counts from `results/pipeline_counts.json`) |
 | `fig2_encoders.py` | scaling across three encoders (B-OTS, L-OTS, L-BV) on the same draws |
 | `fig3_alignment.py` | alignment is the factor: the aligned arm vs the unfiltered reference, ~10x data equivalence |
-| `fig4_lev_scaling.py` | the scaling experiment under Konkle and LEVANTE side by side |
+| `fig4_development.py` | both evals in developmental time: Wordbank CDI trajectories (A), measured LEVANTE children (B) |
 | `fig5_lexicon.py` | interpretability: t-SNE lexicon, relatedness vs scale, CDI-category structure |
 | `figS1_scaling_saycam.py` | S (provisional): the unfiltered+aligned curves with single-child SAYCam reference points |
 | `figS2_cues.py` | S: accessible cues vs the ignition band + the titration |
 | `figS3_representation.py` | S: encoder bars + the ladder across encoders |
 | `figS4_levante.py` | S: LEVANTE vs generative VLMs + item frequency scatter |
 | `figS5_items.py` | S: item-level AoA scatters + child-alignment across scale |
-| `figS6_development.py` | S: both evals in developmental time, against Wordbank CDI and measured LEVANTE children |
+| `figS6_lev_scaling.py` | S: the scaling experiment under Konkle and LEVANTE side by side (pairs axis) |
 | `figS7_diversity.py` | S: diversity sweeps at three budgets (largely a null) |
 
 ```bash
