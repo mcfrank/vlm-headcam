@@ -77,7 +77,7 @@ for enc, key, lab, col in ENC:
     curve_with_fade(bx, popt, col)
     bx.text(13.5, logistic(ngrid[-1], *popt) + LDY[key], key, fontsize=5.4, color=col,
             ha="right", va="center")
-    print(f"  NOTE fig4 LEVANTE {key}: fair asymptote {popt[2]:.1f}")
+    print(f"  NOTE fig3 LEVANTE {key}: fair asymptote {popt[2]:.1f}")
 bx.errorbar(KIDS.age_yr, 100 * KIDS.acc_macro,
             yerr=[100 * (KIDS.acc_macro - KIDS.lo), 100 * (KIDS.hi - KIDS.acc_macro)],
             fmt="-o", color=T.CHILD, ms=2.8, lw=0.9, elinewidth=0.6, capsize=1.4,
@@ -97,4 +97,4 @@ for a, ylab in [(ax, "Konkle 4AFC (%)"), (bx, "LEVANTE vocabulary 4AFC (%)")]:
     T.clean(a)
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
-T.save(fig, "fig4_development")
+T.save(fig, "fig3_development")

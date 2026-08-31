@@ -8,10 +8,9 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | Script | Display item |
 |---|---|
 | `fig1_pipeline.py` | design + pipeline: corpus, referential annotation, two-tower learner (counts from `results/pipeline_counts.json`) |
-| `fig2_encoders.py` | scaling across three encoders (B-OTS, L-OTS, L-BV) on the same draws |
-| `fig3_alignment.py` | alignment is the factor: the aligned arm vs the unfiltered reference, ~10x data equivalence |
-| `fig4_development.py` | both evals in developmental time: Wordbank CDI trajectories (A), measured LEVANTE children (B) |
-| `fig5_lexicon.py` | interpretability: t-SNE lexicon, relatedness vs scale, CDI-category structure |
+| `fig2_scaling.py` | what moves the curve: encoders move it up (A); alignment moves it left, ~29x (B) |
+| `fig3_development.py` | both evals in developmental time: Wordbank CDI trajectories (A), measured LEVANTE children (B) |
+| `fig4_lexicon.py` | interpretability: t-SNE lexicon, relatedness vs scale, CDI-category structure |
 | `figS1_scaling_saycam.py` | S (provisional): the unfiltered+aligned curves with single-child SAYCam reference points |
 | `figS2_representation.py` | S: encoder bars + the ladder across encoders |
 | `figS3_levante.py` | S: LEVANTE vs generative VLMs + item frequency scatter |
