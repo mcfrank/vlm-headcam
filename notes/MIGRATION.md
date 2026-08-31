@@ -138,3 +138,10 @@ RETIREMENT (pending verify + Mike's go): pose_1fps_bbox_limbs.csv on ccn2b;
 /ccn2a/.../2026.1/outputs/merged_transcripts_parsed.csv (copy);
 /ccn2/dataset/babyview/annotations/language/ (copy); /data2 scored/manifests originals
 (MOVED.txt breadcrumbs already in place).
+
+
+## 9. Retirement executed (2026-08-31, Mike's sign-off)
+Checksum-verified against Oak (rsync -c) / ccn2b (md5) then deleted: the pose CSV on ccn2b
+(original on Oak; parquet is canonical), /ccn2/dataset/babyview/annotations/language/ (release
+copy canonical), and the /data2 bv2026 originals (release copies canonical). /ccn2a transcript
+copy left in place (Alvin's tree, not ours). MANIFEST updated; verify_release green after.
