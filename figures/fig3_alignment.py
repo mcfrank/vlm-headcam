@@ -17,14 +17,12 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scaling_fit import fit, logistic, CHANCE
 
-if any(re.match(r"C8_.*filtnat", str(f)) for f in D.runs.family.unique()):
-    print("  NOTE fig3: C8 filtnat families exist — add the encoder breakdown")
 rng = np.random.default_rng(0)
 
 F = fit(rng)
 popt = F["popt"]; A = popt[2]
 afams = sorted(((f, D.family(f)) for f in D.runs.family.unique()
-                if re.fullmatch(r"B26_lad\d*_?filtnat", str(f))), key=lambda t: t[1]["n_pairs"])
+                if re.fullmatch(r"F_dinov3b_align_\d+", str(f))), key=lambda t: t[1]["n_pairs"])
 ax_ = np.array([f["n_pairs"] for _, f in afams])
 ay = np.array([f["mean"] for _, f in afams]); ae = np.array([f["sd"] for _, f in afams])
 apopt, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, A), ax_, ay, p0=(4.3, 0.5),
@@ -59,7 +57,7 @@ aend = logistic(agrid[-1], *apopt, A)
 ax.plot([agrid[-1]] * 2, [aend - 2.6, aend + 2.6], color=T.ORACLE, lw=0.9, zorder=5)
 ax.text(agrid[-1] * 1.12, aend - 3.2, "all referential pairs\nin the corpus", fontsize=5.2,
         color=T.ORACLE, ha="left", va="top", linespacing=1.35)
-ax.text(4.4e3, 62, "aligned only\n(oracle filter)", fontsize=6.0, color=T.ORACLE, ha="left",
+ax.text(3.4e3, 76, "aligned only\n(oracle filter)", fontsize=6.0, color=T.ORACLE, ha="left",
         va="top", linespacing=1.35)
 
 # data equivalence: at each aligned point's accuracy, how much unfiltered data matches it?

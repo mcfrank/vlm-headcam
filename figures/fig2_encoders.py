@@ -1,12 +1,10 @@
-"""Display item 10 — fig2's scaling curve under three encoders.
+"""Display item 2 — the scaling curve under four encoders (FINAL audio-filtered corpus).
 
 Same conventions as fig2 (free-asymptote logistic in log N, seed-noise band, chance floor),
 one curve per encoder on the SAME training draws: DINOv3-B off-the-shelf (the fig2 curve),
 DINOv3-L off-the-shelf, and DINOv3-L retrained from scratch on BabyView — the in-domain
 encoder, and the negative result. Full-corpus points are the ladder base runs.
 
-Preview corpus (transcript-filter): these families re-land under new names after the
-audio-filter rerun — repoint the regexes then.
 """
 import sys, re, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
@@ -16,9 +14,10 @@ from scipy.optimize import curve_fit
 from scaling_fit import logistic, CHANCE
 
 ENCODERS = [  # label, scaling-family regex, full-corpus family, color
-    ("DINOv3-B\noff-the-shelf", r"B26_rand_(\d+)", "B26_lad_base", T.FREE),
-    ("DINOv3-L\noff-the-shelf", r"C8_dinov3l_grid4x4_rand_(\d+)", "C8_dinov3l_grid4x4_base", T.OTHER),
-    ("DINOv3-L\nBabyView-trained", r"C8_dinov3l_bv_grid4x4_rand_(\d+)", "C8_dinov3l_bv_grid4x4_base", T.INDOM),
+    ("DINOv3-L off-the-shelf", r"F_dinov3l_rand_(\d+)", "F_dinov3l_base", T.OTHER),
+    ("DINOv3-B off-the-shelf", r"F_dinov3b_rand_(\d+)", "F_dinov3b_base", T.FREE),
+    ("ViT-B BabyView-trained", r"F_vitb_bv_rand_(\d+)", "F_vitb_bv_base", T.INDOM),
+    ("ViT-S BabyView-trained", r"F_vits_bv_rand_(\d+)", "F_vits_bv_base", "#d99aa7"),
 ]
 rng = np.random.default_rng(0)
 grid = np.logspace(3.3, 7.8, 260)
@@ -48,15 +47,16 @@ for lab, rx, full, col in ENCODERS:
     ax.errorbar(x, y, yerr=e, fmt="o", color=col, ms=2.9, lw=0, elinewidth=0.7,
                 capsize=1.5, zorder=4)
     A = popt[2]
-    va = "top" if "B\n" in lab else "bottom"                  # B-OTS labels below its curve
-    ax.text(1.6e7, A + (-2.6 if va == "top" else 2.2), lab.replace("\n", " "), fontsize=5.6,
-            color=col, ha="right", va=va)
+    # anchor labels at the full-corpus point, staggered per encoder (asymptotes converge)
+    DY = {"DINOv3-L off-the-shelf": 3.6, "DINOv3-B off-the-shelf": -3.8,
+          "ViT-B BabyView-trained": 4.2, "ViT-S BabyView-trained": -3.6}[lab]
+    ax.text(x[-1] * 1.25, y[-1] + DY, lab, fontsize=5.6, color=col, ha="left", va="center")
     print(f"  NOTE fig2 {lab.replace(chr(10), ' ')}: asymptote "
           f"{popt[2]:.1f} ± {np.sqrt(pcov[2, 2]):.1f}, n per point {[fm['n'] for fm in fam]}")
 
 ax.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
 ax.text(3.5e6, 22.2, "chance", fontsize=5.6, color=T.SUB, ha="right")
-ax.set_xscale("log"); ax.set_xlim(3e3, 2e7); ax.set_ylim(18, 95)
+ax.set_xscale("log"); ax.set_xlim(3e3, 3e7); ax.set_ylim(18, 95)
 ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
 T.save(fig, "fig2_encoders")

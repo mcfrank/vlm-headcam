@@ -5,21 +5,20 @@ difficulty-calibrated on real children) is scored two ways because vocabulary co
 with the corpus (1% -> 70% of items in-vocab): solid = all 159 items with chance credited for
 out-of-vocab items (the fair floor); dotted = in-vocab items only (upper bound; item set grows
 with scale, so composition shifts). Konkle items are all in-vocab from 30k on, so the two
-conventions coincide there. Preview corpus families (see fig10 note).
-"""
+conventions coincide there. """
 import sys, re, numpy as np, pandas as pd
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-lev = pd.read_csv(R / "lev_scaling.csv")
+lev = pd.read_csv(R / "lev_scaling_final.csv")
+lev = lev[lev.N <= 1_686_105]                     # final-corpus rows only (drop preview runs)
 
-ENC = [("B-OTS", "DINOv3-B\noff-the-shelf", r"B26_rand_(\d+)", "B26_lad_base", T.FREE),
-       ("L-OTS", "DINOv3-L\noff-the-shelf", r"C8_dinov3l_grid4x4_rand_(\d+)",
-        "C8_dinov3l_grid4x4_base", T.OTHER),
-       ("L-BV", "DINOv3-L\nBabyView-trained", r"C8_dinov3l_bv_grid4x4_rand_(\d+)",
-        "C8_dinov3l_bv_grid4x4_base", T.INDOM)]
+ENC = [("L-OTS", "DINOv3-L\noff-the-shelf", r"F_dinov3l_rand_(\d+)", "F_dinov3l_base", T.OTHER),
+       ("B-OTS", "DINOv3-B\noff-the-shelf", r"F_dinov3b_rand_(\d+)", "F_dinov3b_base", T.FREE),
+       ("B-BV", "ViT-B\nBabyView-trained", r"F_vitb_bv_rand_(\d+)", "F_vitb_bv_base", T.INDOM),
+       ("S-BV", "ViT-S\nBabyView-trained", r"F_vits_bv_rand_(\d+)", "F_vits_bv_base", "#d99aa7")]
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 

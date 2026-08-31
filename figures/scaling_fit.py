@@ -11,14 +11,15 @@ def logistic(N, m, s, A):
     return CHANCE + (A - CHANCE) / (1 + np.exp(-(np.log10(N) - m) / s))
 
 
-def fit(rng=None):
+def fit(rng=None, enc="dinov3b"):
+    """Free-asymptote logistic over the FINAL-corpus scaling families F_<enc>_rand_* + base."""
     rng = rng or np.random.default_rng(0)
     fams = sorted((int(mm.group(1)), f) for f in D.runs.family.unique()
-                  if (mm := re.fullmatch(r"B26_rand_(\d+)", str(f))))
-    if "B26_lad_base" in set(D.runs.family.astype(str)):
-        fams.append((1_820_000, "B26_lad_base"))
+                  if (mm := re.fullmatch(rf"F_{enc}_rand_(\d+)", str(f))))
+    fams.append((None, f"F_{enc}_base"))
     fam = [D.family(f) for _, f in fams]
-    x = np.array([n for n, _ in fams], float)
+    x = np.array([fm["n_pairs"] if not np.isnan(fm.get("n_pairs", np.nan)) else n
+                  for (n, _), fm in zip(fams, fam)], float)
     y = np.array([f["mean"] for f in fam]); e = np.array([f["sd"] for f in fam])
     popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e,
                            bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)

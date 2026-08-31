@@ -18,7 +18,8 @@ from scaling_fit import fit, logistic, CHANCE
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 WB = pd.read_csv(R / "wordbank_anchors.csv")
 KIDS = pd.read_csv(R / "levante_child_by_age.csv")
-lev = pd.read_csv(R / "lev_scaling.csv")
+lev = pd.read_csv(R / "lev_scaling_final.csv")
+lev = lev[lev.N <= 1_686_105]
 UTT_PER_HR, HR_PER_YEAR = 820, 4000
 CDI_INK = "#8a6d1f"
 to_yr = lambda n: n / UTT_PER_HR / HR_PER_YEAR

@@ -32,7 +32,7 @@ print(f"  NOTE figS1: fitted asymptote {A_fit:.1f} ± {A_sd:.1f}; seeds per poin
 # the aligned (oracle-filter) arm: filtnat rungs of the ladder at every scale run so far
 from scipy.optimize import curve_fit
 afams = sorted(((f, D.family(f)) for f in D.runs.family.unique()
-                if re.fullmatch(r"B26_lad\d*_?filtnat", str(f))), key=lambda t: t[1]["n_pairs"])
+                if re.fullmatch(r"F_dinov3b_align_\d+", str(f))), key=lambda t: t[1]["n_pairs"])
 ax_ = np.array([f["n_pairs"] for _, f in afams])
 ay = np.array([f["mean"] for _, f in afams]); ae = np.array([f["sd"] for _, f in afams])
 agrid = np.logspace(3.6, np.log10(ax_.max()), 140)

@@ -17,7 +17,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import spearmanr, pearsonr
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-ie = pd.read_csv(R / "item_eval_b26.csv")
+ie = pd.read_csv(R / "item_eval_final.csv")
+ie = ie[ie.encoder == "dinov3b"]
 wb = pd.read_csv(R / "wordbank_rasch.csv")
 
 ALT = {"bike": "bicycle", "tv": "tv", "phone": "telephone", "socks": "sock", "boot": "boots",
