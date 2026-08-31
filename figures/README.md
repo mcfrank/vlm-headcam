@@ -13,12 +13,11 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | `fig4_development.py` | both evals in developmental time: Wordbank CDI trajectories (A), measured LEVANTE children (B) |
 | `fig5_lexicon.py` | interpretability: t-SNE lexicon, relatedness vs scale, CDI-category structure |
 | `figS1_scaling_saycam.py` | S (provisional): the unfiltered+aligned curves with single-child SAYCam reference points |
-| `figS2_cues.py` | S: accessible cues vs the ignition band + the titration |
-| `figS3_representation.py` | S: encoder bars + the ladder across encoders |
-| `figS4_levante.py` | S: LEVANTE vs generative VLMs + item frequency scatter |
-| `figS5_items.py` | S: item-level AoA scatters + child-alignment across scale |
-| `figS6_lev_scaling.py` | S: the scaling experiment under Konkle and LEVANTE side by side (pairs axis) |
-| `figS7_diversity.py` | S: diversity sweeps at three budgets (largely a null) |
+| `figS2_representation.py` | S: encoder bars + the ladder across encoders |
+| `figS3_levante.py` | S: LEVANTE vs generative VLMs + item frequency scatter |
+| `figS4_items.py` | S: item-level AoA scatters + child-alignment across scale |
+| `figS5_lev_scaling.py` | S: the scaling experiment under Konkle and LEVANTE side by side (pairs axis) |
+| `figS6_diversity.py` | S: diversity sweeps at three budgets (largely a null) |
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)
