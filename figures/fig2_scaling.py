@@ -23,7 +23,7 @@ ENCODERS = [  # label, scaling-family regex, full-corpus family, color
     ("DINOv3-L off-the-shelf", r"F_dinov3l_rand_(\d+)", "F_dinov3l_base", T.OTHER),
     ("DINOv3-B off-the-shelf", r"F_dinov3b_rand_(\d+)", "F_dinov3b_base", T.FREE),
     ("ViT-B BabyView-trained", r"F_vitb_bv_rand_(\d+)", "F_vitb_bv_base", T.INDOM),
-    ("ViT-S BabyView-trained", r"F_vits_bv_rand_(\d+)", "F_vits_bv_base", "#d99aa7"),
+    ("ViT-S BabyView-trained", r"F_vits_bv_rand_(\d+)", "F_vits_bv_base", T.INDOM2),
 ]
 rng = np.random.default_rng(0)
 grid = np.logspace(3.3, 7.8, 260)
@@ -103,8 +103,8 @@ bx.errorbar(ax_, ay, yerr=ae, fmt="o", color=T.ORACLE, ms=3.2, lw=0, elinewidth=
             capsize=1.6, zorder=5)
 aend = logistic(agrid[-1], *apopt, A)
 bx.plot([agrid[-1]] * 2, [aend - 2.6, aend + 2.6], color=T.ORACLE, lw=0.9, zorder=5)
-bx.text(agrid[-1] * 1.12, aend - 5.8, "all referential\npairs in the corpus", fontsize=5.2,
-        color=T.ORACLE, ha="left", va="top", linespacing=1.35)
+bx.text(agrid[-1], aend + 4.0, "all referential\npairs in the corpus", fontsize=5.2,
+        color=T.ORACLE, ha="center", va="bottom", linespacing=1.35)
 bx.text(3.4e3, 76, "aligned only\n(oracle filter)", fontsize=6.0, color=T.ORACLE, ha="left",
         va="top", linespacing=1.35)
 

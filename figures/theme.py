@@ -14,22 +14,23 @@ OUT = Path(__file__).parent / "out"
 W1, W15, W2 = 3.42, 4.5, 7.0
 
 # ---------------------------------------------------------------- palette
-# Paul Tol's "muted" qualitative scheme — colorblind-safe (deuter/prot/tritanopia) and
-# print-safe in greyscale order. Colors are assigned SEMANTIC roles and must stay consistent
-# across every display item: the same idea is always the same color, different kinds of thing
-# are always different colors.
-TOL = dict(indigo="#332288", cyan="#88CCEE", teal="#44AA99", green="#117733",
-           olive="#999933", sand="#DDCC77", rose="#CC6677", wine="#882255",
-           purple="#AA4499", grey="#BBBBBB")
+# Okabe–Ito-based scheme with the MAIN CONTRAST on the blue vs orange axis (no red/green
+# opposition anywhere) — safe under deutan/protan vision, ordered in lightness within each
+# family. Colors are assigned SEMANTIC roles and must stay consistent across every display
+# item: the same idea is always the same color, different kinds of thing are always
+# different colors.
+OI = dict(blue="#0072B2", sky="#56B4E9", vermillion="#D55E00", orange="#E69F00",
+          purple="#AA4499", sand="#DDCC77", wine="#882255", grey="#BBBBBB")
 
-FREE    = TOL["green"]    # unaided / free learning — what the learner gets on its own
-ORACLE  = TOL["indigo"]   # oracle / supervised information it is handed
-INDOM   = TOL["rose"]     # in-domain (BabyView-trained) encoders — the negative result
-CHILD   = TOL["sand"]     # human children / external reference
-OTHER   = TOL["teal"]     # a third model or condition when one is needed
-LIT     = TOL["purple"]   # published reference points from the literature (Vong, CVCL)
-NEUTRAL = TOL["grey"]     # the workhorse / baseline when it is not the point
-PROV    = TOL["wine"]     # provisional: source runs deleted (notes/PROVENANCE.md D6)
+FREE    = OI["blue"]       # unaided / free learning; the workhorse (B-OTS) encoder
+OTHER   = OI["sky"]        # the second off-the-shelf encoder (L-OTS)
+INDOM   = OI["vermillion"] # in-domain (BabyView-trained) encoders — the negative result
+INDOM2  = OI["orange"]     # the second BabyView-trained encoder
+ORACLE  = OI["purple"]     # oracle / supervised information the learner is handed
+CHILD   = OI["sand"]       # human children / external reference (lighter than the oranges)
+LIT     = "#8a8a86"        # published reference points from the literature (Vong, CVCL)
+NEUTRAL = OI["grey"]       # a baseline / reference when it is not the point
+PROV    = OI["wine"]       # provisional: source runs deleted (notes/PROVENANCE.md D6)
 
 # legacy aliases so existing scripts keep working
 GREEN, BLUE, RED, AMBER, PURPLE = FREE, ORACLE, INDOM, CHILD, LIT

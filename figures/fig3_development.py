@@ -32,7 +32,7 @@ OBS_END = to_yr(1_686_105)
 ENC = [("dinov3l", "L-OTS", "DINOv3-L off-the-shelf", T.OTHER),
        ("dinov3b", "B-OTS", "DINOv3-B off-the-shelf", T.FREE),
        ("vitb_bv", "B-BV", "ViT-B BabyView-trained", T.INDOM),
-       ("vits_bv", "S-BV", "ViT-S BabyView-trained", "#d99aa7")]
+       ("vits_bv", "S-BV", "ViT-S BabyView-trained", T.INDOM2)]
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 

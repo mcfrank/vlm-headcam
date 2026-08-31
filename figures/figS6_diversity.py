@@ -14,7 +14,7 @@ fams = {}
 for f in D.runs.family.unique():
     if m := re.fullmatch(r"F_dinov3l_div(\w+?)_(\d+)c", str(f)):
         fams.setdefault(m.group(1), []).append((int(m.group(2)), f))
-SHADE = {"100k": "#4d9971", "300k": T.FREE}
+SHADE = {"100k": T.OTHER, "300k": T.FREE}
 fig, ax = plt.subplots(figsize=(T.W1, 2.4))
 for budget in ["100k", "300k"]:
     pts = sorted(fams.get(budget, []))

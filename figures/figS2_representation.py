@@ -22,7 +22,7 @@ fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6),
 
 # ---- A ------------------------------------------------------------------------
 x = np.arange(len(ENC)); w = 0.37
-for off, key, col, lab in [(-w/2, 1, "#9ec9b8", "whole-frame"), (w/2, 2, T.GREEN, "+ region-MIL")]:
+for off, key, col, lab in [(-w/2, 1, "#a9cfe8", "whole-frame"), (w/2, 2, T.GREEN, "+ region-MIL")]:
     vals = [D.claim(e[key])["value"] for e in ENC]
     prov = [D.claim(e[key])["provisional"] for e in ENC]
     ax.bar(x + off, vals, w, color=col, label=lab, zorder=3,
