@@ -67,6 +67,35 @@ ax.set_xscale("log"); ax.set_xlim(3e3, 3e7); ax.set_ylim(18, 92)
 ax.set_xlabel("training pairs"); ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
 
+# published single-child SAYCam models at their utterance counts (same Konkle-60 items)
+import pandas as pd
+LIT = pd.read_csv(__import__("pathlib").Path(__file__).resolve().parent.parent / "results" / "literature.csv")
+lit = LIT.groupby(["source", "split"], sort=False).agg(n=("n_utterances", "first"),
+                                                        acc=("konkle_acc", "mean")).reset_index()
+lit = lit.sort_values("acc").reset_index(drop=True)
+dy = np.zeros(len(lit))
+for i in range(1, len(lit)):
+    if lit.acc[i] - lit.acc[i - 1] < 1.5 and abs(np.log10(lit.n[i] / lit.n[i - 1])) < 0.1:
+        dy[i - 1] -= 1.6; dy[i] += 1.2
+# hand-placed so no label touches a curve, a marker or another label
+# only the child ids sit at the points; the two sources are keyed in a small legend
+POS = {"S": (1.20, 0.0, "left", "center"), "A": (0.82, 0.7, "right", "center"),
+       "Y": (0.82, -1.5, "right", "center")}
+for r in lit.itertuples():
+    filled = "2026" in r.source
+    ax.scatter([r.n], [r.acc], marker="D", s=15, zorder=6,
+               facecolors=T.INK if filled else "white", edgecolors=T.INK, lw=0.8)
+    if filled:
+        fx, dy_, ha, va = POS[r.split.split("-")[0]]
+        ax.text(r.n * fx, r.acc + dy_, r.split.split("-")[0], fontsize=5.4, color=T.INK,
+                ha=ha, va=va, zorder=7)
+ax.text(4.0e3, 74, "single-child models (SAYCam)", fontsize=5.2, color=T.INK, va="center")
+for yy, fc, lab in [(69.0, "white", "CVCL (Vong et al. 2024)"),
+                    (64.5, T.INK, "Vong & Lake 2026")]:
+    ax.scatter([4.9e3], [yy], marker="D", s=15, facecolors=fc, edgecolors=T.INK, lw=0.8,
+               zorder=6, clip_on=False)
+    ax.text(6.4e3, yy, lab, fontsize=5.2, color=T.INK, va="center")
+
 # ================================ B: alignment ===================================
 F = fit(rng)
 popt = F["popt"]; A = popt[2]
@@ -93,7 +122,7 @@ grid = np.logspace(3.3, 6.6, 220)
 bx.plot(grid, logistic(grid, *popt), color=T.NEUTRAL, lw=1.0, zorder=2)
 bx.errorbar(F["x"], F["y"], yerr=F["e"], fmt="o", color=T.NEUTRAL, ms=2.6, lw=0,
             elinewidth=0.6, capsize=1.3, zorder=3)
-bx.text(1.05e6, 68, "unfiltered\n(B-OTS, as in A)", fontsize=5.6, color="#8a8a86", ha="left",
+bx.text(3.7e6, 62, "unfiltered\n(B-OTS, as in A)", fontsize=5.6, color=T.NEUTRAL, ha="right",
         va="top", linespacing=1.35)
 
 # the aligned arm
@@ -103,8 +132,8 @@ bx.errorbar(ax_, ay, yerr=ae, fmt="o", color=T.ORACLE, ms=3.2, lw=0, elinewidth=
             capsize=1.6, zorder=5)
 aend = logistic(agrid[-1], *apopt, A)
 bx.plot([agrid[-1]] * 2, [aend - 2.6, aend + 2.6], color=T.ORACLE, lw=0.9, zorder=5)
-bx.text(agrid[-1], aend + 4.0, "all referential\npairs in the corpus", fontsize=5.2,
-        color=T.ORACLE, ha="center", va="bottom", linespacing=1.35)
+bx.text(agrid[-1] * 1.35, aend - 1.2, "all referential pairs\nin the corpus", fontsize=5.2,
+        color=T.ORACLE, ha="left", va="top", linespacing=1.35)
 bx.text(3.4e3, 76, "aligned only\n(oracle filter)", fontsize=6.0, color=T.ORACLE, ha="left",
         va="top", linespacing=1.35)
 
