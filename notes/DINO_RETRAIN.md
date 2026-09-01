@@ -111,3 +111,14 @@ diagnosed (memlog_* now records free RAM every 5 min for the post-mortem), train
 checkpoint -> next slice. Worst case per slice-death: ~70 min of progress. The chain
 (stage2 -> probes -> ViT-B -> probe) uses the loop for both stages; sentinel re-armed.
 Resumed from 40k; ETA now ~27-30h for Stage 2 including restart overhead.
+
+
+## ViT-L false start + corrected launch (2026-08-31 23:00)
+The first 6-GPU launch failed by DESIGN FLAW, not recipe: at L speeds a 2h10m slice reaches
+~4,700 iterations but the first checkpoint was at 10,000 — every slice resumed from zero
+(Sisyphus). Compounded by a zombie second chain instance (half-dead ssh block) crash-looping
+on the distributed port. Diagnosis silver lining: two full slices ran with NO host-OOM — the
+leak scales with samples/sec, and L consumes 4x slower than S, so the fuse is ~12h not ~3h.
+Corrected run (dino_l_loop.sh): single-instance guard; 5h30m slices; checkpoint every 2,500;
+6 GPUs (0-5; 6-7 reserved for the group); batch 384 throughout, LR auto-scaled (ladder
+footnote: S/B at 512). Observed 0.6 it/s -> ETA ~5 days (~2026-09-05). Sentinel re-armed.
