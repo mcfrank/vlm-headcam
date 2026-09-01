@@ -2,12 +2,15 @@
 cosine per category (in the full embedding space), plus a label-permutation null for the
 overall within-between gap. -> results/lexicon_category_structure.csv
 """
+import argparse
 from pathlib import Path
 import numpy as np
 import pandas as pd
 
 R = Path(__file__).resolve().parent.parent
-RUN = "B26_lad_base_s0"
+ap = argparse.ArgumentParser()
+ap.add_argument("--run", default="B26_lad_base_s0")
+RUN = ap.parse_args().run
 CATS = ["animals", "food_drink", "vehicles", "toys", "clothing", "body_parts",
         "household", "furniture_rooms", "outside", "places"]
 
@@ -47,5 +50,5 @@ out = pd.DataFrame(rows)
 out["gap_overall"] = obs
 out["null_mean"] = null.mean(); out["null_sd"] = null.std()
 out["p_perm"] = float((null >= obs).mean())
-out.to_csv(R / "results" / "lexicon_category_structure.csv", index=False)
+out.to_csv(R / "results" / f"lexicon_category_structure_{RUN}.csv", index=False)
 print(out.round(4).to_string(index=False))

@@ -14,6 +14,10 @@ from scipy.stats import spearmanr
 import lex_score as LS                      # reuse dataset parsing + npz loading
 
 R = Path(__file__).resolve().parent.parent
+# encoder -> (scaling family prefix, full-corpus family), all on the same training draws
+FAMILIES = {"B26": ("B26_rand_{n}", "B26_lad_base"),
+            "L-OTS": ("C8_dinov3l_grid4x4_rand_{n}", "C8_dinov3l_grid4x4_base"),
+            "L-BV": ("C8_dinov3l_bv_grid4x4_rand_{n}", "C8_dinov3l_bv_grid4x4_base")}
 cache = R / "._lexicon_cache"
 pos = pd.read_csv(cache / "word_pos.csv").set_index("word")["pos"]
 
@@ -29,14 +33,17 @@ pairs["noun"] = pairs.w1.map(pos).eq("NOUN") & pairs.w2.map(pos).eq("NOUN")
 print(f"{len(pairs)} pooled pairs, {pairs.noun.sum()} noun-noun")
 
 SCALES = [3000, 10000, 30000, 100000, 300000, 1000000, "full"]
+FAM = "B26"
 
 
 def main():
+    global FAM
     rows = []
     for sc in SCALES:
         wp = cache / "w2v" / (f"bv26_rand_{sc}_s0.npz" if sc != "full" else "bv26_base.npz")
         v2, W2 = LS.load_npz(wp)
-        model_glob = f"B26_rand_{sc}_s*.npz" if sc != "full" else "B26_lad_base_s*.npz"
+        pre, full_fam = FAMILIES[FAM]
+        model_glob = (pre.format(n=sc) if sc != "full" else full_fam) + "_s*.npz"
         for mp in sorted((cache / "emb").glob(model_glob)):
             v1, W1 = LS.load_npz(mp)
             ok = pairs[pairs.w1.isin(v1) & pairs.w2.isin(v1) & pairs.w1.isin(v2) & pairs.w2.isin(v2)]
@@ -51,9 +58,12 @@ def main():
                 rows.append(dict(scale=n, source=wp.stem, kind="w2v", category=cat,
                                  spearman=spearmanr(s2, sub.z).correlation, n_pairs=len(sub)))
     out = pd.DataFrame(rows).drop_duplicates(["scale", "source", "kind", "category"])
-    out.to_csv(R / "results" / "lexicon_ws_scaling.csv", index=False)
+    out.to_csv(R / "results" / f"lexicon_ws_scaling_{FAM}.csv", index=False)
     print(out.groupby(["scale", "kind", "category"]).spearman.mean().round(3).to_string())
 
 
 if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser(); ap.add_argument("--family", default="B26")
+    FAM = ap.parse_args().family
     main()

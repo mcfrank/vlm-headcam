@@ -9,9 +9,12 @@ import pandas as pd
 from scipy import stats
 
 import lex_score as LS
-from lex_ws_scaling import pairs, SCALES, cache   # reuse pooled pairs + cache paths
+import argparse
+from lex_ws_scaling import pairs, SCALES, cache, FAMILIES  # pooled pairs + cache paths
 
 R = Path(__file__).resolve().parent.parent
+_ap = argparse.ArgumentParser(); _ap.add_argument("--family", default="B26")
+FAM = _ap.parse_args().family
 
 
 def partial(a, b, c):
@@ -31,7 +34,8 @@ rows = []
 for sc in SCALES:
     wp = cache / "w2v" / (f"bv26_rand_{sc}_s0.npz" if sc != "full" else "bv26_base.npz")
     v2, W2 = LS.load_npz(wp)
-    glob = f"B26_rand_{sc}_s*.npz" if sc != "full" else "B26_lad_base_s*.npz"
+    pre, full_fam = FAMILIES[FAM]
+    glob = (pre.format(n=sc) if sc != "full" else full_fam) + "_s*.npz"
     for mp in sorted((cache / "emb").glob(glob)):
         v1, W1 = LS.load_npz(mp)
         ok = pairs[pairs.w1.isin(v1) & pairs.w2.isin(v1) & pairs.w1.isin(v2) & pairs.w2.isin(v2)]
@@ -48,7 +52,7 @@ for sc in SCALES:
                              partial_model=r_m, p_model=p_m,
                              partial_w2v=r_w, p_w2v=p_w))
 out = pd.DataFrame(rows)
-out.to_csv(R / "results" / "lexicon_partial.csv", index=False)
+out.to_csv(R / "results" / f"lexicon_partial_{FAM}.csv", index=False)
 full = out[out.scale == 1815243].groupby("category")[["partial_model", "partial_w2v", "n_pairs"]].mean()
 print("full corpus (mean over seeds):")
 print(full.round(3).to_string())
