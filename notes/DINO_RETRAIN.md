@@ -122,3 +122,14 @@ leak scales with samples/sec, and L consumes 4x slower than S, so the fuse is ~1
 Corrected run (dino_l_loop.sh): single-instance guard; 5h30m slices; checkpoint every 2,500;
 6 GPUs (0-5; 6-7 reserved for the group); batch 384 throughout, LR auto-scaled (ladder
 footnote: S/B at 512). Observed 0.6 it/s -> ETA ~5 days (~2026-09-05). Sentinel re-armed.
+
+
+## Root cause of the recurring "ssh died mid-block" (2026-09-01 00:05)
+Every kill sequence of the form `ssh ccn2 'pkill -f "dino_train_loop"; <more commands>'`
+was killing ITSELF: the pattern matches the ssh session's own bash cmdline, pkill takes out
+the shell, and the rest of the block never runs — leaving orphan processes that later
+masquerade as zombies/duplicate instances (tonight's L_LOOP_REFUSED, yesterday's port
+crash-loop). Fix, now standard: bracket the last character of any pkill pattern
+(`pkill -f "dino_l_loo[p]"`) so the pattern never matches a cmdline containing itself.
+ViT-L relaunched clean under the v2 loop (single trainer, no refusal, iter 0 at 00:04,
+~2.2k orphan iters sacrificed — pre-first-checkpoint). Sentinel v3 armed. ETA ~Sep 5.
