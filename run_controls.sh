@@ -33,19 +33,12 @@ one () {  # one <enc> <tag> <manifest> <seed> <window>
     --min-coverage 0.9 --seed $s --out runs/F_${e}_${tag}_s$s > logs/f_${e}_${tag}_s$s.log 2>&1 &
   [ $((i % NG)) -eq 0 ] && wait
 }
-echo "=== A. alignment-selection controls ==="
-for s in 0 1 2; do
-  one dinov3l alignedonly  bv26a_alignedonly      $s 0
-  one dinov3l matchrand    bv26a_matchrand_s$s    $s 0
-  one dinov3l minusaligned bv26a_minusaligned     $s 0
-  one dinov3l minusrand    bv26a_minusrand_s$s    $s 0
-done
-wait
-echo "=== B. temporal-window (+-5) control ==="
-for e in dinov3l dinov3b vitb_bv vits_bv; do for s in 0 1 2 3 4; do
-  one $e win5_30000  bv26a_rand_30000_s$s  $s 5
-  one $e win5_300000 bv26a_rand_300000_s$s $s 5
-  one $e win5_full   bv26a_base            $s 5
+echo "=== A. alignment-selection controls, all four encoders ==="
+for e in dinov3l dinov3b vitb_bv vits_bv; do for s in 0 1 2; do
+  one $e alignedonly  bv26a_alignedonly      $s 0
+  one $e matchrand    bv26a_matchrand_s$s    $s 0
+  one $e minusaligned bv26a_minusaligned     $s 0
+  one $e minusrand    bv26a_minusrand_s$s    $s 0
 done; done
 wait
-echo "CONTROLS_DONE: A=$(ls runs/F_dinov3l_{alignedonly,matchrand,minusaligned,minusrand}_s*/metrics.json 2>/dev/null | wc -l)/12 B=$(ls runs/F_*win5*/metrics.json 2>/dev/null | wc -l)/60 ($(date))"
+echo "CONTROLS_A_DONE: $(ls runs/F_*_{alignedonly,matchrand,minusaligned,minusrand}_s*/metrics.json 2>/dev/null | wc -l)/48 ($(date))"
