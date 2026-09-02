@@ -3,10 +3,10 @@
 A: the corpus and how an (utterance, frame) pair is formed. A run of 1 fps frames from one
    recording with the time-aligned utterances underneath; each utterance is paired with the frame
    at its midpoint second. No score selects the frame.
-B: what the referential annotation adds — two pairs Gemini marks as referential, two it does
-   not — and the funnel from all pairs to referential moments.
-C: the frozen two-tower learner (region grid over a frozen encoder; bag-of-words over the
+B: the frozen two-tower learner (region grid over a frozen encoder; bag-of-words over the
    utterance; max-over-regions score; InfoNCE) and the out-of-corpus 4AFC evaluation.
+C: what the referential annotation adds — two pairs Gemini marks as referential, two it does
+   not — and the funnel from all pairs to referential moments.
 
 All frames are face-blurred copies (src/blur_faces.py) staged in figures/assets/frames; counts
 come from results/corpus.csv.
@@ -78,7 +78,7 @@ def chip(ax, x, y, w, h, text, fc, ec, fs=5.4, tc=T.INK, bold=False, z=3, pad=0.
 # ---------------------------------------------------------------- canvas (units = 0.1 in)
 FW, FH = T.W2, 4.3
 fig = plt.figure(figsize=(FW, FH))
-PANELS = {"A": (0.00, 2.25), "B": (2.35, 2.15), "C": (4.60, 2.40)}     # x-offset, width in inches
+PANELS = {"A": (0.00, 2.25), "B": (2.35, 2.40), "C": (4.85, 2.15)}     # x-offset, width in inches
 axes = {}
 for k, (x0, w) in PANELS.items():
     ax = fig.add_axes([x0 / FW, 0, w / FW, 1])
@@ -158,8 +158,8 @@ if cam.exists():
 else:
     print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
 
-# ================================================================ B: referential annotation
-bx = axes["B"]
+# ================================================================ C: referential annotation
+bx = axes["C"]
 y = TOP
 bx.text(0.8, y - 0.2, "Gemini reads each pair:  alignment 0–100  +  referent noun",
         fontsize=5.4, color=T.INK, va="top")
@@ -193,8 +193,8 @@ for lab, nn, col, tc in levels:
                 ha="left", va="center", fontsize=5.2, color=tc, zorder=3)
     fy -= 3.1
 
-# ================================================================ C: learner + eval
-cx = axes["C"]
+# ================================================================ B: learner + eval
+cx = axes["B"]
 y = TOP
 iy = y - 1.8                                       # tops of the two towers
 # left tower: the frame through the frozen encoder's region grid
