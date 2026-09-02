@@ -16,10 +16,9 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | `figS3_levante_full.py` | S: Konkle beside LEVANTE, both scorings |
 | `figS4_items.py` | S: item-level AoA + child-alignment across scale |
 | `figS5_lexicon_encoders.py` | S: relatedness by word class and lexicon |
+| `figS6_tsne_encoders.py` | S: the noun lexicon under all four encoders |
 
-**Not yet buildable** (blocked on runs): the region-MIL vs mean-pooled comparison (no
-`F_*` no-MIL runs and no R=1 caches yet) and the t-SNE across encoders (the `F_` lexicons
-now exist, so this one is a figure to write, not a run to wait for).
+**Not yet buildable** (blocked on runs): the region-MIL vs mean-pooled comparison (no `F_*` no-MIL runs and no R=1 caches yet).
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)
