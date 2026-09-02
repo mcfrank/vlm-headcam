@@ -1003,3 +1003,59 @@ scaling (unfiltered): 10k 28.6 · 30k 36.1 · 100k 49.9 · 300k 66.4 · 911k 75.
   scripts while they were running**. Bash reads a script incrementally by byte offset, so an edit
   mid-run corrupts execution. Rule going forward: stop a job before editing its script, or write to
   a new filename. Neither failure lost work; the pilot's 21 caches had already assembled.
+
+---
+
+## Catch-up digest 2026-08-23 → 2026-09-02 (journal was out of date; consolidated)
+
+### 2026-08-23/24 — bugs surfaced by review, then data consolidation
+- **Eval/eval separation verified**: Konkle dev-117 and test-60 share 0 categories, 0 images.
+- **Scaling error bars were init-only**: every seed reused one subsample. Fixed: one independent
+  draw per seed (8 draws ≤100k, 5 at 300k, 3 at 1M); diversity draws k random children per seed
+  (was the k largest). Ladder additionally run at 300k/100k from ONE matched subsample per seed.
+- **English-filter join bug**: `(video_id, text)` join lost 53% of 2025.2 pairs silently (two
+  transcript pipelines segment differently). Now keyed on `(video_id, utterance_id)` + abort <90%.
+- **Half the embedding never scheduled** (`--nshards 8`, shards 0–3 launched). Relaunched all 8.
+- **2026.1 consolidated** under `/ccn2b/dataset/babyview/2026.1/` (`notes/MIGRATION.md`): pose
+  rekeyed to `(video_id, frame_idx, person_idx)`, referent annotation off node-local scratch,
+  release_index.tsv crosswalk, MANIFEST, verify_release.py green. Diagnostics extractor + book §2.
+- **Diagnostics QC (Mike)**: survey `percent_english` is a 0–1 proportion (units bug); persons-per-
+  frame lacked the 0 bar; 20% of pose detections are hands-only (wearer); S02170002 = sibling.
+- **Bundle 2 (B26, transcript-filter preview corpus, DINOv3-B)**: 101 runs. Scaling 3k→1M =
+  26.6→76.7; ladder full 79.1/84.6/82.8/85.2; ladder@300k 65.2/70.5/73.0/74.7; @100k 48.0/52.5/
+  54.9/60.2 (oracle headroom shrinks 7.7→4.2→0.6 with scale); diversity@30k flat (floor artifact).
+- **Joint pilot** (top-4 DINOv3-B blocks, 300k): 65.6±1.0 vs frozen 62.1±3.7; probe 99.8→99.8.
+- **ch8 rerun, size-matched**: L-OTS 84.4 vs L-BV 43.6 at full (gap 40.8, slope effect: +30.4 vs
+  +14.0 over 18× data); B-OTS 79.1. Preview three-encoder curves committed.
+- **Oak**: inode quota (1.5M/1.5M with 13.6k files in-dir) → SRCC; later unblocked; mirror
+  194.6G/69 files (pose pkls as one tar); retirement executed after checksum verify.
+
+### 2026-08-25 — the Whisper finding and the final corpus
+- **Whisper auto-translation**: transcript-level language ID read ~90% English for non-English
+  homes. Audio-level Gemini ID (47,826 windows, ~$27): survey-vs-audio r=0.91, transcript-vs-
+  audio r=0.53. Book §2 inverted and corrected. **Filter (Mike): video-level <50% audio-English**
+  → 1,838,134 → **1,686,105 pairs, 48 children**, 1,258 videos dropped. `bv26_pairs_en_audio`.
+- Item-level Konkle eval across scales: 1M↔full item profiles r=0.91; reliability 0.85 at full.
+- LEVANTE un-parked as second scaling eval (results/lev_scaling*.csv).
+
+### 2026-08-29/30 — FINAL rerun (F_ families, 320 runs, 4 encoders)
+- Encoders: DINOv3-L OTS, DINOv3-B OTS, ViT-B BV-2026.1, ViT-S BV-2026.1 (DINO session's
+  retrains; native loader only — HF export has a parity bug). Aligned scaling on all four.
+- Konkle full: L-OTS ~84, B-OTS ~79, BV encoders ~45–48 (in-vocab). LEVANTE full: 59.8/47.4/
+  34.5/32.4; child-likeness ρ = −0.40/−0.28/−0.28/−0.17 ordering by encoder quality.
+- published.csv: 24 final-rig claims added (legacy rows kept, phase-tagged).
+
+### 2026-09-02 — supplementary controls (reviewer-driven)
+- **No-MIL (whole-frame)**: final caches are drop-CLS → `--cls_only` would read a corner cell;
+  built mean-over-grid R=1 caches (`make_wf_caches.py`); 4 enc × {30k,300k,full} × 5 seeds.
+- **In-domain held-out eval** from the 1,258 language-excluded videos (603 frames, 82 concrete
+  categories): word-learning gap persists in-domain (L-OTS 73.2 vs B-BV 47.7 at full); prototype
+  probes near-matched across encoders (Konkle 96.5–100, in-domain 54–60) → coarse category
+  separability does not explain the lexical gap.
+- **KCHI control**: no-child-speech (1.299M) 80.27±0.16 vs matched-N random 80.87±1.66 → child's
+  own utterances contribute like generic data (null).
+- **Queued**: alignment-selection controls (aligned-only / exposure+length-matched random /
+  full-minus-aligned / full-minus-random; diagnostics: aligned set has 2.4× eval-noun exposure of
+  plain random, matched control equates it) and temporal-window ±5 control (60 runs; caches hold
+  pair-frames only → partial windows, occupancy logged).
+- Paper repro audit: `notes/PAPER_REPRO.md` (ALL/ONLY); `make_methods_numbers.py` macros.
