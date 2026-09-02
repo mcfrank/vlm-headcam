@@ -188,7 +188,7 @@ Markdown("| step | rule | counts |\n|---|---|---|\n" + "\n".join(rows))
 
 [AI DRAFT] We trained on the BabyView 2026.1 release: 16,306 videos from 51 children
 (2,701 h; ages 2.9–54 months). Utterance–frame training pairs were formed by pairing each
-ASR utterance with the 1 fps frame at its onset time. The training corpus applies a
+ASR utterance with the 1 fps frame at its temporal midpoint. The training corpus applies a
 language filter measured at the *audio* level (below): videos with <50% audio-measured
 English speech are excluded, along with utterances the transcript-level annotation flags
 as non-English, yielding 1,686,105 pairs from 48 children.
