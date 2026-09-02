@@ -15,6 +15,11 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--run", default="B26_lad_base_s0")
 ap.add_argument("--cache", default="._lexicon_cache")
 ap.add_argument("--min-count", type=int, default=50)
+ap.add_argument("--top-n", type=int, default=0,
+                help="keep the N best-structured words instead of thresholding. The "
+                     "--min-nn threshold is NOT comparable across training scales (median "
+                     "neighbour cosine rises with vocabulary size), so use --top-n to map "
+                     "models trained on different amounts of data.")
 ap.add_argument("--min-nn", type=float, default=4.0,
                 help="keep words whose top-3-NN mean cosine exceeds this multiple of the "
                      "random-vector null (1/sqrt(dim)); 0 disables")
@@ -36,12 +41,16 @@ if a.pos:
 S = W[keep] @ W[keep].T
 np.fill_diagonal(S, -1)
 nn_cos = np.sort(S, axis=1)[:, -3:].mean(1)
-if a.min_nn:
+if a.top_n:
+    order = np.argsort(-nn_cos)[:a.top_n]
+    keep = [keep[i] for i in order]; nn_cos = nn_cos[order]
+elif a.min_nn:
     null = 1 / np.sqrt(W.shape[1])
     m = nn_cos > a.min_nn * null
     keep = [k for k, ok in zip(keep, m) if ok]; nn_cos = nn_cos[m]
 print(f"{a.run}: {len(keep)} of {len(words)} words (count >= {a.min_count}, "
-      f"top3-NN > {a.min_nn}x null)")
+      + (f"top {a.top_n} by neighbour cosine)" if a.top_n
+         else f"top3-NN > {a.min_nn}x null)"))
 
 X = TSNE(n_components=2, perplexity=a.perplexity, metric="cosine", init="pca",
          random_state=0).fit_transform(W[keep])

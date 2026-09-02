@@ -10,7 +10,7 @@ from scipy import stats
 
 import lex_score as LS
 import argparse
-from lex_ws_scaling import pairs, SCALES, cache, FAMILIES  # pooled pairs + cache paths
+from lex_ws_scaling import pairs, SCALES, cache, FAMILIES, w2v_path  # pooled pairs, paths
 
 R = Path(__file__).resolve().parent.parent
 _ap = argparse.ArgumentParser(); _ap.add_argument("--family", default="B26")
@@ -31,10 +31,9 @@ def partial(a, b, c):
 
 
 rows = []
-for sc in SCALES:
-    pre, full_fam, corpus = FAMILIES[FAM]
-    wp = cache / "w2v" / (f"{corpus}_rand_{sc}_s0.npz" if sc != "full"
-                          else f"{corpus}_base.npz")
+pre, full_fam, corpus, scales = FAMILIES[FAM]
+for sc in (scales or SCALES):
+    wp = w2v_path(cache, corpus, sc)
     if not wp.exists():
         continue
     v2, W2 = LS.load_npz(wp)
@@ -50,7 +49,7 @@ for sc in SCALES:
             h = sub.z.values
             r_m, p_m = partial(h, s1, s2)       # model beyond w2v
             r_w, p_w = partial(h, s2, s1)       # w2v beyond model
-            n = 1815243 if sc == "full" else sc
+            n = (1_682_259 if FAM.startswith("F-") else 1_815_243) if sc == "full" else sc
             rows.append(dict(scale=n, run=mp.stem, category=cat, n_pairs=len(sub),
                              partial_model=r_m, p_model=p_m,
                              partial_w2v=r_w, p_w2v=p_w))

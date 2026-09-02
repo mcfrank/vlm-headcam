@@ -25,17 +25,23 @@ from common import frame_key
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--items", default="lev_vocab_items.csv")
-ap.add_argument("--out", default="results/lev_scaling.csv")
+ap.add_argument("--out", default="results/lev_scaling_final.csv")
 a = ap.parse_args()
 dev = "cuda" if torch.cuda.is_available() else "cpu"
 
 items = pd.read_csv(a.items)
-CACHES = {"dinov3b": load_region_cache("emb_lev_dinov3b"),
-          "dinov3l": load_region_cache("emb_lev_dinov3l"),
-          "dinov3l_bv": load_region_cache("emb_lev_dinov3l_bv")}
+CACHES = {k: load_region_cache(f"emb_lev_{k}") for k in
+          ["dinov3b", "dinov3l", "dinov3l_bv", "vits_bv", "vitb_bv"]}
 
 RUNS = []
-for rd in sorted(glob.glob("runs/B26_rand_*") + glob.glob("runs/B26_lad_base_s*")):
+LBL = {"dinov3l": "L-OTS", "dinov3b": "B-OTS", "vits_bv": "S-BV", "vitb_bv": "B-BV"}
+for rd in sorted(glob.glob("runs/F_*")):
+    m = re.search(r"F_(dinov3l|dinov3b|vits_bv|vitb_bv)_(rand_(\d+)|base)_s(\d+)$", rd)
+    if not m or not Path(rd, "model.pt").exists():
+        continue
+    N = int(m.group(3)) if m.group(3) else 1686105
+    RUNS.append((rd, LBL[m.group(1)], m.group(1), N, int(m.group(4))))
+for rd in sorted(glob.glob("runs/__none__")):
     m = re.search(r"B26_rand_(\d+)_s(\d+)$", rd) or re.search(r"B26_lad_base_s(\d+)$", rd)
     if not m or not Path(rd, "model.pt").exists():
         continue

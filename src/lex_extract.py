@@ -30,7 +30,8 @@ OUT = ROOT / "scratch" / "lexicon"
 # kept so the earlier figures still rebuild.
 RUN_RE = re.compile(r"^(B26_(rand_\d+|lad\d*_?(base|filtnat|t15|t2))"
                     r"|C8_dinov3l(_bv)?_grid4x4_(rand_\d+|base)"
-                    r"|F_(dinov3b|dinov3l|vitb_bv|vits_bv)_(rand_\d+|base))_s\d$")
+                    r"|F_(dinov3b|dinov3l|vitb_bv|vits_bv)_"
+                    r"(rand_\d+|base|align_\d+|lad_(filtnat|t15|t2)))_s\d$")
 
 # ---- 1. embedding matrices -------------------------------------------------------
 done = 0
@@ -53,7 +54,9 @@ print(f"embeddings: wrote {done} new npz")
 mans = (sorted(ROOT.glob("manifests/bv26_rand_*_s0.parquet"))
         + [ROOT / "manifests" / "bv26_base.parquet"]
         + sorted(ROOT.glob("manifests/bv26a_rand_*_s0.parquet"))       # FINAL corpus
-        + [ROOT / "manifests" / "bv26a_base.parquet"])
+        + [ROOT / "manifests" / "bv26a_base.parquet"]
+        + sorted(ROOT.glob("manifests/bv26a_align_*.parquet"))          # oracle-aligned arm
+        + [ROOT / "manifests" / f"bv26a_{r}.parquet" for r in ("filtnat", "t15", "t2")])
 for mp in mans:
     dst = OUT / "text" / (mp.stem + ".txt.gz")
     if dst.exists():
