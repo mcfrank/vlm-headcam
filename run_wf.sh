@@ -2,7 +2,8 @@
 # Whole-frame (no-MIL) SI comparison, final rig: mean-over-grid R=1 caches (the final frame
 # caches are drop-CLS, so cls_only would read a corner cell — mean-pool is the correct
 # whole-frame baseline, matching the book's original "meanpatch"). 4 encoders x 3 scales
-# (30k / 300k / full) x 5 seeds, paired to the region runs' manifests, plus region base
+# (30k / 300k / full) x 5 seeds. GPU threshold relaxed to <41G: these runs are ~5G and
+# coexist with the DINO training campaign on 48G cards — no need to clear anyone., paired to the region runs' manifests, plus region base
 # top-ups s3/s4 so the full-scale pairing is n=5 on both sides. 68 runs.
 set -u
 cd "$(dirname "$0")"
@@ -12,7 +13,7 @@ EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings
 until grep -q "WF_CACHES_DONE" logs/wfprep.log 2>/dev/null; do
   echo "$(date +%H:%M) waiting for wf caches"; sleep 300; done
 while :; do
-  FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F", " '$2<20000{print $1}' | tr '\n' ' ')
+  FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F", " '$2<41000{print $1}' | tr '\n' ' ')
   GPUS=($FREE); NG=${#GPUS[@]}; [ "$NG" -ge 1 ] && break
   echo "$(date +%H:%M) no usable GPU"; sleep 600
 done
