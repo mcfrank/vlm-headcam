@@ -79,8 +79,9 @@ ys = np.arange(len(cg))
 for i, r in cg.iterrows():                     # per-category null band, then the observed gap
     bx.plot([r["lo"], r["hi"]], [i, i], color=T.NEUTRAL, lw=2.6, solid_capstyle="butt",
             zorder=1, alpha=0.9)
-bx.errorbar(cg.gap, ys, xerr=cg.gsd, fmt="o", color=MODEL, ms=3.4, lw=0, elinewidth=0.8,
-            capsize=1.6, zorder=3)
+for i, r in cg.iterrows():                     # same category colours as panel A
+    bx.errorbar([r["gap"]], [i], xerr=[r["gsd"]], fmt="o", color=CAT_COL[r["category"]],
+                ms=3.4, lw=0, elinewidth=0.8, capsize=1.6, zorder=3)
 bx.axvline(0, color=T.SUB, lw=0.5, zorder=1)
 for i, r in cg.iterrows():
     if r["p"] >= 0.05:
@@ -107,9 +108,9 @@ cx.errorbar(g.index, g.m, yerr=g.me, fmt=":o", color=MODEL, ms=2.4, lw=0.9,
             elinewidth=0.5, capsize=1.3, markerfacecolor="white", zorder=2)
 cx.text(0.05, 0.97, "word2vec (same utterances)", fontsize=5.4, color=T.SUB,
         transform=cx.transAxes, va="top")
-cx.text(0.05, 0.885, "two-tower (grounded)", fontsize=5.4, color=MODEL,
+cx.text(0.05, 0.885, "L-OTS model", fontsize=5.4, color=MODEL,
         transform=cx.transAxes, va="top")
-cx.text(0.05, 0.80, "· · vision beyond language (partial)", fontsize=5.4, color=MODEL,
+cx.text(0.05, 0.80, "· · L-OTS, word2vec partialled out", fontsize=5.4, color=MODEL,
         alpha=0.8, transform=cx.transAxes, va="top")
 cx.set_xscale("log"); cx.set_xlim(6e3, 3e6); cx.set_ylim(-0.12, 0.5)
 cx.set_xlabel("training pairs")
