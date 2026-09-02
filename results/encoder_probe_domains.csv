@@ -1,0 +1,9 @@
+encoder,domain,proto
+dinov3b,indomain,56.6
+dinov3b,konkle,99.8
+dinov3l,indomain,60.4
+dinov3l,konkle,100.0
+vits_bv,indomain,54.4
+vits_bv,konkle,96.5
+vitb_bv,indomain,55.4
+vitb_bv,konkle,96.9
