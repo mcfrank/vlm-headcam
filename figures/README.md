@@ -17,6 +17,7 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | `figS4_items.py` | S: item-level AoA + child-alignment across scale |
 | `figS5_lexicon_encoders.py` | S: relatedness by word class and lexicon |
 | `figS6_tsne_encoders.py` | S: the noun lexicon under all four encoders |
+| `figS7_lexicon_alignment.py` | S: what referential selection does to the lexicon |
 
 **Not yet buildable** (blocked on runs): the region-MIL vs mean-pooled comparison (no `F_*` no-MIL runs and no R=1 caches yet).
 
