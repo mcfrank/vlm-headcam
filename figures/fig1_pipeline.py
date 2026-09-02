@@ -9,7 +9,7 @@ C: what the referential annotation adds — two pairs Gemini marks as referentia
    not — and the funnel from all pairs to referential moments.
 
 All frames are face-blurred copies (src/blur_faces.py) staged in figures/assets/frames; counts
-come from results/corpus.csv.
+come from results/pipeline_counts.json.
 """
 import sys, json, pandas as pd, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
@@ -21,7 +21,6 @@ from PIL import Image
 HERE = __import__("pathlib").Path(__file__).resolve().parent
 R = HERE.parent / "results"
 A = HERE / "assets"
-C = pd.read_csv(R / "corpus.csv").set_index("key").value.to_dict()
 J = json.loads((R / "pipeline_counts.json").read_text())
 STEP = {st["step"]: st for st in J["steps"]}
 
@@ -30,6 +29,7 @@ STEP = {st["step"]: st for st in J["steps"]}
 # row (verified: dinov3b_grid4x4 is [1745489, 16, 768]). Both towers land in a shared 512-d
 # space; the word table is the only large learned part.
 ENC_PARAM_M, EMB_D, PROJ_D, N_REG, VOCAB = 86, 768, 512, 16, 15608
+KONKLE_CATS = 60          # Konkle test split (Vong et al. 2024); data/konkle has 60 dirs
 TEXT_PARAM_M = VOCAB * PROJ_D / 1e6
 VIS_PARAM_M = (EMB_D * PROJ_D + PROJ_D + 2 * EMB_D) / 1e6
 
@@ -262,7 +262,7 @@ cx.text(nx + nb * nc + 0.7, ny - nb * nc / 2, "InfoNCE\ntrue pairs on\nthe diago
         fontsize=5.0, color=T.INK, va="center", linespacing=1.3)
 # evaluation: 4AFC over out-of-corpus object photos
 ey = ny - nb * nc - 3.0
-cx.text(1.0, ey + 0.3, f"evaluation: “cat”?   {C['konkle_cats']:.0f}-way 4AFC, out-of-corpus photos",
+cx.text(1.0, ey + 0.3, f"evaluation: “cat”?   {KONKLE_CATS}-way 4AFC, out-of-corpus photos",
         fontsize=5.4, color=T.INK, va="bottom")
 kw = 4.6
 for i, (lab, fn) in enumerate(KONKLE):
