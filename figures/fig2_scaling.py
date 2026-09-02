@@ -106,8 +106,7 @@ def fade(c, t=0.48):
     r, g, b = mc.to_rgb(c)
     return (r + (1 - r) * t, g + (1 - g) * t, b + (1 - b) * t)
 
-bx.text(3.4e3, 90.5, "unfiltered curves replotted from A", fontsize=5.0, color=T.SUB,
-        style="italic", ha="left", va="top")
+
 ENC_B = [("dinov3l", "L-OTS", T.OTHER, "-", True, (78.0, 88.8)),
          ("vitb_bv", "B-BV", T.INDOM, (0, (2.5, 1.5)), False, (37.5, 48.5))]
 bgrid = np.logspace(3.3, 6.6, 220)
