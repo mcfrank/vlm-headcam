@@ -1,4 +1,4 @@
-"""Display item 8 — does the model find hard what children find hard, and when?
+"""S7 — does the model find hard what children find hard, and when?
 
 A/B: item-level scatters at 300k pairs (mid-curve, widest item spread): per-category 4AFC
 accuracy of the free learner against children's Rasch difficulty (mirt on all English
@@ -41,7 +41,7 @@ for sc in ["100000", "300000", "full"]:
     for rung in ["base", "filtnat", "t15", "t2"]:
         d = m[(m.scale == sc) & (m.rung == rung)].dropna(subset=["b_produce"])
         rows.append(f"{rung} r={spearmanr(d.acc, d.b_produce).correlation:+.2f} (n={len(d)})")
-    print(f"  NOTE figS4 production @{sc}: " + "  ".join(rows))
+    print(f"  NOTE figS7 production @{sc}: " + "  ".join(rows))
 
 fig, axes = plt.subplots(1, 3, figsize=(T.W2, 2.5), gridspec_kw=dict(wspace=0.32))
 base = m[(m.rung == "base") & (m.scale == SCATTER_SCALE)]
@@ -107,4 +107,4 @@ T.clean(cx)
 
 for a, l in zip(axes, "ABC"):
     T.panel(a, l, dx=-0.13)
-T.save(fig, "figS4_items")
+T.save(fig, "figS7_items")

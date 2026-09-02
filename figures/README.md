@@ -11,15 +11,17 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | `fig2_scaling.py` | what moves the curve: encoders up (A), alignment left (B) |
 | `fig3_development.py` | both evals in developmental time, against children |
 | `fig4_lexicon.py` | lexicon: t-SNE, category structure, human relatedness |
-| `figS1_alignment_encoders.py` | S: the aligned arm for all four encoders |
-| `figS2_diversity.py` | S: diversity sweeps by pair budget (a null) |
-| `figS3_levante_full.py` | S: Konkle beside LEVANTE, both scorings |
-| `figS4_items.py` | S: item-level AoA + child-alignment across scale |
-| `figS5_lexicon_encoders.py` | S: relatedness by word class and lexicon |
-| `figS6_tsne_encoders.py` | S: the noun lexicon under all four encoders |
-| `figS7_lexicon_alignment.py` | S: what referential selection does to the lexicon |
+| — | **S1** region-MIL vs mean-pooled — *not built*, waiting on `F_*` no-MIL runs + R=1 caches |
+| `figS2_diversity.py` | S2: diversity sweeps by pair budget (a null) |
+| `figS3_alignment_encoders.py` | S3: the aligned arm for all four encoders |
+| `figS4_tsne_encoders.py` | S4: the noun lexicon under all four encoders |
+| `figS5_lexicon_encoders.py` | S5: relatedness by word class and encoder |
+| `figS6_levante.py` | S6: the scaling experiment under the LEVANTE eval |
+| `figS7_items.py` | *held out of the current ms* — item-level AoA + child-alignment across scale |
+| `figS8_lexicon_alignment.py` | *held out of the current ms* — what alignment does to the lexicon |
 
-**Not yet buildable** (blocked on runs): the region-MIL vs mean-pooled comparison (no `F_*` no-MIL runs and no R=1 caches yet).
+S1–S6 are the manuscript's supplement, in order. S7/S8 build and are kept current but are
+commented out in the ms; reinstating either means renumbering from its insertion point.
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)

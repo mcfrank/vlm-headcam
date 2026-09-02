@@ -1,4 +1,4 @@
-"""S6 — the learned noun lexicon under all four encoders.
+"""S4 — the learned noun lexicon under all four encoders.
 
 fig4A for every encoder: t-SNE of the noun embeddings that clear the random-vector null,
 coloured by MacArthur CDI category. Each map is its own t-SNE, so positions are NOT
@@ -46,7 +46,7 @@ for a, (enc, key, lab) in zip(axes.ravel(), ENC):
     a.set_xticks([]); a.set_yticks([])
     for sp in a.spines.values():
         sp.set_color(T.GRID)
-    print(f"  NOTE figS6 {key}: {len(d)} nouns, pooled gap {gap:.4f}, "
+    print(f"  NOTE figS4 {key}: {len(d)} nouns, pooled gap {gap:.4f}, "
           f"{(ns < 0.05).sum()}/{len(ns)} categories p<.05"
           f" (n.s.: {', '.join(ns.index[ns >= 0.05]) or 'none'})")
 
@@ -57,4 +57,4 @@ fig.legend(handles=handles, loc="lower center", ncol=5, fontsize=5.8, frameon=Fa
 for a, l in zip(axes.ravel(), "ABCD"):
     T.panel(a, l, dx=-0.03, dy=1.045)
 fig.subplots_adjust(wspace=0.06, hspace=0.14, bottom=0.085)
-T.save(fig, "figS6_tsne_encoders")
+T.save(fig, "figS4_tsne_encoders")
