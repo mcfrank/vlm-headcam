@@ -28,6 +28,7 @@ to_yr = lambda n: n / UTT_PER_HR / HR_PER_YEAR
 tgrid = np.logspace(np.log10(3e-3), np.log10(14), 260)
 ngrid = tgrid * UTT_PER_HR * HR_PER_YEAR
 OBS_END = to_yr(1_686_105)
+rng = np.random.default_rng(0)
 
 ENC = [("dinov3l", "L-OTS", "DINOv3-L off-the-shelf", T.OTHER),
        ("dinov3b", "B-OTS", "DINOv3-B off-the-shelf", T.FREE),
@@ -37,23 +38,29 @@ ENC = [("dinov3l", "L-OTS", "DINOv3-L off-the-shelf", T.OTHER),
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 
 
-def curve_with_fade(a, popt, col):
+def curve_with_fade(a, popt, col, band=None):
+    """Solid + banded where we have data; heavily faded past it, where only the seed
+    component of the uncertainty is quantified."""
     obs = tgrid <= OBS_END; ext = tgrid >= OBS_END
+    if band is not None:
+        lo, hi = band
+        a.fill_between(tgrid[obs], lo[obs], hi[obs], color=col, alpha=0.16, lw=0, zorder=1)
+        a.fill_between(tgrid[ext], lo[ext], hi[ext], color=col, alpha=0.05, lw=0, zorder=1)
     a.plot(tgrid[obs], logistic(ngrid[obs], *popt), color=col, lw=1.1, zorder=2)
-    a.plot(tgrid[ext], logistic(ngrid[ext], *popt), color=col, lw=1.1, alpha=0.4, zorder=2)
+    a.plot(tgrid[ext], logistic(ngrid[ext], *popt), color=col, lw=1.1, alpha=0.22, zorder=2)
 
 
 # ---- A: Konkle -------------------------------------------------------------------
 KDY = {"L-OTS": 2.6, "B-OTS": -2.6, "B-BV": 2.2, "S-BV": -2.4}
 for enc, key, lab, col in ENC:
     F = fit(enc=enc)
-    curve_with_fade(ax, F["popt"], col)
+    curve_with_fade(ax, F["popt"], col, band=F["band"](ngrid))
     ax.text(13.5, logistic(ngrid[-1], *F["popt"]) + KDY[key], key, fontsize=5.4, color=col,
             ha="right", va="center")
-for form, meas, mk in [("WG", "understands", "o"), ("WS", "produces", "^")]:
+for form, meas, mk, ls in [("WG", "understands", "o", "-"), ("WS", "produces", "^", (0, (2.5, 1.5)))]:
     d = WB[WB.form == form].sort_values("age")
-    ax.plot(d.age / 12, d.pred_4afc, marker=mk, ms=2.6, lw=0.9, color=T.CHILD,
-            markeredgecolor=CDI_INK, markeredgewidth=0.4, zorder=5)
+    ax.plot(d.age / 12, d.pred_4afc, marker=mk, ms=2.6, lw=0.9, ls=ls, color=T.CHILD,
+            markerfacecolor="white", markeredgecolor=CDI_INK, markeredgewidth=0.6, zorder=5)
     end = d.iloc[-1]
     if form == "WS":
         ax.text(end.age / 12 * 1.06, end.pred_4afc - 4.5, meas, fontsize=5.2, color=CDI_INK,
@@ -74,7 +81,15 @@ for enc, key, lab, col in ENC:
     x, y, e = S.N.values.astype(float), S.m.values, np.maximum(S.sd.values, 0.5)
     popt, _ = curve_fit(logistic, x, y, p0=(6, 0.8, 45), sigma=e,
                         bounds=([3, 0.1, 25.5], [10, 3, 100]), maxfev=60000)
-    curve_with_fade(bx, popt, col)
+    lodraw = []
+    for _ in range(300):
+        try:
+            q, _ = curve_fit(logistic, x, y + rng.normal(0, e), p0=popt,
+                             bounds=([3, 0.1, 25.5], [10, 3, 100]), maxfev=60000)
+            lodraw.append(logistic(ngrid, *q))
+        except Exception:
+            pass
+    curve_with_fade(bx, popt, col, band=np.percentile(np.array(lodraw), [10, 90], axis=0))
     bx.text(13.5, logistic(ngrid[-1], *popt) + LDY[key], key, fontsize=5.4, color=col,
             ha="right", va="center")
     print(f"  NOTE fig3 LEVANTE {key}: fair asymptote {popt[2]:.1f}")
