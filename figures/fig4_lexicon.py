@@ -101,7 +101,8 @@ w = wn[wn.kind == "w2v"].groupby("scale").spearman.mean()
 cx.errorbar(m.index, m.y, yerr=m.e, fmt="-o", color=MODEL, ms=2.6, lw=1.0,
             elinewidth=0.6, capsize=1.5, zorder=3)
 cx.plot(w.index, w.values, "--s", color=T.SUB, ms=2.4, lw=0.9, zorder=3)
-cx.axhline(0, color=T.GRID, lw=0.6)
+cx.axhline(0, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=1)   # chance: rho = 0
+cx.text(2.7e6, -0.025, "chance", fontsize=5.4, color=T.SUB, ha="right", va="top")
 pn = pt[(pt.category == "noun") & (pt.scale >= 1e4)]
 g = pn.groupby("scale").agg(m=("partial_model", "mean"), me=("partial_model", "std"))
 cx.errorbar(g.index, g.m, yerr=g.me, fmt=":o", color=MODEL, ms=2.4, lw=0.9,
