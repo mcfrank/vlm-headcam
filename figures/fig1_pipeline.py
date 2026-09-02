@@ -116,11 +116,11 @@ ax.text(x0, ty - 0.5, f"{sec0} s", fontsize=4.8, color=T.SUB, va="top")
 ax.text(x0 + usable, ty - 0.5, f"{STRIP[-1] + 1} s", fontsize=4.8, color=T.SUB, va="top", ha="right")
 # utterances as bars at their real times; each pairs with the frame at its midpoint second
 uy = ty - 3.0
-ax.text(x0, uy + 0.9, "transcribed speech", fontsize=5.4, color=T.ORACLE, va="bottom")
+ax.text(x0, uy + 0.9, "transcribed speech", fontsize=5.4, color=T.LANG, va="bottom")
 for k, (t0, t1, text) in enumerate(UTTS):
     main = k == 1
     yy = uy - (k % 2) * 1.9
-    col = T.ORACLE if main else "#8a84b8"
+    col = T.LANG if main else "#7fcdb4"
     ax.add_patch(Rectangle((tx(t0), yy - 0.55), tx(t1) - tx(t0), 1.1, fc=col, ec="none", zorder=3))
     ax.text(tx(t0) if k < 2 else tx(t1), yy - 0.95, f"“{text}”", fontsize=4.9, color=col,
             va="top", ha="left" if k < 2 else "right", zorder=3)
@@ -130,7 +130,7 @@ for k, (t0, t1, text) in enumerate(UTTS):
     ax.plot([tx(mid), xs[sec]], [y_strip_bot - 0.2, y_strip_bot - 0.2], color=col, lw=0.7,
             ls="-" if main else (0, (1.5, 1.5)), zorder=2)
     if main:
-        ax.add_patch(Rectangle((xs[sec] - fw / 2, y_strip_bot), fw, fh, fc="none", ec=T.ORACLE,
+        ax.add_patch(Rectangle((xs[sec] - fw / 2, y_strip_bot), fw, fh, fc="none", ec=T.LANG,
                                lw=1.1, zorder=4))
 ax.text(x0 + usable / 2, uy - 4.6, "pair each utterance with the frame at its midpoint second\n"
         "no score selects the frame", fontsize=5.4, color=T.INK, ha="center", va="top",
@@ -170,15 +170,15 @@ for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
     yy = y - 1.8 - row * (ch + 3.2)
     aligned = score >= 50
     img(bx, load(FR(vid, fi), crop=(1, 1), anchor=anchor), x, yy, cw,
-        ec=T.FREE if aligned else T.INDOM, lw=1.0)
+        ec=T.ORACLE if aligned else T.SUB, lw=1.0)
     bx.text(x, yy - ch - 0.5, f"“{text}”", fontsize=4.9, color=T.INK, va="top")
     tag = f"aligned {score:.0f}  ·  referent: {ref}" if aligned else f"aligned {score:.0f}  ·  no referent"
-    bx.text(x, yy - ch - 1.7, tag, fontsize=4.9, color=T.FREE if aligned else T.INDOM, va="top")
+    bx.text(x, yy - ch - 1.7, tag, fontsize=4.9, color=T.ORACLE if aligned else T.SUB, va="top")
 # funnel: real bar chart, left-aligned, true linear scale
 tot = STEP["training-corpus"]["pairs"]
 levels = [("all pairs", tot, "#dcdad2", T.INK),
-          ("about something visible", STEP["aligned"]["pairs"], T.FREE, T.FREE),
-          ("…and the referent is spoken", STEP["referent-spoken"]["pairs"], T.ORACLE, T.ORACLE)]
+          ("about something visible", STEP["aligned"]["pairs"], T.ORACLE, T.ORACLE),
+          ("…and the referent is spoken", STEP["referent-spoken"]["pairs"], T.ORACLE2, T.ORACLE2)]
 fy = y - 2 * (ch + 3.2) - 2.8
 BX0, BW, BH = 0.8, 19.8, 1.7
 bx.plot([BX0, BX0], [fy - 3 * 3.1 + 1.0, fy], color=T.SUB, lw=0.6, zorder=3)   # the axis
@@ -210,13 +210,13 @@ cx.text(1.0, iy - fhC - 0.4, "frozen encoder\nwhole-image (CLS) token\n+ 4×4 re
 FX = 1.0 + fwC / 2                                  # frame tower centerline
 # right tower: the utterance as a bag of words
 ux = 10.0
-cx.text(ux, y - 0.2, "utterance", fontsize=5.4, color=T.ORACLE, va="top")
+cx.text(ux, y - 0.2, "utterance", fontsize=5.4, color=T.LANG, va="top")
 cx.text(ux, iy, "“Which cat is it?”", fontsize=5.2, color=T.INK, va="top")
 words = ["which", "cat", "is", "it"]
 wy = iy - 2.2
 for i, w in enumerate(words):
-    chip(cx, ux + (i % 2) * 5.2, wy - (i // 2) * 2.3, 4.6, 1.8, w, fc="#ecebf5", ec=T.ORACLE, fs=5.2)
-cx.text(ux, wy - 5.0, "bag of words, learned\nfrom scratch", fontsize=5.0, color=T.ORACLE,
+    chip(cx, ux + (i % 2) * 5.2, wy - (i // 2) * 2.3, 4.6, 1.8, w, fc="#e4f4ee", ec=T.LANG, fs=5.2)
+cx.text(ux, wy - 5.0, "bag of words, learned\nfrom scratch", fontsize=5.0, color=T.LANG,
         va="top", linespacing=1.3)
 WX = ux + 4.9                                       # word tower centerline
 # the Y: both routes converge on the word-region similarity map
@@ -227,13 +227,13 @@ sy = 21.2
 for i in range(4):
     for j in range(4):
         cx.add_patch(Rectangle((sx + j * cell, sy - (i + 1) * cell), cell, cell,
-                               fc=plt.cm.Purples(0.15 + 0.75 * sim[i, j]), ec="white", lw=0.4,
+                               fc=plt.cm.Greys(0.10 + 0.72 * sim[i, j]), ec="white", lw=0.4,
                                zorder=2))
 im_ = np.unravel_index(sim.argmax(), sim.shape)
 cx.add_patch(Rectangle((sx + im_[1] * cell, sy - (im_[0] + 1) * cell), cell, cell, fc="none",
                        ec=T.INK, lw=1.0, zorder=3))
 arrow(cx, FX, 23.6, sx + 0.7, sy + 0.15, color=T.FREE)
-arrow(cx, WX, wy - 8.0, sx + 4 * cell - 0.7, sy + 0.15, color=T.ORACLE)
+arrow(cx, WX, wy - 8.0, sx + 4 * cell - 0.7, sy + 0.15, color=T.LANG)
 cx.text(sx + 4 * cell + 0.7, sy - 2 * cell, "word · region\nsimilarity\nscore = max\nover regions",
         fontsize=5.0, color=T.INK, va="center", ha="left", linespacing=1.35)
 # InfoNCE: batch similarity matrix, diagonal = true pairs
@@ -249,7 +249,7 @@ for i in range(nb):
 arrow(cx, sx + 2 * cell, sy - 4 * cell - 0.4, sx + 2 * cell, ny + 0.2)
 cx.text(nx - 0.6, ny - nb * nc / 2, "frames", fontsize=4.8, color=T.FREE, ha="right",
         va="center", rotation=90)
-cx.text(nx + nb * nc / 2, ny - nb * nc - 0.3, "utterances", fontsize=4.8, color=T.ORACLE,
+cx.text(nx + nb * nc / 2, ny - nb * nc - 0.3, "utterances", fontsize=4.8, color=T.LANG,
         ha="center", va="top")
 cx.text(nx + nb * nc + 0.7, ny - nb * nc / 2, "InfoNCE\ntrue pairs on\nthe diagonal",
         fontsize=5.0, color=T.INK, va="center", linespacing=1.3)
