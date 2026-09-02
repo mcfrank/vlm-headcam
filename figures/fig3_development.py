@@ -22,7 +22,10 @@ WB = pd.read_csv(R / "wordbank_anchors.csv")
 KIDS = pd.read_csv(R / "levante_child_by_age.csv")
 lev = pd.read_csv(R / "lev_scaling_final.csv")
 lev = lev[lev.N <= 1_686_105]
-UTT_PER_HR, HR_PER_YEAR = 820, 4000
+# Measured in this corpus (results/utterance_rate.csv): 1,835,504 utterances over 2,633 h
+# of transcribed span, 34 children. The rate is the soft part of this axis, so the curves
+# carry a horizontal band for the 95% bootstrap-over-children interval on it.
+UTT_PER_HR, UTT_LO, UTT_HI, HR_PER_YEAR = 697, 634, 752, 4000
 CDI_INK = "#8a6d1f"
 to_yr = lambda n: n / UTT_PER_HR / HR_PER_YEAR
 tgrid = np.logspace(np.log10(3e-3), np.log10(14), 260)
@@ -100,6 +103,17 @@ bx.errorbar(KIDS.age_yr, 100 * KIDS.acc_macro,
 bx.text(4.4, 74, "children, same items\n(LEVANTE trials)", fontsize=5.2, color=CDI_INK,
         ha="right", va="center", linespacing=1.4)
 
+def rate_bar(a, x0=0.028, yb=21.8):
+    """One bar for the horizontal uncertainty: the utterances-per-hour conversion is a
+    multiplicative factor, so a single log-width bar applies to every curve at every x."""
+    lo, hi = x0 * UTT_PER_HR / UTT_HI, x0 * UTT_PER_HR / UTT_LO
+    a.plot([lo, hi], [yb, yb], color=T.SUB, lw=0.8, solid_capstyle="butt", zorder=4)
+    for xx in (lo, hi):
+        a.plot([xx, xx], [yb - 0.9, yb + 0.9], color=T.SUB, lw=0.8, zorder=4)
+    a.text(hi * 1.25, yb, f"input rate ({UTT_LO}\u2013{UTT_HI} utt/hr)", fontsize=5.0,
+           color=T.SUB, va="center")
+
+
 for a, ylab in [(ax, "Konkle 4AFC (%)"), (bx, "LEVANTE vocabulary 4AFC (%)")]:
     for yr in (1, 2, 3):
         a.axvline(yr, color=T.GRID, lw=0.7, zorder=0)
@@ -109,6 +123,7 @@ for a, ylab in [(ax, "Konkle 4AFC (%)"), (bx, "LEVANTE vocabulary 4AFC (%)")]:
     a.set_xscale("log"); a.set_xlim(3e-3, 14); a.set_ylim(18, 95)
     a.set_xlabel("developmental time (years of waking input)")
     a.set_ylabel(ylab)
+    rate_bar(a)
     T.clean(a)
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l)
