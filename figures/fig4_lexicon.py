@@ -7,8 +7,9 @@ qualitative -> quantified -> external comparison.
 A (large): t-SNE of the learned noun lexicon (nouns whose neighbourhoods rise above the
    random-init null), colored by MacArthur CDI semantic category; grey = nouns with no
    CDI item or in a non-object CDI category. Konkle-60 eval words ringed.
-B: the same structure quantified — within- vs between-category cosine per CDI category in
-   the full embedding space, against the label-permutation null.
+B: the same structure quantified — each CDI category's cohesion gap (mean within-category
+   cosine minus mean cosine to every other noun, full embedding space), with its OWN
+   label-permutation null (5,000 shuffles per category per seed) and across-seed spread.
 C: external comparison. Human relatedness across training scale on noun-noun pairs:
    word2vec trained on the identical utterances, the two-tower, and the two-tower's
    UNIQUE contribution (partial rho controlling word2vec); same pairs at each scale.
@@ -26,7 +27,7 @@ d = pd.read_csv(R / f"lexicon_tsne_{RUN}_NOUN.csv")
 cdi = pd.read_csv(R / "cdi_categories.csv").set_index("word").category
 ws = pd.read_csv(R / f"lexicon_ws_scaling_{FAM}.csv")
 pt = pd.read_csv(R / f"lexicon_partial_{FAM}.csv")
-cs = pd.read_csv(R / f"lexicon_category_structure_{RUN}.csv")
+cs = pd.read_csv(R / f"lexicon_category_structure_{RUN.rsplit(chr(95), 1)[0]}.csv")
 
 CAT_COL = {"animals": "#117733", "food_drink": "#CC6677", "vehicles": "#332288",
            "toys": "#AA4499", "clothing": "#88CCEE", "body_parts": "#44AA99",
@@ -70,20 +71,27 @@ ax.axis("off")
 
 # ---- B: CDI category structure --------------------------------------------------
 cs = cs.sort_values("within", ascending=True).reset_index(drop=True)
-ys = np.arange(len(cs))
-for i, r in cs.iterrows():
-    col = CAT_COL[r["category"]]
-    bx.plot([r["between"], r["within"]], [i, i], color=col, lw=1.0, zorder=2)
-    bx.scatter([r["within"]], [i], s=16, color=col, zorder=3)
-    bx.scatter([r["between"]], [i], s=13, facecolors="white", edgecolors=col, lw=0.8, zorder=3)
-nl = cs.null_sd.iloc[0]
-bx.axvspan(-2 * nl, 2 * nl, color=T.NEUTRAL, alpha=0.25, lw=0, zorder=1)
+cg = (cs[cs.category != "ALL"].groupby("category")
+         .agg(n=("n", "first"), gap=("gap", "mean"), gsd=("gap", "std"),
+              lo=("null_lo", "mean"), hi=("null_hi", "mean"), p=("p_perm", "max"))
+         .sort_values("gap").reset_index())
+ys = np.arange(len(cg))
+for i, r in cg.iterrows():                     # per-category null band, then the observed gap
+    bx.plot([r["lo"], r["hi"]], [i, i], color=T.NEUTRAL, lw=2.6, solid_capstyle="butt",
+            zorder=1, alpha=0.9)
+bx.errorbar(cg.gap, ys, xerr=cg.gsd, fmt="o", color=MODEL, ms=3.4, lw=0, elinewidth=0.8,
+            capsize=1.6, zorder=3)
 bx.axvline(0, color=T.SUB, lw=0.5, zorder=1)
+for i, r in cg.iterrows():
+    if r["p"] >= 0.05:
+        bx.text(r["gap"] + 0.004, i, "n.s.", fontsize=5.0, color=T.SUB, va="center")
 bx.set_yticks(ys)
-bx.set_yticklabels([c.replace("_", " / ") for c in cs.category], fontsize=5.4)
-bx.set_xlabel("mean cosine to category members\n(filled = within, open = between)", fontsize=6)
-bx.set_xlim(-0.013, 0.115)
-T.clean(cx, grid_axis="x")
+bx.set_yticklabels([f'{c.replace("_", "/")} ({n})' for c, n in zip(cg.category, cg.n)],
+                   fontsize=5.2)
+bx.set_ylim(-0.7, len(cg) - 0.3)
+bx.set_xlabel("category cohesion gap\n(grey = permutation null, 95%)", fontsize=6)
+bx.set_xlim(-0.015, 0.115)
+T.clean(bx, grid_axis="x")
 
 # ---- C: human relatedness across scale, noun pairs -------------------------------
 wn = ws[(ws.category == "noun") & (ws.scale >= 1e4)]
@@ -111,8 +119,11 @@ T.clean(cx)
 T.panel(ax, "A", dx=0.01, dy=0.995)
 T.panel(bx, "B", dx=-0.32)
 T.panel(cx, "C", dx=-0.32)
-print(f"  NOTE fig4: {RUN}, {len(d)} nouns above 4x null; category gap "
-      f"{cs.gap_overall.iloc[0]:.3f} vs null {cs.null_mean.iloc[0]:.4f}"
-      f"+/-{cs.null_sd.iloc[0]:.4f} (p={cs.p_perm.iloc[0]:.4f}); "
+al = cs[cs.category == "ALL"]
+print(f"  NOTE fig4: {RUN}, {len(d)} nouns above 4x null; pooled gap "
+      f"{al.gap.mean():.4f} (null {al.null_mean.mean():+.4f}, p<={al.p_perm.max():.4f}); "
+      f"per-category p<.05 in {(cg.p < 0.05).sum()}/{len(cg)} "
+      f"(n.s.: {', '.join(cg.category[cg.p >= 0.05]) or 'none'}); "
+      f"{cs.seed.nunique()} seeds x {int(cs.n_perm.iloc[0]):,} permutations; "
       f"C on {ws[ws.category == 'noun'].n_pairs.max()} shared noun pairs")
 T.save(fig, "fig4_lexicon")
