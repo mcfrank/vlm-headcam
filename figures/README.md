@@ -7,16 +7,20 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 
 | Script | Display item |
 |---|---|
-| `fig1_pipeline.py` | design + pipeline: corpus, referential annotation, two-tower learner (counts from `results/pipeline_counts.json`) |
-| `fig2_scaling.py` | what moves the curve: encoders move it up (A); alignment moves it left, ~29x (B) |
-| `fig3_development.py` | both evals in developmental time: Wordbank CDI trajectories (A), measured LEVANTE children (B) |
-| `fig4_lexicon.py` | interpretability: t-SNE lexicon, relatedness vs scale, CDI-category structure |
-| `figS1_scaling_saycam.py` | S (provisional): the unfiltered+aligned curves with single-child SAYCam reference points |
-| `figS2_representation.py` | S: encoder bars + the ladder across encoders |
-| `figS3_levante.py` | S: LEVANTE vs generative VLMs + item frequency scatter |
-| `figS4_items.py` | S: item-level AoA scatters + child-alignment across scale |
-| `figS5_lev_scaling.py` | S: the scaling experiment under Konkle and LEVANTE side by side (pairs axis) |
-| `figS6_diversity.py` | S: diversity sweeps at three budgets (largely a null) |
+| `fig1_pipeline.py` | design + pipeline (counts from `results/pipeline_counts.json`) |
+| `fig2_scaling.py` | what moves the curve: encoders up (A), alignment left (B) |
+| `fig3_development.py` | both evals in developmental time, against children |
+| `fig4_lexicon.py` | lexicon: t-SNE, category structure, human relatedness |
+| `figS1_alignment_encoders.py` | S: the aligned arm for all four encoders |
+| `figS2_diversity.py` | S: diversity sweeps by pair budget (a null) |
+| `figS3_levante_full.py` | S: Konkle beside LEVANTE, both scorings |
+| `figS4_items.py` | S: item-level AoA + child-alignment across scale |
+| `figS5_lexicon_encoders.py` | S: relatedness by word class and lexicon |
+
+**Not yet buildable** (blocked on runs, see the session handoff): the region-MIL vs
+mean-pooled comparison (no `F_*` no-MIL runs and no R=1 caches yet) and the t-SNE across
+encoders (no lexicon cache for any `F_` family). `fig4` and `figS5` are still built from
+PREVIEW-corpus lexicons (`C8_*`) for the same reason.
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)

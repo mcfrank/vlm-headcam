@@ -31,4 +31,6 @@ ax.set_xlim(0.8, 160); ax.set_ylim(20, 70)
 ax.set_xlabel("children contributing the pairs")
 ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
-T.save(fig, "figS6_diversity")
+print(f"  NOTE figS2: budgets present = {sorted(fams)}; the 30k series exists only on the "
+      "preview corpus (B26_div_*), not on the final rig")
+T.save(fig, "figS2_diversity")
