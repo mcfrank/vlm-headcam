@@ -1059,3 +1059,18 @@ scaling (unfiltered): 10k 28.6 · 30k 36.1 · 100k 49.9 · 300k 66.4 · 911k 75.
   plain random, matched control equates it) and temporal-window ±5 control (60 runs; caches hold
   pair-frames only → partial windows, occupancy logged).
 - Paper repro audit: `notes/PAPER_REPRO.md` (ALL/ONLY); `make_methods_numbers.py` macros.
+
+### 2026-09-02 (later) — control tracker for the manuscript
+Encoder tags: dinov3l=L-OTS, dinov3b=B-OTS, vitb_bv=B-BV, vits_bv=S-BV (L-BV retrain pending).
+
+| control | question | encoders | design | family | status / result |
+|---|---|---|---|---|---|
+| in-domain word-learning eval | is the OTS>BV gap an eval-domain artifact? | all 4 | held-out language-excluded videos, 603 frames/82 cats, all F scaling models | results/indomain_eval.csv | DONE: gap persists in-domain (L-OTS 73.2 vs B-BV 47.7 full) |
+| in-domain + Konkle prototype probe | does coarse category quality explain the gap? | all 4 | head-free 4AFC, both domains | results/encoder_probe_domains.csv | DONE: near-matched (96.5–100 Konkle; 54–60 in-domain) → no |
+| KCHI speaker control | does the child's own speech matter? | L-OTS | no-KCHI (1.299M) vs matched-N random, 3+3 seeds | F_dinov3l_{nokchi,randmatch} | DONE: 80.27±0.16 vs 80.87±1.66 → null |
+| diversity 30k line | figS2 third budget | L-OTS | k∈{1,3,10,25,48} × 5 draws | F_dinov3l_div30k_* | DONE (25/25), in runs.parquet |
+| no-MIL (whole-frame) | what does region-MIL buy? | all 4 | mean-over-grid R=1 caches; {30k,300k,full} × 5 seeds paired to region manifests; region base top-ups to n=5 | F_<enc>_wf{30000,300000,full}, F_<enc>_base_s{3,4} | RUNNING (68 runs) |
+| alignment-selection: aligned-only / exposure+length-matched random / full-minus-aligned / full-minus-random | is the aligned advantage exposure? do aligned pairs carry the signal? | all 4 | |A|=171,782; matched control equates eval-noun exposure (31,047 vs 30,946; plain random 12,906) and length; 3 seeds each | F_<enc>_{alignedonly,matchrand,minusaligned,minusrand} | RUNNING (48 runs) |
+| temporal window ±5 s | does temporal MIL help? (expected null) | all 4 | COMPLETE neighbor caches (3.43M new frames → /data2/emb_win5); 30k×5 + 300k×3 | F_<enc>_win5_{30000,300000} | embeddings running (~19 h, 2 GPUs), runs self-gate |
+| L-BV retrain onboarding | size-matched developmental encoder | L-BV | caches → 64 F runs + no-MIL + alignment controls + in-domain | F_dinov3l_bv2_* (tbd) | PENDING DINO session |
+Partial-window runs (pair-frame caches only) were killed and removed — superseded by the complete-window design.
