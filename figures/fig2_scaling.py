@@ -16,7 +16,7 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scaling_fit import fit, logistic, CHANCE
+from scaling_fit import fit, logistic, mc_band, CHANCE
 
 rng = np.random.default_rng(0)
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
@@ -41,15 +41,9 @@ for lab, rx, full, col in ENCODERS:
     y = np.array([fm["mean"] for fm in fam]); e = np.array([fm["sd"] for fm in fam])
     popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=np.maximum(e, 0.5),
                            bounds=([3, 0.05, 26], [9, 3, 100]), maxfev=60000)
-    draws = []
-    for _ in range(400):
-        try:
-            p_, _ = curve_fit(logistic, x, y + rng.normal(0, np.maximum(e, 0.5)), p0=popt,
-                              bounds=([3, 0.05, 26], [9, 3, 100]), maxfev=60000)
-            draws.append(logistic(grid, *p_))
-        except Exception:
-            pass
-    lo, hi = np.percentile(np.array(draws), [10, 90], axis=0)
+    sem = np.maximum(e / np.sqrt([fm["n"] for fm in fam]), 0.15)
+    lo, hi = mc_band(x, y, sem, popt, grid, rng, ([3, 0.05, 26], [9, 3, 100]),
+                     sigma=np.maximum(e, 0.5))
     ax.fill_between(grid, lo, hi, color=col, alpha=0.13, lw=0, zorder=1)
     ax.plot(grid, logistic(grid, *popt), color=col, lw=1.0, zorder=2)
     ax.errorbar(x, y, yerr=e, fmt="o", color=col, ms=2.9, lw=0, elinewidth=0.7,

@@ -15,7 +15,7 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scaling_fit import fit, logistic, CHANCE
+from scaling_fit import fit, logistic, mc_band, CHANCE
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 WB = pd.read_csv(R / "wordbank_anchors.csv")
@@ -80,19 +80,16 @@ lev["fair"] = np.where(lev.playable, lev.correct, 0.25)
 LDY = {"L-OTS": -2.6, "B-OTS": -2.2, "B-BV": 2.4, "S-BV": -2.2}
 for enc, key, lab, col in ENC:
     per = lev[lev.encoder == key].groupby(["N", "seed"]).fair.mean().mul(100).reset_index()
-    S = per.groupby("N").agg(m=("fair", "mean"), sd=("fair", "std")).reset_index()
-    x, y, e = S.N.values.astype(float), S.m.values, np.maximum(S.sd.values, 0.5)
+    S = per.groupby("N").agg(m=("fair", "mean"), sd=("fair", "std"),
+                             k=("fair", "size")).reset_index()
+    x, y = S.N.values.astype(float), S.m.values
+    e = np.maximum(S.sd.values, 0.5)
+    sem = np.maximum(S.sd.values / np.sqrt(S.k.values), 0.15)
     popt, _ = curve_fit(logistic, x, y, p0=(6, 0.8, 45), sigma=e,
                         bounds=([3, 0.1, 25.5], [10, 3, 100]), maxfev=60000)
-    lodraw = []
-    for _ in range(300):
-        try:
-            q, _ = curve_fit(logistic, x, y + rng.normal(0, e), p0=popt,
-                             bounds=([3, 0.1, 25.5], [10, 3, 100]), maxfev=60000)
-            lodraw.append(logistic(ngrid, *q))
-        except Exception:
-            pass
-    curve_with_fade(bx, popt, col, band=np.percentile(np.array(lodraw), [10, 90], axis=0))
+    curve_with_fade(bx, popt, col,
+                    band=mc_band(x, y, sem, popt, ngrid, rng,
+                                 ([3, 0.1, 25.5], [10, 3, 100]), sigma=e))
     bx.text(13.5, logistic(ngrid[-1], *popt) + LDY[key], key, fontsize=5.4, color=col,
             ha="right", va="center")
     print(f"  NOTE fig3 LEVANTE {key}: fair asymptote {popt[2]:.1f}")
