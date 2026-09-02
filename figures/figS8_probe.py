@@ -1,4 +1,4 @@
-"""S4 — encoder visual quality does not explain the lexical-learning gap.
+"""S8 — encoder visual quality does not explain the lexical-learning gap.
 
 A head-free prototype 4AFC probe (leave-one-out nearest-prototype, 3 foils) measures how
 separable object categories already are in each frozen encoder, on both evaluation domains.
@@ -67,11 +67,11 @@ bx.set_xlim(52.8, 62.5); bx.set_ylim(26, 82)
 bx.set_xlabel("prototype 4AFC (%), in domain")
 bx.set_ylabel("in-domain word-learning 4AFC (%)\nfull corpus")
 T.clean(bx)
-print("  NOTE figS4: probe by domain " + "; ".join(
+print("  NOTE figS8: probe by domain " + "; ".join(
     f"{k} {pr[(pr.encoder==e)&(pr.domain=='konkle')].proto.iloc[0]:.1f}/"
     f"{pr[(pr.encoder==e)&(pr.domain=='indomain')].proto.iloc[0]:.1f}" for e, k, _ in ENC)
     + f" (konkle/in-domain); separability spans {xr.max()-xr.min():.1f} pts vs "
       f"{max(yr)-min(yr):.1f} pts of word learning")
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l, dx=-0.17)
-T.save(fig, "figS4_probe")
+T.save(fig, "figS8_probe")

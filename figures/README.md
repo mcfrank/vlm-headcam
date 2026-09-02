@@ -14,16 +14,17 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | — | **S1** region-MIL vs mean-pooled — *not built*, waiting on `F_*` no-MIL runs + R=1 caches |
 | `figS2_diversity.py` | S2: diversity sweeps by pair budget (a null) |
 | `figS3_indomain.py` | S3: word learning evaluated in domain, on held-out BabyView frames |
-| `figS4_probe.py` | S4: encoder separability does not explain the lexical gap |
-| `figS5_alignment_encoders.py` | S5: the aligned arm for all four encoders |
-| `figS6_tsne_encoders.py` | S6: the noun lexicon under all four encoders |
-| `figS7_lexicon_encoders.py` | S7: relatedness by word class and encoder |
-| `figS8_levante.py` | S8: the scaling experiment under the LEVANTE eval |
+| `figS4_alignment_encoders.py` | S4: the aligned arm for all four encoders |
+| `figS5_tsne_encoders.py` | S5: the noun lexicon under all four encoders |
+| `figS6_lexicon_encoders.py` | S6: relatedness by word class and encoder |
+| `figS7_levante.py` | S7: the scaling experiment under the LEVANTE eval |
+| `figS8_probe.py` | S8: encoder separability does not explain the lexical gap |
 | `figS9_items.py` | *held out of the current ms* — item-level AoA across scale |
 | `figS10_lexicon_alignment.py` | *held out of the current ms* — what alignment does to the lexicon |
 
-S1–S8 are the manuscript's supplement, in order; S9/S10 build and stay current but are
-commented out in the ms.
+S1–S8 are the manuscript's supplement, in order. S8 (the prototype probe) sits last
+because the probe eval is not introduced in the main text. S9/S10 build and stay current
+but are commented out in the ms.
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)
