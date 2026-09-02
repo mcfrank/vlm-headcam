@@ -100,16 +100,25 @@ for yy, fc, lab in [(69.0, "white", "CVCL (Vong et al. 2024)"),
     ax.text(6.4e3, yy, lab, fontsize=5.2, color=T.INK, va="center")
 
 # ================================ B: alignment ===================================
+def fade(c, t=0.48):
+    """Blend a colour toward the page so replotted curves recede but keep their identity."""
+    import matplotlib.colors as mc
+    r, g, b = mc.to_rgb(c)
+    return (r + (1 - r) * t, g + (1 - g) * t, b + (1 - b) * t)
+
+bx.text(3.4e3, 90.5, "unfiltered curves replotted from A", fontsize=5.0, color=T.SUB,
+        style="italic", ha="left", va="top")
 ENC_B = [("dinov3l", "L-OTS", T.OTHER, "-", True, (78.0, 88.8)),
          ("vitb_bv", "B-BV", T.INDOM, (0, (2.5, 1.5)), False, (37.5, 48.5))]
 bgrid = np.logspace(3.3, 6.6, 220)
 align_end = None
 for enc, key, col, ls, filled, (uy_lab, ay_lab) in ENC_B:
     F = fit(rng, enc=enc); m_, s_, A_ = F["popt"]
-    bx.plot(bgrid, logistic(bgrid, m_, s_, A_), color=col, lw=1.0, zorder=2)
-    bx.errorbar(F["x"], F["y"], yerr=F["e"], fmt="o", color=col, ms=2.4, lw=0,
-                elinewidth=0.6, capsize=1.2, zorder=3)
-    bx.text(3.6e6, uy_lab, f"{key} unfiltered", fontsize=5.2, color=col, ha="right",
+    ref = fade(col)                     # replotted from A: same hue, receded
+    bx.plot(bgrid, logistic(bgrid, m_, s_, A_), color=ref, lw=0.9, zorder=2)
+    bx.errorbar(F["x"], F["y"], yerr=F["e"], fmt="o", color=ref, ms=2.2, lw=0,
+                elinewidth=0.5, capsize=1.0, zorder=3)
+    bx.text(3.6e6, uy_lab, f"{key} unfiltered", fontsize=5.2, color=ref, ha="right",
             va="center")
     # the aligned arm: points joined, deliberately not fitted
     af = sorted(((f, D.family(f)) for f in D.runs.family.unique()
