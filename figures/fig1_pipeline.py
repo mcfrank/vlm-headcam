@@ -25,6 +25,13 @@ C = pd.read_csv(R / "corpus.csv").set_index("key").value.to_dict()
 J = json.loads((R / "pipeline_counts.json").read_text())
 STEP = {st["step"]: st for st in J["steps"]}
 
+# architecture constants for panel B, from runs/F_dinov3b_base_s0/metrics.json + RegionMIL:
+# frozen DINOv3-B (86M) emits 1 whole-image + 4x4 region vectors at 768-d; both towers are
+# projected/embedded into a shared 512-d space; the word table is the only large learned part.
+ENC_PARAM_M, EMB_D, PROJ_D, N_REG, VOCAB = 86, 768, 512, 17, 15608
+TEXT_PARAM_M = VOCAB * PROJ_D / 1e6
+VIS_PARAM_M = (EMB_D * PROJ_D + PROJ_D + 2 * EMB_D) / 1e6
+
 CAT_VID = "S00400001_2023-08-08_1_recSJfNNDLfxCQail"
 STRIP = list(range(603, 610))                                 # seconds shown in panel A
 UTTS = [(604.229, 605.070, "Wait, is that your cat?"),        # from merged_transcripts_parsed
@@ -90,9 +97,16 @@ TOP = FH * 10 - 3.2
 # ================================================================ A: corpus -> pairs
 ax = axes["A"]
 y = TOP
-ax.text(1.0, y - 0.2, f"BabyView {J['release']} · {STEP['release']['children']} children · "
-        f"{STEP['release']['videos']:,} recordings", fontsize=5.6, color=T.INK, va="top")
-y -= 2.2
+cam = A / "camera.png"
+if cam.exists():
+    _, cam_bot = img(ax, load(cam, crop_px=(250, 150, 1408, 1700)), 1.0, y, 6.4)
+else:
+    print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
+    cam_bot = y - 2.0
+ax.text(8.8, y - 1.8, f"BabyView {J['release']}\n{STEP['release']['children']} children\n"
+        f"{STEP['release']['videos']:,} recordings", fontsize=5.6, color=T.INK, va="top",
+        linespacing=1.5)
+y = cam_bot - 1.8
 
 # frame strip: 7 consecutive seconds, 1 fps
 n = len(STRIP); gap = 0.25; x0 = 1.0; usable = 22.5 - 2 * x0
@@ -132,14 +146,13 @@ for k, (t0, t1, text) in enumerate(UTTS):
     if main:
         ax.add_patch(Rectangle((xs[sec] - fw / 2, y_strip_bot), fw, fh, fc="none", ec=T.LANG,
                                lw=1.1, zorder=4))
-ax.text(x0 + usable / 2, uy - 4.6, "pair each utterance with the frame at its midpoint second\n"
-        "no score selects the frame", fontsize=5.4, color=T.INK, ha="center", va="top",
-        style="italic", linespacing=1.4)
+ax.text(x0 + usable / 2, uy - 4.6, "pair each utterance with the frame at its midpoint",
+        fontsize=5.4, color=T.INK, ha="center", va="top", style="italic")
 # counts, from the committed pipeline funnel (results/pipeline_counts.json)
 cy = uy - 8.6
 ax.text(x0 + usable / 2, cy,
         f"{STEP['transcribed']['utterances']:,} utterances  ·  "
-        f"{STEP['pairs']['frames']:,} frames on disk",
+        f"{STEP['pairs']['frames']:,} frames",
         fontsize=5.4, color=T.SUB, ha="center", va="top")
 arrow(ax, x0 + usable / 2, cy - 1.6, x0 + usable / 2, cy - 3.0)
 chip(ax, x0 + 2, cy - 3.2, usable - 4, 2.6,
@@ -149,25 +162,17 @@ ef = STEP["english-filter"]
 ax.text(x0 + usable / 2, cy - 6.3,
         f"after English filter: −{ef['videos_dropped']:,} videos, {ef['children']} children",
         fontsize=5.0, color=T.SUB, ha="center", va="top", style="italic")
-# the wearable itself: line drawing from the BabyView site (CC-BY), child + head camera
-cam = A / "camera.png"
-if cam.exists():
-    arr = load(cam, crop_px=(250, 150, 1408, 1700))
-    cw_ = 8.8
-    img(ax, arr, (22.5 - cw_) / 2, cy - 7.2, cw_)
-else:
-    print("  NOTE fig1: figures/assets/camera.png missing — camera inset skipped")
 
 # ================================================================ C: referential annotation
 bx = axes["C"]
 y = TOP
-bx.text(0.8, y - 0.2, "Gemini reads each pair:  alignment 0–100  +  referent noun",
-        fontsize=5.4, color=T.INK, va="top")
+bx.text(0.8, y - 0.2, "Gemini 2.5 Flash rates each pair:\nalignment 0–100  +  referent noun",
+        fontsize=5.4, color=T.INK, va="top", linespacing=1.4)
 cw, ch = 9.6, 9.6
 for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
     col, row = k % 2, k // 2
     x = 0.8 + col * (cw + 0.9)
-    yy = y - 1.8 - row * (ch + 3.2)
+    yy = y - 3.6 - row * (ch + 3.2)
     aligned = score >= 50
     img(bx, load(FR(vid, fi), crop=(1, 1), anchor=anchor), x, yy, cw,
         ec=T.ORACLE if aligned else T.SUB, lw=1.0)
@@ -179,7 +184,7 @@ tot = STEP["training-corpus"]["pairs"]
 levels = [("all pairs", tot, "#dcdad2", T.INK),
           ("about something visible", STEP["aligned"]["pairs"], T.ORACLE, T.ORACLE),
           ("…and the referent is spoken", STEP["referent-spoken"]["pairs"], T.ORACLE2, T.ORACLE2)]
-fy = y - 2 * (ch + 3.2) - 2.8
+fy = y - 2 * (ch + 3.2) - 4.8
 BX0, BW, BH = 0.8, 19.8, 1.7
 bx.plot([BX0, BX0], [fy - 3 * 3.1 + 1.0, fy], color=T.SUB, lw=0.6, zorder=3)   # the axis
 for lab, nn, col, tc in levels:
@@ -205,7 +210,8 @@ for i in range(1, 4):                                            # 4x4 region gr
     cx.plot([1.0 + fwC * i / 4] * 2, [iy - fhC, iy], color="white", lw=0.5, alpha=0.9, zorder=3)
     cx.plot([1.0, 1.0 + fwC], [iy - fhC * i / 4] * 2, color="white", lw=0.5, alpha=0.9, zorder=3)
 cx.text(1.0, y - 0.2, "frame", fontsize=5.4, color=T.FREE, va="top")
-cx.text(1.0, iy - fhC - 0.4, "frozen encoder\nwhole-image (CLS) token\n+ 4×4 region grid",
+cx.text(1.0, iy - fhC - 0.4, f"frozen encoder · {ENC_PARAM_M}M, not trained\n"
+        f"whole image + 4×4 regions\n{N_REG} × {EMB_D}-d, projected to {PROJ_D}-d",
         fontsize=5.0, color=T.FREE, va="top", linespacing=1.3)
 FX = 1.0 + fwC / 2                                  # frame tower centerline
 # right tower: the utterance as a bag of words
@@ -216,8 +222,8 @@ words = ["which", "cat", "is", "it"]
 wy = iy - 2.2
 for i, w in enumerate(words):
     chip(cx, ux + (i % 2) * 5.2, wy - (i // 2) * 2.3, 4.6, 1.8, w, fc="#e4f4ee", ec=T.LANG, fs=5.2)
-cx.text(ux, wy - 5.0, "bag of words, learned\nfrom scratch", fontsize=5.0, color=T.LANG,
-        va="top", linespacing=1.3)
+cx.text(ux, wy - 5.0, f"bag of words, learned from scratch\n{VOCAB:,} words × {PROJ_D}-d · "
+        f"{TEXT_PARAM_M:.1f}M params", fontsize=5.0, color=T.LANG, va="top", linespacing=1.3)
 WX = ux + 4.9                                       # word tower centerline
 # the Y: both routes converge on the word-region similarity map
 sim = np.array([[.1, .2, .1, .1], [.2, .3, .2, .1], [.1, .9, .4, .1], [.1, .3, .2, .1]])
