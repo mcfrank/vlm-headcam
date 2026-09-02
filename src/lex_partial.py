@@ -32,9 +32,12 @@ def partial(a, b, c):
 
 rows = []
 for sc in SCALES:
-    wp = cache / "w2v" / (f"bv26_rand_{sc}_s0.npz" if sc != "full" else "bv26_base.npz")
+    pre, full_fam, corpus = FAMILIES[FAM]
+    wp = cache / "w2v" / (f"{corpus}_rand_{sc}_s0.npz" if sc != "full"
+                          else f"{corpus}_base.npz")
+    if not wp.exists():
+        continue
     v2, W2 = LS.load_npz(wp)
-    pre, full_fam = FAMILIES[FAM]
     glob = (pre.format(n=sc) if sc != "full" else full_fam) + "_s*.npz"
     for mp in sorted((cache / "emb").glob(glob)):
         v1, W1 = LS.load_npz(mp)

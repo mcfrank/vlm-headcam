@@ -1,7 +1,9 @@
 """Display item 4 — what the best-performing model learned about words.
 
-Best encoder = DINOv3-L off-the-shelf (L-OTS: 84.4 full-corpus 4AFC vs 79.1 for the
-DINOv3-B workhorse), so its lexicon is the one mapped and scored here. Panels run
+Best encoder = DINOv3-L off-the-shelf (81.7 full-corpus 4AFC vs 78.6 for the DINOv3-B
+workhorse), so its lexicon is the one mapped and scored here. Final audio-filtered
+corpus (F_ families, bv26a manifests) — the same corpus as figs 1-3, including the
+word2vec topline in C. Panels run
 qualitative -> quantified -> external comparison.
 
 A (large): t-SNE of the learned noun lexicon (nouns whose neighbourhoods rise above the
@@ -21,7 +23,7 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-RUN, FAM = "C8_dinov3l_grid4x4_base_s0", "L-OTS"       # the top-performing encoder
+RUN, FAM = "F_dinov3l_base_s0", "F-dinov3l"            # top encoder, FINAL corpus
 MODEL = T.OTHER                                        # L-OTS keeps its fig2 colour
 d = pd.read_csv(R / f"lexicon_tsne_{RUN}_NOUN.csv")
 cdi = pd.read_csv(R / "cdi_categories.csv").set_index("word").category

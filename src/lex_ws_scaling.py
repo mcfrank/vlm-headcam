@@ -15,9 +15,18 @@ import lex_score as LS                      # reuse dataset parsing + npz loadin
 
 R = Path(__file__).resolve().parent.parent
 # encoder -> (scaling family prefix, full-corpus family), all on the same training draws
-FAMILIES = {"B26": ("B26_rand_{n}", "B26_lad_base"),
-            "L-OTS": ("C8_dinov3l_grid4x4_rand_{n}", "C8_dinov3l_grid4x4_base"),
-            "L-BV": ("C8_dinov3l_bv_grid4x4_rand_{n}", "C8_dinov3l_bv_grid4x4_base")}
+# family -> (scaling-run pattern, full-corpus run, word2vec text stem pattern).
+# F_* are the FINAL audio-filtered corpus (bv26a manifests) and are what the paper uses;
+# the B26_/C8_ preview families are kept so the earlier figures still rebuild.
+FAMILIES = {
+    "F-dinov3b": ("F_dinov3b_rand_{n}", "F_dinov3b_base", "bv26a"),
+    "F-dinov3l": ("F_dinov3l_rand_{n}", "F_dinov3l_base", "bv26a"),
+    "F-vitb_bv": ("F_vitb_bv_rand_{n}", "F_vitb_bv_base", "bv26a"),
+    "F-vits_bv": ("F_vits_bv_rand_{n}", "F_vits_bv_base", "bv26a"),
+    "B26": ("B26_rand_{n}", "B26_lad_base", "bv26"),
+    "L-OTS": ("C8_dinov3l_grid4x4_rand_{n}", "C8_dinov3l_grid4x4_base", "bv26"),
+    "L-BV": ("C8_dinov3l_bv_grid4x4_rand_{n}", "C8_dinov3l_bv_grid4x4_base", "bv26"),
+}
 cache = R / "._lexicon_cache"
 pos = pd.read_csv(cache / "word_pos.csv").set_index("word")["pos"]
 
@@ -40,9 +49,12 @@ def main():
     global FAM
     rows = []
     for sc in SCALES:
-        wp = cache / "w2v" / (f"bv26_rand_{sc}_s0.npz" if sc != "full" else "bv26_base.npz")
+        pre, full_fam, corpus = FAMILIES[FAM]
+        wp = cache / "w2v" / (f"{corpus}_rand_{sc}_s0.npz" if sc != "full"
+                              else f"{corpus}_base.npz")
+        if not wp.exists():
+            continue
         v2, W2 = LS.load_npz(wp)
-        pre, full_fam = FAMILIES[FAM]
         model_glob = (pre.format(n=sc) if sc != "full" else full_fam) + "_s*.npz"
         for mp in sorted((cache / "emb").glob(model_glob)):
             v1, W1 = LS.load_npz(mp)

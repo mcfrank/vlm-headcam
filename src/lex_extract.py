@@ -26,8 +26,11 @@ OUT = ROOT / "scratch" / "lexicon"
 (OUT / "emb").mkdir(parents=True, exist_ok=True)
 (OUT / "text").mkdir(exist_ok=True)
 
+# F_* = the FINAL audio-filtered corpus (bv26a manifests); B26_/C8_ are preview corpora
+# kept so the earlier figures still rebuild.
 RUN_RE = re.compile(r"^(B26_(rand_\d+|lad\d*_?(base|filtnat|t15|t2))"
-                    r"|C8_dinov3l(_bv)?_grid4x4_(rand_\d+|base))_s\d$")
+                    r"|C8_dinov3l(_bv)?_grid4x4_(rand_\d+|base)"
+                    r"|F_(dinov3b|dinov3l|vitb_bv|vits_bv)_(rand_\d+|base))_s\d$")
 
 # ---- 1. embedding matrices -------------------------------------------------------
 done = 0
@@ -47,7 +50,10 @@ for rd in sorted(ROOT.glob("runs/*")):
 print(f"embeddings: wrote {done} new npz")
 
 # ---- 2. tokenized utterance text per manifest ------------------------------------
-mans = sorted(ROOT.glob("manifests/bv26_rand_*_s0.parquet")) + [ROOT / "manifests" / "bv26_base.parquet"]
+mans = (sorted(ROOT.glob("manifests/bv26_rand_*_s0.parquet"))
+        + [ROOT / "manifests" / "bv26_base.parquet"]
+        + sorted(ROOT.glob("manifests/bv26a_rand_*_s0.parquet"))       # FINAL corpus
+        + [ROOT / "manifests" / "bv26a_base.parquet"])
 for mp in mans:
     dst = OUT / "text" / (mp.stem + ".txt.gz")
     if dst.exists():
