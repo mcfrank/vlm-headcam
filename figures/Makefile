@@ -1,7 +1,7 @@
 PY := ../.venv/bin/python
 FIGS := fig1_pipeline fig2_scaling fig3_development fig4_lexicon \
-        figS2_diversity figS3_alignment_encoders figS4_tsne_encoders \
-        figS5_lexicon_encoders figS6_levante figS7_items figS8_lexicon_alignment
+        figS2_diversity figS3_indomain figS4_probe figS5_alignment_encoders \
+        figS6_tsne_encoders figS7_lexicon_encoders figS8_levante figS9_items figS10_lexicon_alignment
 
 all: $(FIGS)
 

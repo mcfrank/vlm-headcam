@@ -1,4 +1,4 @@
-"""S5 — human-relatedness correlations by word class, for every lexicon we have extracted.
+"""S7 — human-relatedness correlations by word class, for every lexicon we have extracted.
 
 fig4C generalized: rho with human relatedness against training scale, for noun-noun pairs
 and for all pairs, with the word2vec topline trained on the same utterances and the
@@ -24,7 +24,7 @@ ORDER = [o for o in ORDER if o[0] in have]
 COL = {f: c for f, _, c in ORDER}
 LAB = {f: k for f, k, _ in ORDER}
 fams = [f for f, _, _ in ORDER]
-print(f"  NOTE figS5: final-corpus lexicons {[LAB[f] for f in fams]}"
+print(f"  NOTE figS7: final-corpus lexicons {[LAB[f] for f in fams]}"
       f" (ignoring preview families {sorted(have - set(fams))})")
 
 fig, axes = plt.subplots(1, 2, figsize=(T.W2, 2.5), sharey=True)
@@ -60,4 +60,4 @@ axes[0].text(0.03, 0.86, "dashed grey = word2vec, same utterances\ndotted = word
              transform=axes[0].transAxes, fontsize=5.0, color=T.SUB, va="top", linespacing=1.4)
 for a, l in zip(axes, "AB"):
     T.panel(a, l, dx=-0.1)
-T.save(fig, "figS5_lexicon_encoders")
+T.save(fig, "figS7_lexicon_encoders")

@@ -1,4 +1,4 @@
-"""S8 — what referential selection does to the LEXICON.
+"""S10 — what referential selection does to the LEXICON.
 
 A: matched-data comparison. Human-relatedness rho for the aligned arm (trained only on
    referential pairs) against the unfiltered arm, on the same x-axis of training pairs.
@@ -41,7 +41,7 @@ for enc, fam, key, col in ENC:
         al = al[(al.category == "noun") & (al.kind == "model")].groupby("scale").spearman.mean()
         un = pd.read_csv(R / f"lexicon_ws_scaling_{fam}.csv")
         un = un[(un.category == "noun") & (un.kind == "model")].groupby("scale").spearman.mean()
-        print(f"  NOTE figS8 A ({key}): aligned@100k {al.loc[100000]:.3f} vs "
+        print(f"  NOTE figS10 A ({key}): aligned@100k {al.loc[100000]:.3f} vs "
               f"unfiltered@100k {un.loc[100000]:.3f}, @300k {un.loc[300000]:.3f}, "
               f"@1M {un.loc[1000000]:.3f}")
 ax.axvline(170000, color=T.SUB, lw=0.6, ls=(0, (1, 2)), zorder=1)
@@ -68,12 +68,12 @@ for enc, fam, key, col in ENC:
                 capsize=1.4, zorder=3)
     bx.text(len(RUNGS) - 0.85, m[-1], key, fontsize=5.2, color=col, va="center")
     if enc == "dinov3l":
-        print(f"  NOTE figS8 B ({key}): " +
+        print(f"  NOTE figS10 B ({key}): " +
               "  ".join(f"{r}={v:.3f}" for r, v in zip(RUNGS, m)))
 w2v = [rg[rg.rung == r].w2v_spearman.mean() for r in RUNGS]
 bx.plot(xs, w2v, "--s", color=T.SUB, ms=2.4, lw=0.9, zorder=2)
 bx.text(len(RUNGS) - 0.85, w2v[-1], "word2vec", fontsize=5.2, color=T.SUB, va="center")
-print("  NOTE figS8 B word2vec (own text per rung): " +
+print("  NOTE figS10 B word2vec (own text per rung): " +
       "  ".join(f"{r}={v:.3f}" for r, v in zip(RUNGS, w2v)))
 bx.axhline(0, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=1)
 bx.set_xticks(xs); bx.set_xticklabels(RLAB, fontsize=5.6)
@@ -85,4 +85,4 @@ T.clean(bx)
 
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l, dx=-0.15)
-T.save(fig, "figS8_lexicon_alignment")
+T.save(fig, "figS10_lexicon_alignment")

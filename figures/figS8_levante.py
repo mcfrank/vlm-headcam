@@ -1,4 +1,4 @@
-"""S6 — the scaling experiment under the LEVANTE vocabulary eval.
+"""S8 — the scaling experiment under the LEVANTE vocabulary eval.
 
 Same encoders and training draws as fig2A; the Konkle panel is not repeated here. LEVANTE
 (159 items, difficulty-calibrated on real children) is scored two ways because vocabulary
@@ -59,4 +59,4 @@ for a, ylab in [(bx, "LEVANTE vocabulary 4AFC (%)")]:
     a.set_xscale("log"); a.set_xlim(2e3, 3e7); a.set_ylim(18, 95)
     a.set_xlabel("training pairs"); a.set_ylabel(ylab)
     T.clean(a)
-T.save(fig, "figS6_levante")
+T.save(fig, "figS8_levante")
