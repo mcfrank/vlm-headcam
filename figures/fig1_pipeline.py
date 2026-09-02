@@ -25,10 +25,11 @@ C = pd.read_csv(R / "corpus.csv").set_index("key").value.to_dict()
 J = json.loads((R / "pipeline_counts.json").read_text())
 STEP = {st["step"]: st for st in J["steps"]}
 
-# architecture constants for panel B, from runs/F_dinov3b_base_s0/metrics.json + RegionMIL:
-# frozen DINOv3-B (86M) emits 1 whole-image + 4x4 region vectors at 768-d; both towers are
-# projected/embedded into a shared 512-d space; the word table is the only large learned part.
-ENC_PARAM_M, EMB_D, PROJ_D, N_REG, VOCAB = 86, 768, 512, 17, 15608
+# architecture constants for panel B, from runs/F_dinov3b_base_s0/metrics.json + RegionMIL.
+# The final caches are built with --drop-cls: R = 4x4 grid cells only, no whole-image (CLS)
+# row (verified: dinov3b_grid4x4 is [1745489, 16, 768]). Both towers land in a shared 512-d
+# space; the word table is the only large learned part.
+ENC_PARAM_M, EMB_D, PROJ_D, N_REG, VOCAB = 86, 768, 512, 16, 15608
 TEXT_PARAM_M = VOCAB * PROJ_D / 1e6
 VIS_PARAM_M = (EMB_D * PROJ_D + PROJ_D + 2 * EMB_D) / 1e6
 
@@ -211,7 +212,7 @@ for i in range(1, 4):                                            # 4x4 region gr
     cx.plot([1.0, 1.0 + fwC], [iy - fhC * i / 4] * 2, color="white", lw=0.5, alpha=0.9, zorder=3)
 cx.text(1.0, y - 0.2, "frame", fontsize=5.4, color=T.FREE, va="top")
 cx.text(1.0, iy - fhC - 0.4, f"frozen encoder · {ENC_PARAM_M}M, not trained\n"
-        f"whole image + 4×4 regions\n{N_REG} × {EMB_D}-d, projected to {PROJ_D}-d",
+        f"4×4 region grid\n{N_REG} × {EMB_D}-d, projected to {PROJ_D}-d",
         fontsize=5.0, color=T.FREE, va="top", linespacing=1.3)
 FX = 1.0 + fwC / 2                                  # frame tower centerline
 # right tower: the utterance as a bag of words

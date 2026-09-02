@@ -4,9 +4,12 @@ A: the encoder moves it up — four encoders on the same training draws (FINAL c
    free-asymptote logistic per encoder. Off-the-shelf DINOv3 ceilings converge (~85);
    BabyView-trained encoders saturate far lower.
 B: alignment moves it left — training only on the referential pairs (independent aligned
-   subsamples, oracle-filtered) against the unfiltered B-OTS curve from panel A. Same
-   ceiling, ~29x less data at matched accuracy; the aligned supply ends where the corpus's
-   referential moments run out.
+   subsamples) against the same encoder's unfiltered curve from panel A, for the best
+   off-the-shelf encoder (L-OTS) and one BabyView-trained one (B-BV). The aligned arms are
+   drawn as points joined, NOT fitted: four points cannot identify their ceiling, and for
+   L-OTS they rise above the unfiltered asymptote. Arrows read the data equivalence off the
+   (well-identified) unfiltered fit alone. Both arms end where the corpus's referential
+   pairs run out.
 """
 import sys, re, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
@@ -97,67 +100,49 @@ for yy, fc, lab in [(69.0, "white", "CVCL (Vong et al. 2024)"),
     ax.text(6.4e3, yy, lab, fontsize=5.2, color=T.INK, va="center")
 
 # ================================ B: alignment ===================================
-F = fit(rng)
-popt = F["popt"]; A = popt[2]
-afams = sorted(((f, D.family(f)) for f in D.runs.family.unique()
-                if re.fullmatch(r"F_dinov3b_align_\d+", str(f))), key=lambda t: t[1]["n_pairs"])
-ax_ = np.array([f["n_pairs"] for _, f in afams])
-ay = np.array([f["mean"] for _, f in afams]); ae = np.array([f["sd"] for _, f in afams])
-apopt, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, A), ax_, ay, p0=(4.3, 0.5),
-                     sigma=ae, maxfev=40000)
-agrid = np.logspace(3.6, np.log10(ax_.max()), 140)
-adraws = []
-for _ in range(400):
-    try:
-        pa, _ = curve_fit(lambda N, m, s_: logistic(N, m, s_, A), ax_,
-                          ay + rng.normal(0, np.maximum(ae, 0.5)), p0=apopt, maxfev=40000)
-        adraws.append(logistic(agrid, *pa, A))
-    except Exception:
-        pass
-alo, ahi = np.percentile(np.array(adraws), [10, 90], axis=0)
+ENC_B = [("dinov3l", "L-OTS", T.OTHER, "-", True, (78.0, 88.8)),
+         ("vitb_bv", "B-BV", T.INDOM, (0, (2.5, 1.5)), False, (37.5, 48.5))]
+bgrid = np.logspace(3.3, 6.6, 220)
+align_end = None
+for enc, key, col, ls, filled, (uy_lab, ay_lab) in ENC_B:
+    F = fit(rng, enc=enc); m_, s_, A_ = F["popt"]
+    bx.plot(bgrid, logistic(bgrid, m_, s_, A_), color=col, lw=1.0, zorder=2)
+    bx.errorbar(F["x"], F["y"], yerr=F["e"], fmt="o", color=col, ms=2.4, lw=0,
+                elinewidth=0.6, capsize=1.2, zorder=3)
+    bx.text(3.6e6, uy_lab, f"{key} unfiltered", fontsize=5.2, color=col, ha="right",
+            va="center")
+    # the aligned arm: points joined, deliberately not fitted
+    af = sorted(((f, D.family(f)) for f in D.runs.family.unique()
+                 if re.fullmatch(rf"F_{enc}_align_\d+", str(f))), key=lambda t: t[1]["n_pairs"])
+    xa = np.array([f["n_pairs"] for _, f in af]); ya = np.array([f["mean"] for _, f in af])
+    ea = np.array([f["sd"] for _, f in af])
+    bx.errorbar(xa, ya, yerr=ea, color=T.ORACLE, ls=ls, marker="o", ms=3.2, lw=1.2,
+                elinewidth=0.7, capsize=1.6, zorder=5,
+                markerfacecolor=T.ORACLE if filled else "white", markeredgewidth=0.9)
+    bx.text(xa.max() * 1.35, ay_lab, f"{key} aligned", fontsize=5.2, color=T.ORACLE,
+            ha="left", va="center")
+    align_end = xa.max()
+    # data equivalence, read off the unfiltered fit only (no aligned fit is needed)
+    reach = lambda yv: 10 ** (m_ - s_ * np.log((A_ - CHANCE) / (yv - CHANCE) - 1))
+    for i in (0, 1):
+        xu = reach(ya[i])
+        bx.annotate("", xy=(xu, ya[i]), xytext=(xa[i], ya[i]),
+                    arrowprops=dict(arrowstyle="-|>", color=T.INK, lw=0.7, shrinkA=2, shrinkB=1))
+        bx.text(np.sqrt(xa[i] * xu), ya[i] + 0.9, f"{xu / xa[i]:.0f}×", fontsize=5.8,
+                color=T.INK, ha="center", va="bottom", fontweight="bold")
+    n_un = int((ya > A_ - 0.3).sum())
+    print(f"  NOTE fig2B {key}: unfiltered asymptote {A_:.1f}; aligned {np.round(ya,1)}; "
+          f"{n_un} aligned point(s) above any unfiltered accuracy")
 
-
-# the unfiltered curve as a known reference (it is fig2's B-OTS curve)
-grid = np.logspace(3.3, 6.6, 220)
-bx.plot(grid, logistic(grid, *popt), color=T.NEUTRAL, lw=1.0, zorder=2)
-bx.errorbar(F["x"], F["y"], yerr=F["e"], fmt="o", color=T.NEUTRAL, ms=2.6, lw=0,
-            elinewidth=0.6, capsize=1.3, zorder=3)
-bx.text(3.7e6, 62, "unfiltered\n(B-OTS, as in A)", fontsize=5.6, color=T.NEUTRAL, ha="right",
-        va="top", linespacing=1.35)
-
-# the aligned arm
-bx.fill_between(agrid, alo, ahi, color=T.ORACLE, alpha=0.14, lw=0, zorder=1)
-bx.plot(agrid, logistic(agrid, *apopt, A), color=T.ORACLE, lw=1.2, zorder=4)
-bx.errorbar(ax_, ay, yerr=ae, fmt="o", color=T.ORACLE, ms=3.2, lw=0, elinewidth=0.7,
-            capsize=1.6, zorder=5)
-aend = logistic(agrid[-1], *apopt, A)
-bx.plot([agrid[-1]] * 2, [aend - 2.6, aend + 2.6], color=T.ORACLE, lw=0.9, zorder=5)
-bx.text(agrid[-1] * 1.35, aend - 1.2, "all referential pairs\nin the corpus", fontsize=5.2,
-        color=T.ORACLE, ha="left", va="top", linespacing=1.35)
-bx.text(3.4e3, 76, "aligned only\n(oracle filter)", fontsize=6.0, color=T.ORACLE, ha="left",
-        va="top", linespacing=1.35)
-
-# data equivalence: at each aligned point's accuracy, how much unfiltered data matches it?
-inv = lambda y, m, s_: 10 ** (m - s_ * np.log((A - CHANCE) / (y - CHANCE) - 1))
-for y_lev in (ay[0], ay[1]):
-    xa = inv(y_lev, *apopt)
-    xu = inv(y_lev, popt[0], popt[1])
-    bx.annotate("", xy=(xu, y_lev), xytext=(xa, y_lev),
-                arrowprops=dict(arrowstyle="-|>", color=T.INK, lw=0.8, shrinkA=2, shrinkB=1))
-    bx.text(np.sqrt(xa * xu), y_lev + 1.0, f"{xu / xa:.0f}×", fontsize=6.2, color=T.INK,
-            ha="center", va="bottom", fontweight="bold")
-print(f"  NOTE fig3: data-equivalence {inv(ay[0], *apopt):,.0f} vs "
-      f"{inv(ay[0], popt[0], popt[1]):,.0f} pairs at {ay[0]:.1f}%; shift "
-      f"{popt[0] - apopt[0]:.2f} decades at midpoint")
-
+bx.axvline(align_end, color=T.SUB, lw=0.6, ls=(0, (1, 2)), zorder=1)
+bx.text(align_end / 1.15, 19.8, "all referential pairs", fontsize=5.0, color=T.SUB,
+        ha="right", va="bottom")
 bx.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
 bx.text(3.6e6, 22.3, "chance", fontsize=5.6, color=T.SUB, ha="right")
 bx.set_xscale("log"); bx.set_xlim(3e3, 4e6); bx.set_ylim(18, 92)
-bx.set_ylabel("")
 bx.set_xlabel("training pairs"); bx.set_ylabel("Konkle 4AFC (%)")
-T.clean(ax)
+T.clean(bx)
 
-bx.set_yticklabels([])
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l, dx=-0.14)
 T.save(fig, "fig2_scaling")
