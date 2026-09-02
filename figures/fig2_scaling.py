@@ -135,9 +135,9 @@ for enc, key, col, ls, filled, (uy_lab, ay_lab) in ENC_B:
     for i in (0, 1):
         xu = reach(ya[i])
         bx.annotate("", xy=(xu, ya[i]), xytext=(xa[i], ya[i]),
-                    arrowprops=dict(arrowstyle="-|>", color=T.INK, lw=0.7, shrinkA=2, shrinkB=1))
+                    arrowprops=dict(arrowstyle="-|>", color=T.SUB, lw=0.7, shrinkA=2, shrinkB=1))
         bx.text(np.sqrt(xa[i] * xu), ya[i] + 0.9, f"{xu / xa[i]:.0f}×", fontsize=5.8,
-                color=T.INK, ha="center", va="bottom", fontweight="bold")
+                color=T.SUB, ha="center", va="bottom", fontweight="bold")
     n_un = int((ya > A_ - 0.3).sum())
     print(f"  NOTE fig2B {key}: unfiltered asymptote {A_:.1f}; aligned {np.round(ya,1)}; "
           f"{n_un} aligned point(s) above any unfiltered accuracy")
