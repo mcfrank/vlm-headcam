@@ -62,11 +62,13 @@ NAMED = {"base": "full (1.69M)", "filtnat": "172k referent-bearing", "t15": "172
 
 def nominal(cond):
     """the DESIGNED quantity a condition name encodes (not the post-vocab effective count)"""
+    cond = re.sub(r"^lad_", "", cond)
     if cond in NAMED: return NAMED[cond]
-    m = re.match(r"(?:rand|align|win5)_(\d+)$", cond)
-    if m: return fmt(int(m.group(1)))
+    if cond == "wffull": return "full (1.69M)"
+    m = re.match(r"(?:rand|align|win5)_(\d+)$|wf(\d+)$", cond)
+    if m: return fmt(int(m.group(1) or m.group(2)))
     m = re.match(r"lad(\d+)_(base|filtnat|t15|t2)$", cond)
-    if m: return fmt(int(m.group(1))) + (" subsample" if m.group(2) == "base" else " (referent-bearing of " + fmt(int(m.group(1))) + ")")
+    if m: return fmt(int(m.group(1))) + " (all rungs from one matched subsample)"
     m = re.match(r"div(\d+)k_\d+c$", cond)
     if m: return f"{m.group(1)}k budget"
     return cond
