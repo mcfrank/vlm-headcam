@@ -1074,3 +1074,30 @@ Encoder tags: dinov3l=L-OTS, dinov3b=B-OTS, vitb_bv=B-BV, vits_bv=S-BV (L-BV ret
 | temporal window ±5 s | does temporal MIL help? (expected null) | all 4 | COMPLETE neighbor caches (3.43M new frames → /data2/emb_win5); 30k×5 + 300k×3 | F_<enc>_win5_{30000,300000} | embeddings running (~19 h, 2 GPUs), runs self-gate |
 | L-BV retrain onboarding | size-matched developmental encoder | L-BV | caches → 64 F runs + no-MIL + alignment controls + in-domain | F_dinov3l_bv2_* (tbd) | PENDING DINO session |
 Partial-window runs (pair-frame caches only) were killed and removed — superseded by the complete-window design.
+
+### 2026-09-03 — external code audit: three fixes
+- **B2 (alignment controls): "full − matched" was never run.** `minusrand` removes a uniform
+  random |A| draw (the figure label was right, the text/S8 caption wrong), and 1.51M random
+  ≈ the 1M scaling point (81.3) so it tests nothing. Built `bv26a_minusmatch_s{0,1,2}` = corpus
+  minus the EXISTING matchrand draws (`build_aligned_controls2.py`; multiplicity-aware anti-join
+  because the pair key repeats for 31,476 rows). Found in passing: matchrand draws are 171,728 =
+  |A| − 54 (aligned utterances with no letter tokens have no length bin and were absent from the
+  matching targets; 0.03%, not rebuilt).
+- **B3: matched-random is unaligned BY CONSTRUCTION** (pool = alignment<50, eval-noun matched →
+  30k "noun spoken, object judged absent" pairs) — an exposure-without-alignment condition, not a
+  neutral baseline. Its 41.0 is ~20 pts below a plain random 172k draw (log-interp of 100k 53.9 /
+  300k 69.0 ≈ 61). Built `bv26a_rand172k_s{0,1,2}` (plain random |A|, seeds 7000+s). Reframe in
+  text: aligned-only 87.6 vs plain random ~61 is the honest contrast; matched < random is itself
+  evidence that noun-without-referent pairs mislead.
+  → `run_controls2.sh`: F_<enc>_{rand172k,minusmatch}_s{0,1,2}, all four encoders (24 runs),
+  marker `CONTROLS_B_DONE`. Launched 2026-09-03 on all 8 GPUs (sharing with win5 embeds).
+- **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
+  unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
+  all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
+  (`figures/make_wordbank_40.py` → results/wordbank_anchors_40.csv, konkle_wg40_per_seed.csv from
+  the item-level eval). Model curves move UP 2–6 pts at mid scales (asymptotes L-OTS 87.4, B-OTS
+  87.2, B-BV 54.7, S-BV 50.0); WS 28-mo anchor 91.4 (was 89.9). fig2 keeps the all-60 fits.
+- **Prototype probe CLS inconsistency**: Konkle eval caches carry CLS (R=17) for dinov3l/vits_bv/
+  vitb_bv but not dinov3b; probe now drops CLS and averages the 16 grid cells for every encoder
+  and domain (`eval_indomain.py --probe-only`; rerun in progress, pre-fix CSV kept as
+  `encoder_probe_domains.pre_gridonly.csv`). Also: one foil draw per item (n_trials was unused).

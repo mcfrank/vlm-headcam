@@ -52,6 +52,9 @@ the drawing (dashed / wine outline).
 four Konkle photos for the 4AFC icon; `assets/camera.png` the BabyView-site line drawing (CC-BY).
 `results/literature.csv` holds published reference points; `results/wordbank_anchors.csv` the
 Wordbank CDI child trajectories (rebuild with `Rscript figures/make_wordbank_anchors.R`).
+fig4A uses `results/wordbank_anchors_40.csv` + `results/konkle_wg40_per_seed.csv` instead
+(`python figures/make_wordbank_40.py`): children AND models scored on the same 40 CDI-matched
+Konkle words, the models from the item-level evaluation (`results/item_eval_final.csv`).
 
 Conventions: PNAS widths (`theme.W1/W15/W2` = 3.42 / 4.5 / 7.0 in), 6.5–8 pt type, PDF with
 editable text (`pdf.fonttype 42`), panel letters via `theme.panel()`, project palette shared with

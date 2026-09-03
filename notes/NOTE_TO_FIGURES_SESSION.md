@@ -21,3 +21,16 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   base. Suggested SI panel: five bars per encoder. Diagnostics for the caption in
   results/aligned_control_diagnostics.json (aligned set has 2.4x the eval-noun exposure of a
   random subset; matched control equates it). Temporal-window (win5) lands in ~1-2 days.
+
+## 2026-09-03: audit-driven changes (alignment controls + fig4A)
+- Alignment controls, round 2 (post code audit), landing as F_<enc>_{rand172k,minusmatch}_s{0,1,2}
+  (marker CONTROLS_B_DONE). For figS_alignment_controls: ADD a plain-random 172k bar (the
+  neutral size-matched reference; matchrand is unaligned by construction and sits ~20 pts below
+  it) and SWAP full−random for full−matched (the removal the text describes; full−random is just
+  the 1M scaling point and can go to the SI text). Suggested order per encoder: full · aligned-
+  only · plain random 172k · matched random · full−aligned · full−matched.
+- fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
+  now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
+  moved up 2–6 pts at mid scales; if you re-render fig4, pull first.
+- results/encoder_probe_domains.csv will be refreshed (probe now grid-only for all encoders;
+  Konkle numbers may shift by tenths). figS_encoder_probe re-render after that lands.

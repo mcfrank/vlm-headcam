@@ -31,21 +31,26 @@ def mc_band(x, y, sem, popt, grid, rng, bounds, sigma=None, ndraw=4000, pct=(2.5
     return np.percentile(np.array(draws), list(pct), axis=0)
 
 
+def fit_points(x, y, e, nseed, rng=None):
+    """Free-asymptote logistic through per-scale means (x = pairs, y = mean, e = seed sd)."""
+    rng = rng or np.random.default_rng(0)
+    x, y, e, nseed = (np.asarray(v, float) for v in (x, y, e, nseed))
+    popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e,
+                           bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
+    sem = np.maximum(e / np.sqrt(nseed), 0.15)
+    band = lambda grid: mc_band(x, y, sem, popt, grid, rng,
+                                ([3, 0.1, 50], [9, 3, 100]), sigma=e)
+    return dict(x=x, y=y, e=e, sem=sem, n=list(nseed.astype(int)), popt=popt,
+                A_sd=float(np.sqrt(pcov[2, 2])), band=band)
+
+
 def fit(rng=None, enc="dinov3b"):
     """Free-asymptote logistic over the FINAL-corpus scaling families F_<enc>_rand_* + base."""
-    rng = rng or np.random.default_rng(0)
     fams = sorted((int(mm.group(1)), f) for f in D.runs.family.unique()
                   if (mm := re.fullmatch(rf"F_{enc}_rand_(\d+)", str(f))))
     fams.append((None, f"F_{enc}_base"))
     fam = [D.family(f) for _, f in fams]
-    x = np.array([fm["n_pairs"] if not np.isnan(fm.get("n_pairs", np.nan)) else n
-                  for (n, _), fm in zip(fams, fam)], float)
-    y = np.array([f["mean"] for f in fam]); e = np.array([f["sd"] for f in fam])
-    popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e,
-                           bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
-    nseed = np.array([f["n"] for f in fam])
-    sem = np.maximum(e / np.sqrt(nseed), 0.15)
-    band = lambda grid: mc_band(x, y, sem, popt, grid, rng,
-                                ([3, 0.1, 50], [9, 3, 100]), sigma=e)
-    return dict(x=x, y=y, e=e, sem=sem, n=[f["n"] for f in fam], popt=popt,
-                A_sd=float(np.sqrt(pcov[2, 2])), band=band)
+    x = [fm["n_pairs"] if not np.isnan(fm.get("n_pairs", np.nan)) else n
+         for (n, _), fm in zip(fams, fam)]
+    return fit_points(x, [f["mean"] for f in fam], [f["sd"] for f in fam],
+                      [f["n"] for f in fam], rng)

@@ -2,7 +2,7 @@
 (a) word-learning 4AFC for every final scaling model, per encoder — the domain-transfer
 control; (b) head-free prototype 4AFC per encoder on BOTH the in-domain set and Konkle —
 the encoder-quality-by-domain scatter. Frames come from the existing region caches.
-usage: python src/eval_indomain.py"""
+usage: python src/eval_indomain.py [--probe-only]   (probe only: rewrites just the probe CSV)"""
 import glob
 import json
 import re
@@ -20,6 +20,7 @@ from train_frame_mil import load_region_cache
 from train_region_mil import RegionMIL, eval_4afc_region, encode
 
 dev = "cuda" if torch.cuda.is_available() else "cpu"
+PROBE_ONLY = "--probe-only" in sys.argv
 EMB = "/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings"
 ENC = {
     "dinov3b": ([f"{EMB}/dinov3b_grid4x4"], "emb_enc_grid_eval/dinov3b_ots_konkle"),
@@ -66,7 +67,11 @@ def rows_for(emb, lut, df):
     return out, ok
 
 
-def proto4afc(X, cats, n_trials=200, seed=0):
+def proto4afc(X, cats, seed=0):
+    """Leave-one-out nearest-prototype 4AFC; one random foil triple per item."""
+    if X.shape[1] == 17:          # Konkle eval caches for dinov3l/vits_bv/vitb_bv carry CLS at
+        X = X[:, 1:]              # index 0; the frame vector is the mean over the 16 GRID cells
+    assert X.shape[1] == 16, X.shape   # for every encoder and domain
     x = torch.from_numpy(X.mean(1)); x = F.normalize(x, dim=-1)
     rng = np.random.default_rng(seed)
     bycat = {}
@@ -96,6 +101,8 @@ for enc, (dirs, kcache) in ENC.items():
     probe_rows.append(dict(encoder=enc, domain="konkle", proto=round(proto4afc(KX[kok], list(kv[kok].category)), 1)))
     print(f"  probes done: {probe_rows[-2]} {probe_rows[-1]}", flush=True)
 
+    if PROBE_ONLY:
+        continue
     # word-learning 4AFC over the scaling models
     ilut = {frame_key(v, int(f)): i for i, (v, f) in enumerate(zip(evx.video_id, evx.frame_idx))}
     for rd in sorted(glob.glob(f"runs/F_{enc}_rand_*") + glob.glob(f"runs/F_{enc}_base_s*")):
@@ -113,5 +120,8 @@ for enc, (dirs, kcache) in ENC.items():
     print(f"  word-learning evals done for {enc}", flush=True)
 
 pd.DataFrame(probe_rows).to_csv("results/encoder_probe_domains.csv", index=False)
-pd.DataFrame(wl_rows).to_csv("results/indomain_eval.csv", index=False)
-print("wrote results/encoder_probe_domains.csv + results/indomain_eval.csv")
+if PROBE_ONLY:
+    print("wrote results/encoder_probe_domains.csv (probe only)")
+else:
+    pd.DataFrame(wl_rows).to_csv("results/indomain_eval.csv", index=False)
+    print("wrote results/encoder_probe_domains.csv + results/indomain_eval.csv")

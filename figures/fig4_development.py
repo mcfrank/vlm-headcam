@@ -1,9 +1,13 @@
 """Display item 4 — both evals in developmental time, all four encoders, beside children.
 
-A: Konkle. The fitted scaling curve for each encoder (fig2's fits) re-expressed as years of
-   waking input, faded beyond the observed range, with Wordbank CDI trajectories (predicted
-   4AFC over the same 60 words: know-it-or-guess; WG comprehension, WS production as a lower
-   bound) plotted at child age.
+A: Konkle. The scaling curve for each encoder re-expressed as years of waking input, faded
+   beyond the observed range, with Wordbank CDI trajectories (know-it-or-guess; WG
+   comprehension, WS production as a lower bound) plotted at child age. Models and children
+   are scored on the SAME 40 Konkle words (those matched to the CDI WG form; the 46 WS-matched
+   words contain them): model curves are refit on per-seed 40-word means from the item-level
+   evaluation (results/konkle_wg40_per_seed.csv, via make_wordbank_40.py), so this panel's
+   curves sit a few points above fig2's all-60 fits. The 20 unmatched words (guitar,
+   umbrella, trumpet, rug, ...) are markedly harder for the models.
 B: LEVANTE. The fair score per encoder (all 159 items, chance credited out-of-vocab) under
    the same logistic — a guess, since the fair ceiling depends on vocabulary growth beyond
    this corpus — against children's MEASURED accuracy by age on the same items (levante-bench
@@ -15,10 +19,11 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scaling_fit import fit, logistic, mc_band, CHANCE
+from scaling_fit import fit_points, logistic, mc_band, CHANCE
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-WB = pd.read_csv(R / "wordbank_anchors.csv")
+WB = pd.read_csv(R / "wordbank_anchors_40.csv")          # both forms over the 40 WG-matched words
+K40 = pd.read_csv(R / "konkle_wg40_per_seed.csv")        # models over the same 40 words
 KIDS = pd.read_csv(R / "levante_child_by_age.csv")
 lev = pd.read_csv(R / "lev_scaling_final.csv")
 lev = lev[lev.N <= 1_686_105]
@@ -56,7 +61,11 @@ def curve_with_fade(a, popt, col, band=None):
 # ---- A: Konkle -------------------------------------------------------------------
 KDY = {"L-OTS": 2.6, "B-OTS": -2.6, "B-BV": 2.2, "S-BV": -2.4}
 for enc, key, lab, col in ENC:
-    F = fit(enc=enc)
+    S = (K40[K40.encoder == enc].groupby("N").acc.agg(["mean", "std", "size"])
+             .reset_index().sort_values("N"))
+    F = fit_points(S.N, S["mean"], S["std"], S["size"])
+    print(f"  NOTE fig4 Konkle-40 {key}: asymptote {F['popt'][2]:.1f}; "
+          f"40-word means " + ", ".join(f"{int(n)}:{m:.1f}" for n, m in zip(S.N, S['mean'])))
     curve_with_fade(ax, F["popt"], col, band=F["band"](ngrid))
     ax.text(13.5, logistic(ngrid[-1], *F["popt"]) + KDY[key], key, fontsize=5.4, color=col,
             ha="right", va="center")
