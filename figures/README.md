@@ -11,20 +11,26 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 | `fig2_scaling.py` | what moves the curve: encoders up (A), alignment left (B) |
 | `fig3_development.py` | both evals in developmental time, against children |
 | `fig4_lexicon.py` | lexicon: t-SNE, category structure, human relatedness |
-| — | **S1** region-MIL vs mean-pooled — *not built*, waiting on `F_*` no-MIL runs + R=1 caches |
-| `figS2_diversity.py` | S2: diversity sweeps by pair budget (a null) |
-| `figS3_indomain.py` | S3: word learning evaluated in domain, on held-out BabyView frames |
-| `figS4_alignment_encoders.py` | S4: the aligned arm for all four encoders |
-| `figS5_tsne_encoders.py` | S5: the noun lexicon under all four encoders |
-| `figS6_lexicon_encoders.py` | S6: relatedness by word class and encoder |
-| `figS7_levante.py` | S7: the scaling experiment under the LEVANTE eval |
-| `figS8_probe.py` | S8: encoder separability does not explain the lexical gap |
-| `figS9_items.py` | *held out of the current ms* — item-level AoA across scale |
-| `figS10_lexicon_alignment.py` | *held out of the current ms* — what alignment does to the lexicon |
 
-S1–S8 are the manuscript's supplement, in order. S8 (the prototype probe) sits last
-because the probe eval is not introduced in the main text. S9/S10 build and stay current
-but are commented out in the ms.
+Supplementary items carry **descriptive names, not numbers** — the manuscript orders them
+and links with `xr`, so renumbering here would only cause churn. Control ids refer to
+`notes/CONTROLS_TABLE.md`.
+
+| Script | Control | Display item |
+|---|---|---|
+| `figS_indomain.py` | C1 | word learning evaluated in domain, on held-out BabyView frames |
+| `figS_encoder_probe.py` | C2 | encoder separability does not explain the lexical gap |
+| `figS_kchi.py` | C3 | removing the child's own speech, amount-matched |
+| `figS_diversity.py` | C4 | diversity sweeps by pair budget (a null) |
+| `figS_nomil.py` | C5 | region-MIL vs a single mean-pooled frame (a null) |
+| `figS_alignment_controls.py` | C6 | five selection arms per encoder |
+| — | C7 | temporal ±5 s MIL — *not built*, embeddings still running |
+| `figS_alignment_encoders.py` | | the aligned arm for all four encoders |
+| `figS_levante.py` | | the scaling experiment under the LEVANTE eval |
+| `figS_lexicon_tsne.py` | | the noun lexicon under all four encoders |
+| `figS_lexicon_relatedness.py` | | relatedness by word class and encoder |
+| `figS_lexicon_alignment.py` | | what referential selection does to the lexicon |
+| `figS_item_difficulty.py` | | item-level AoA + child-alignment across scale |
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)

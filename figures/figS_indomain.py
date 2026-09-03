@@ -1,4 +1,4 @@
-"""S3 — the eval is out-of-domain; does that flatter the off-the-shelf encoders?
+"""the eval is out-of-domain; does that flatter the off-the-shelf encoders?
 
 Konkle photos are objects on white backgrounds, so a reviewer can reasonably ask whether
 the off-the-shelf advantage is a domain match rather than a representational one. Here the
@@ -65,7 +65,7 @@ bx.set_xscale("log"); bx.set_xlim(2e3, 2.2e7); bx.set_ylim(-3, 44)
 bx.set_xlabel("training pairs")
 bx.set_ylabel("off-the-shelf advantage\n(mean OTS − mean BabyView-trained, pts)")
 T.clean(bx)
-print(f"  NOTE figS3: {ind.n_cats.iloc[0]} categories, {int(ind.n_oov.max())} out of "
+print(f"  NOTE figS_indomain: {ind.n_cats.iloc[0]} categories, {int(ind.n_oov.max())} out of "
       f"model vocabulary at the smallest scale; full-corpus in-domain "
       + ", ".join(f"{k}={ind[(ind.encoder==e)&(ind.N==1686105)].acc.mean():.1f}"
                   for e, k, _ in ENC)
@@ -73,4 +73,4 @@ print(f"  NOTE figS3: {ind.n_cats.iloc[0]} categories, {int(ind.n_oov.max())} ou
         f"{g.indomain.iloc[-1]:.1f} pts")
 for a, l in zip((ax, bx), "AB"):
     T.panel(a, l, dx=-0.16)
-T.save(fig, "figS3_indomain")
+T.save(fig, "figS_indomain")

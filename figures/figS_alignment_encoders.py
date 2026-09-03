@@ -1,4 +1,4 @@
-"""S4 — the alignment result across all four encoders.
+"""the alignment result across all four encoders.
 
 fig2B for every encoder: the aligned arm (independent subsamples of the referential pairs)
 against that encoder's unfiltered curve. Aligned arms are points joined, not fitted — four
@@ -51,7 +51,7 @@ for a, (enc, key, lab, col) in zip(axes.ravel(), ENC):
     a.set_xscale("log"); a.set_xlim(3e3, 4e6); a.set_ylim(18, 95)
     T.clean(a)
     n_un = int((ya >= A_ - 0.3).sum())
-    print(f"  NOTE figS4 {key}: unfiltered asymptote {A_:.1f}; aligned {np.round(ya,1)}; "
+    print(f"  NOTE figS_alignment_encoders {key}: unfiltered asymptote {A_:.1f}; aligned {np.round(ya,1)}; "
           f"equivalence {labs}; {n_un} point(s) unreachable by unfiltered data")
 for a in axes[1]:
     a.set_xlabel("training pairs")
@@ -59,4 +59,4 @@ for a in axes[:, 0]:
     a.set_ylabel("Konkle 4AFC (%)")
 for a, l in zip(axes.ravel(), "ABCD"):
     T.panel(a, l, dx=-0.13)
-T.save(fig, "figS4_alignment_encoders")
+T.save(fig, "figS_alignment_encoders")

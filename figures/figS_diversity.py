@@ -30,7 +30,7 @@ for budget in ["30k", "100k", "300k"]:
     ax.text(ks[-1] * 1.22, fm[-1]["mean"], f"{budget}\npairs", fontsize=5.4,
             color=SHADE[budget], va="center", linespacing=1.2)
     short = [f"{k}c:n={f['n']}" for k, f in zip(ks, fm) if f["n"] < nmax]
-    print(f"  NOTE figS2 {budget}: k={ks}, n={[f['n'] for f in fm]}"
+    print(f"  NOTE figS_diversity {budget}: k={ks}, n={[f['n'] for f in fm]}"
           + (f"  UNDER-SEEDED {short}" if short else ""))
 ax.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=2)
 ax.text(1, 25.8, "chance", fontsize=5.4, color=T.SUB, ha="left")
@@ -40,4 +40,4 @@ ax.set_xlim(0.8, 160); ax.set_ylim(25, 72)
 ax.set_xlabel("children contributing the pairs")
 ax.set_ylabel("Konkle 4AFC (%)")
 T.clean(ax)
-T.save(fig, "figS2_diversity")
+T.save(fig, "figS_diversity")
