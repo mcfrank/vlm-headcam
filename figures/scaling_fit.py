@@ -11,7 +11,7 @@ def logistic(N, m, s, A):
     return CHANCE + (A - CHANCE) / (1 + np.exp(-(np.log10(N) - m) / s))
 
 
-def mc_band(x, y, sem, popt, grid, rng, bounds, sigma=None, ndraw=2000, pct=(10, 90)):
+def mc_band(x, y, sem, popt, grid, rng, bounds, sigma=None, ndraw=4000, pct=(2.5, 97.5)):
     """Monte-Carlo band for a fitted curve.
 
     Each draw perturbs the point MEANS by their standard errors (sd/sqrt(n_seeds)) and

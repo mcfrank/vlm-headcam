@@ -39,7 +39,7 @@ for age, g in sc.groupby("age_yr"):
     bs = [g.imputed.sample(len(g), replace=True, random_state=int(s)).mean()
           for s in rng.integers(0, 10 ** 6, 1000)]
     rows.append(dict(age_yr=int(age), language="en-US", acc_macro=g.imputed.mean(),
-                     lo=np.percentile(bs, 10), hi=np.percentile(bs, 90),
+                     lo=np.percentile(bs, 2.5), hi=np.percentile(bs, 97.5),
                      n_children=g.user_id.nunique(), n_items=len(d)))
 out = pd.DataFrame(rows)
 # distinct children overall -- summing the per-age counts double-counts anyone whose runs

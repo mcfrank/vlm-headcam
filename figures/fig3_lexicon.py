@@ -1,4 +1,4 @@
-"""Display item 4 — what the best-performing model learned about words.
+"""Display item 3 — what the best-performing model learned about words.
 
 Best encoder = DINOv3-L off-the-shelf (81.7 full-corpus 4AFC vs 78.6 for the DINOv3-B
 workhorse), so its lexicon is the one mapped and scored here. Final audio-filtered
@@ -124,10 +124,10 @@ T.panel(ax, "A", dx=0.01, dy=0.995)
 T.panel(bx, "B", dx=-0.32)
 T.panel(cx, "C", dx=-0.32)
 al = cs[cs.category == "ALL"]
-print(f"  NOTE fig4: {RUN}, {len(d)} nouns above 4x null; pooled gap "
+print(f"  NOTE fig3: {RUN}, {len(d)} nouns above 4x null; pooled gap "
       f"{al.gap.mean():.4f} (null {al.null_mean.mean():+.4f}, p<={al.p_perm.max():.4f}); "
       f"per-category p<.05 in {(cg.p < 0.05).sum()}/{len(cg)} "
       f"(n.s.: {', '.join(cg.category[cg.p >= 0.05]) or 'none'}); "
       f"{cs.seed.nunique()} seeds x {int(cs.n_perm.iloc[0]):,} permutations; "
       f"C on {ws[ws.category == 'noun'].n_pairs.max()} shared noun pairs")
-T.save(fig, "fig4_lexicon")
+T.save(fig, "fig3_lexicon")

@@ -9,8 +9,8 @@ outline, plus a caption line) — see `notes/PROVENANCE.md`.
 |---|---|
 | `fig1_pipeline.py` | design + pipeline (counts from `results/pipeline_counts.json`) |
 | `fig2_scaling.py` | what moves the curve: encoders up (A), alignment left (B) |
-| `fig3_development.py` | both evals in developmental time, against children |
-| `fig4_lexicon.py` | lexicon: t-SNE, category structure, human relatedness |
+| `fig3_lexicon.py` | lexicon: t-SNE, category structure, human relatedness |
+| `fig4_development.py` | both evals in developmental time, against children |
 
 Supplementary items carry **descriptive names, not numbers** — the manuscript orders them
 and links with `xr`, so renumbering here would only cause churn. Control ids refer to
