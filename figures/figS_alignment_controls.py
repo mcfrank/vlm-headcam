@@ -2,7 +2,10 @@
 carry essentially all of the signal.
 
 Five arms per encoder, 3 seeds each, all at the same corpus. A = the Gemini-aligned set
-(alignment >= 50; 171,782 pairs, 10.2% of the corpus).
+(alignment >= 50; 171,782 pairs, 10.2% of the corpus). NB this figure trains on ALL of A,
+whereas the aligned scaling arms in fig2B and figS_alignment_encoders take the N
+highest-rated pairs -- a subset of the same set (align_170000 is 170,000 of these 171,782,
+dropping 1,782 of the 33,993 tied at exactly 50).
   base            the whole corpus
   aligned-only    train on A alone
   matched-random  |A| pairs drawn to match A's joint (eval-noun x utterance-length)
@@ -19,7 +22,7 @@ import matplotlib.pyplot as plt
 ENC = [("dinov3l", "L-OTS", T.OTHER), ("dinov3b", "B-OTS", T.FREE),
        ("vitb_bv", "B-BV", T.INDOM), ("vits_bv", "S-BV", T.INDOM2)]
 ARMS = [("base", "whole corpus", T.NEUTRAL),
-        ("alignedonly", "aligned only", T.ORACLE),
+        ("alignedonly", "aligned (≥ 50)", T.ORACLE),
         ("matchrand", "matched random", T.SUB),
         ("minusaligned", "full − aligned", T.INDOM),
         ("minusrand", "full − random", T.NEUTRAL)]

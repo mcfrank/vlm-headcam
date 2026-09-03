@@ -3,8 +3,9 @@
 A: the encoder moves it up — four encoders on the same training draws (FINAL corpus),
    free-asymptote logistic per encoder. Off-the-shelf DINOv3 ceilings converge (~85);
    BabyView-trained encoders saturate far lower.
-B: alignment moves it left — training only on the referential pairs (independent aligned
-   subsamples) against the same encoder's unfiltered curve from panel A, for the best
+B: alignment moves it left — training only on referential pairs. Every aligned arm is a
+   subset of {alignment >= 50}: the N highest-rated pairs (ties at 50 broken at random after
+   a shuffle), so align_170000 is 170,000 of the 171,782 pairs rated >= 50 against the same encoder's unfiltered curve from panel A, for the best
    off-the-shelf encoder (L-OTS) and one BabyView-trained one (B-BV). The aligned arms are
    drawn as points joined, NOT fitted: four points cannot identify their ceiling, and for
    L-OTS they rise above the unfiltered asymptote. Arrows read the data equivalence off the

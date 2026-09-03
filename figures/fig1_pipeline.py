@@ -183,7 +183,7 @@ for k, (vid, fi, text, score, ref, anchor) in enumerate(CARDS):
 # funnel: real bar chart, left-aligned, true linear scale
 tot = STEP["training-corpus"]["pairs"]
 levels = [("all pairs", tot, "#dcdad2", T.INK),
-          ("about something visible", STEP["aligned"]["pairs"], T.ORACLE, T.ORACLE),
+          ("aligned: rating ≥ 50", STEP["aligned"]["pairs"], T.ORACLE, T.ORACLE),
           ("…and the referent is spoken", STEP["referent-spoken"]["pairs"], T.ORACLE2, T.ORACLE2)]
 fy = y - 2 * (ch + 3.2) - 4.8
 BX0, BW, BH = 0.8, 19.8, 1.7

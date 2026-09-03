@@ -1,6 +1,7 @@
 """the alignment result across all four encoders.
 
-fig2B for every encoder: the aligned arm (independent subsamples of the referential pairs)
+fig2B for every encoder: the aligned arm (the N highest-rated pairs, all with alignment
+>= 50; ties at 50 broken at random)
 against that encoder's unfiltered curve. Aligned arms are points joined, not fitted — four
 points cannot identify a ceiling. Arrows give the data equivalence read off the unfiltered
 fit alone, where the aligned level is reachable at all.
