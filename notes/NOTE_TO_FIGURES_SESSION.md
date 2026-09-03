@@ -12,3 +12,12 @@
     F_dinov3l_div30k_{k}c_s{s}, 5 seeds, same construction as the 100k/300k cells.
 
 Both scrape into runs.parquet as usual; I'll commit when each family completes.
+
+## 2026-09-02 (evening): two control families complete in runs.parquet
+- No-MIL: F_<enc>_wf30000 / wf300000 / wffull (n=5) paired to F_<enc>_rand_30000_s<s> /
+  rand_300000_s<s> / base (base now n=5 via _s3,_s4 top-ups). Result: null at every scale for
+  all four encoders — SI figure should show paired differences around zero.
+- Alignment-selection: F_<enc>_{alignedonly,matchrand,minusaligned,minusrand} (n=3 each) vs
+  base. Suggested SI panel: five bars per encoder. Diagnostics for the caption in
+  results/aligned_control_diagnostics.json (aligned set has 2.4x the eval-noun exposure of a
+  random subset; matched control equates it). Temporal-window (win5) lands in ~1-2 days.
