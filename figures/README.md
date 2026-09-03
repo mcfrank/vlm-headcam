@@ -31,6 +31,12 @@ and links with `xr`, so renumbering here would only cause churn. Control ids ref
 | `figS_lexicon_relatedness.py` | | relatedness by word class and encoder |
 | `figS_lexicon_alignment.py` | | what referential selection does to the lexicon |
 | `figS_item_difficulty.py` | | item-level AoA + child-alignment across scale |
+| `figS_corpus_effort.py` | | recording hours per child (from `diagnostics/2026.1/`) |
+| `figS_corpus_age.py` | | age coverage and longitudinal span |
+| `figS_speech_density.py` | | utterance rate per video and per child |
+
+The last three are ported from `supplement.qmd` (its figs 2–4) onto the project theme; they
+read the committed release diagnostics in `diagnostics/2026.1/`, not the cluster.
 
 ```bash
 make -C figures            # build all -> figures/out/*.pdf (+ .png preview)
