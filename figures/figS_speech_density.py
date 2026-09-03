@@ -4,8 +4,8 @@ A: utterances per hour per video. An outlier here is usually a transcription fai
    rather than a quiet child.
 B: the same rate aggregated per child, against that child's median age, which is the check
    that the rate is not drifting with development in a way the corpus-level constant hides.
-The corpus-level rate this figure summarises is what fig3 uses to convert training pairs
-into developmental time (results/utterance_rate.csv). Ported from supplement.qmd
+The corpus-level rate this figure summarises is what the developmental-time figure (main
+Fig. 4) uses to convert training pairs into years (results/utterance_rate.csv). Ported from supplement.qmd
 (fig-density); source is the committed release diagnostics.
 """
 import sys
@@ -25,7 +25,7 @@ fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.4), gridspec_kw=dict(wspace=
 ax.hist(V.utt_per_hr.clip(0, 3000), bins=50, color=T.ORACLE, zorder=3)
 ax.axvline(rate.utt_per_hr, color=T.INK, lw=0.8, zorder=4)
 ax.text(rate.utt_per_hr * 1.08, ax.get_ylim()[1] * 0.92,
-        f"corpus rate {rate.utt_per_hr:.0f}/h\n(used in Fig. 3)", fontsize=5.2, color=T.INK,
+        f"corpus rate {rate.utt_per_hr:.0f}/h\n(used in Fig. 4)", fontsize=5.2, color=T.INK,
         va="top", linespacing=1.4)
 ax.set_xlabel("utterances / hour (per video)"); ax.set_ylabel("videos")
 T.clean(ax)
