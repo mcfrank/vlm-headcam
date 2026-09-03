@@ -1,0 +1,10 @@
+experiment,encoders,pairs,seeds,runs,evaluation,figures,note
+Scaling (random subsamples) + full corpus,"L-OTS, B-OTS, B-BV, S-BV","2,789–1,682,259",3–8,180,Konkle test-60 (dev-117 selection); LEVANTE; in-domain,"fig2_scaling, figS_indomain, figS_levante, figS_lexicon_tsne, figS_nomil",
+Aligned-pair scaling,"L-OTS, B-OTS, B-BV, S-BV","9,526–169,332",3,48,Konkle,"fig2_scaling, figS_alignment_encoders",top-N by Gemini alignment
+"Ladder, full corpus","L-OTS, B-OTS, B-BV, S-BV","170,944–172,660",3,36,Konkle,fig3_development,+ base row above
+Ladder at reduced scale,L-OTS,"8,913–298,322",3,24,Konkle,fig3_development,matched subsample per seed
+Diversity (children at fixed budget),L-OTS,"29,424–298,655",5,65,Konkle,figS_diversity,random child draw per seed
+No-MIL (whole-frame) control,"L-OTS, B-OTS, B-BV, S-BV","29,409–1,682,259",5,60,Konkle,figS_nomil,mean-over-grid R=1; paired to region runs
+Alignment-selection controls,"L-OTS, B-OTS, B-BV, S-BV","170,976–1,510,433",3,48,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
+Child-speech (KCHI) control,L-OTS,"1,295,551–1,295,942",3,6,Konkle,figS_kchi,matched-N random
+Temporal-window (+-5 s) control,(pending),,,0,Konkle,,complete neighbor caches
