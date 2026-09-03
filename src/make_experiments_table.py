@@ -52,6 +52,25 @@ for fp in sorted(glob.glob("figures/fig*.py")):
 MANUAL = {"figS_nomil": ["No-MIL", "Scaling"], "figS_alignment_controls": ["Alignment-selection"],
           "fig3_development": ["Ladder, full corpus", "Ladder at reduced scale"]}
 
+def fmt(n):
+    return f"{n/1e6:.2g}M" if n >= 1e6 else (f"{n//1000}k" if n >= 1000 else str(n))
+
+NAMED = {"base": "full (1.69M)", "filtnat": "172k referent-bearing", "t15": "172k referent-bearing",
+         "t2": "172k referent-bearing", "alignedonly": "172k (aligned)", "matchrand": "172k (matched)",
+         "minusaligned": "1.51M (full−aligned)", "minusrand": "1.51M (full−random)",
+         "nokchi": "1.30M (no child speech)", "randmatch": "1.30M (matched)"}
+
+def nominal(cond):
+    """the DESIGNED quantity a condition name encodes (not the post-vocab effective count)"""
+    if cond in NAMED: return NAMED[cond]
+    m = re.match(r"(?:rand|align|win5)_(\d+)$", cond)
+    if m: return fmt(int(m.group(1)))
+    m = re.match(r"lad(\d+)_(base|filtnat|t15|t2)$", cond)
+    if m: return fmt(int(m.group(1))) + (" subsample" if m.group(2) == "base" else " (referent-bearing of " + fmt(int(m.group(1))) + ")")
+    m = re.match(r"div(\d+)k_\d+c$", cond)
+    if m: return f"{m.group(1)}k budget"
+    return cond
+
 def figs_for(block_conds):
     hit = []
     fams = [f"F_{e}_{c}" for e in ["dinov3l", "dinov3b", "vitb_bv", "vits_bv"] for c in block_conds]
@@ -66,8 +85,13 @@ for name, rx, ev, note in BLOCKS:
     if b.empty:
         out.append(dict(experiment=name, encoders="(pending)", pairs="", seeds="", runs=0, evaluation=ev, figures="", note=note)); continue
     encs = [e for e in ["L-OTS", "B-OTS", "B-BV", "S-BV"] if e in set(b.enc)]
-    np_ = b.n_pairs.dropna()
-    pairs = f"{int(np_.min()):,}–{int(np_.max()):,}" if np_.min() != np_.max() else f"{int(np_.max()):,}"
+    seen, pairs_list = set(), []
+    def key(c):
+        m = re.search(r"(\d+)", c); return int(m.group(1)) if m else 10**9
+    for c in sorted(set(b.cond), key=key):
+        q = nominal(c)
+        if q not in seen: seen.add(q); pairs_list.append(q)
+    pairs = "; ".join(pairs_list)
     seeds = b.groupby(["enc", "cond"]).seed.nunique()
     srange = f"{seeds.min()}–{seeds.max()}" if seeds.min() != seeds.max() else str(seeds.max())
     figs = figs_for(sorted(set(b.cond)))
@@ -81,7 +105,7 @@ with open("results/experiments_table.tex", "w") as fh:
     fh.write("\\begin{table*}[t]\\centering\\footnotesize\n\\caption{Training runs underlying all figures. "
              "Every run: frozen encoder, region-MIL head, InfoNCE, 20 epochs, dev-117 epoch selection; "
              "pairs = effective training pairs after vocabulary filtering.}\n")
-    fh.write("\\begin{tabular}{p{3.6cm}p{2.4cm}p{2.3cm}p{0.9cm}p{0.8cm}p{2.6cm}p{3.2cm}}\\toprule\n")
+    fh.write("\\begin{tabular}{p{3.4cm}p{2.2cm}p{4.2cm}p{0.9cm}p{0.8cm}p{2.2cm}p{2.6cm}}\\toprule\n")
     fh.write("Experiment & Encoders & Training pairs & Seeds/ cell & Runs & Evaluation & Figures \\\\\\midrule\n")
     for r in T.itertuples():
         figs = r.figures.replace("_", "\\_")
