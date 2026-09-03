@@ -77,7 +77,8 @@ ax.text(d0.age / 12 * 0.92, d0.pred_4afc + 1.5, "children\n(Wordbank CDI)", font
 
 # ---- B: LEVANTE ------------------------------------------------------------------
 lev["fair"] = np.where(lev.playable, lev.correct, 0.25)
-LDY = {"L-OTS": -2.6, "B-OTS": -2.2, "B-BV": 2.4, "S-BV": -2.2}
+LDY = {"L-OTS": 2.6, "B-OTS": -2.6, "B-BV": 2.6, "S-BV": -2.6}
+LX = 3.0   # children now occupy the right of this panel
 for enc, key, lab, col in ENC:
     per = lev[lev.encoder == key].groupby(["N", "seed"]).fair.mean().mul(100).reset_index()
     S = per.groupby("N").agg(m=("fair", "mean"), sd=("fair", "std"),
@@ -90,15 +91,15 @@ for enc, key, lab, col in ENC:
     curve_with_fade(bx, popt, col,
                     band=mc_band(x, y, sem, popt, ngrid, rng,
                                  ([3, 0.1, 25.5], [10, 3, 100]), sigma=e))
-    bx.text(13.5, logistic(ngrid[-1], *popt) + LDY[key], key, fontsize=5.4, color=col,
-            ha="right", va="center")
+    bx.text(LX, logistic(LX * UTT_PER_HR * HR_PER_YEAR, *popt) + LDY[key], key,
+            fontsize=5.4, color=col, ha="right", va="center")
     print(f"  NOTE fig3 LEVANTE {key}: fair asymptote {popt[2]:.1f}")
 bx.errorbar(KIDS.age_yr, 100 * KIDS.acc_macro,
             yerr=[100 * (KIDS.acc_macro - KIDS.lo), 100 * (KIDS.hi - KIDS.acc_macro)],
             fmt="-o", color=T.CHILD, ms=2.8, lw=0.9, elinewidth=0.6, capsize=1.4,
             markeredgecolor=CDI_INK, markeredgewidth=0.4, zorder=5)
-bx.text(4.4, 74, "children, same items\n(LEVANTE trials)", fontsize=5.2, color=CDI_INK,
-        ha="right", va="center", linespacing=1.4)
+bx.text(4.2, 78, "children, same items\n(LEVANTE, IRT full-scale;\nColombian site, n=195)",
+        fontsize=5.0, color=CDI_INK, ha="center", va="center", linespacing=1.4)
 
 def rate_bar(a, x0=0.028, yb=21.8):
     """One bar for the horizontal uncertainty: the utterances-per-hour conversion is a
