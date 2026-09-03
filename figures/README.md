@@ -31,6 +31,7 @@ and links with `xr`, so renumbering here would only cause churn. Control ids ref
 | `figS_lexicon_relatedness.py` | | relatedness by word class and encoder |
 | `figS_lexicon_alignment.py` | | what referential selection does to the lexicon |
 | `figS_item_difficulty.py` | | item-level AoA + child-alignment across scale |
+| `figS_alignment_scores.py` | | distribution of Gemini referential-alignment ratings |
 | `figS_corpus_effort.py` | | recording hours per child (from `diagnostics/2026.1/`) |
 | `figS_corpus_age.py` | | age coverage and longitudinal span |
 | `figS_speech_density.py` | | utterance rate per video and per child |
