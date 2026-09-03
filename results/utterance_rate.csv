@@ -1,2 +1,2 @@
 source,n_videos,n_children,hours,utterances,utt_per_hr,child_median,child_q25,child_q75,boot_lo,boot_hi,note
-BabyView 2026.1 transcripts,15598,34,2633.4,1835504,697,715,594,746,634,752,"video duration = last transcribed token time, so hours are a lower bound and the rate an upper bound"
+BabyView 2026.1 transcripts,15598,51,2633.4,1835504,697,702,590,764,637,747,"child = first 9 chars of video_id; video duration = last transcribed token time, so hours are a lower bound and the rate an upper bound"

@@ -23,9 +23,9 @@ KIDS = pd.read_csv(R / "levante_child_by_age.csv")
 lev = pd.read_csv(R / "lev_scaling_final.csv")
 lev = lev[lev.N <= 1_686_105]
 # Measured in this corpus (results/utterance_rate.csv): 1,835,504 utterances over 2,633 h
-# of transcribed span, 34 children. The rate is the soft part of this axis, so the curves
+# of transcribed span, 51 children. The rate is the soft part of this axis, so the curves
 # carry a horizontal band for the 95% bootstrap-over-children interval on it.
-UTT_PER_HR, UTT_LO, UTT_HI, HR_PER_YEAR = 697, 634, 752, 4000
+UTT_PER_HR, UTT_LO, UTT_HI, HR_PER_YEAR = 697, 637, 747, 4000
 CDI_INK = "#8a6d1f"
 to_yr = lambda n: n / UTT_PER_HR / HR_PER_YEAR
 tgrid = np.logspace(np.log10(3e-3), np.log10(14), 260)
