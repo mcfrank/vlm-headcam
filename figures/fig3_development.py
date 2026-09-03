@@ -60,8 +60,10 @@ for enc, key, lab, col in ENC:
     curve_with_fade(ax, F["popt"], col, band=F["band"](ngrid))
     ax.text(13.5, logistic(ngrid[-1], *F["popt"]) + KDY[key], key, fontsize=5.4, color=col,
             ha="right", va="center")
+NWB = {f: int(WB[WB.form == f].n_children.sum()) for f in ("WG", "WS")}
 for form, meas, mk, ls in [("WG", "understands", "o", "-"), ("WS", "produces", "^", (0, (2.5, 1.5)))]:
     d = WB[WB.form == form].sort_values("age")
+    meas = f"{meas} (n={NWB[form]:,})"
     ax.plot(d.age / 12, d.pred_4afc, marker=mk, ms=2.6, lw=0.9, ls=ls, color=T.CHILD,
             markerfacecolor="white", markeredgecolor=CDI_INK, markeredgewidth=0.6, zorder=5)
     end = d.iloc[-1]
@@ -72,9 +74,7 @@ for form, meas, mk, ls in [("WG", "understands", "o", "-"), ("WS", "produces", "
         ax.text(end.age / 12 * 0.90, end.pred_4afc + 2.2, meas, fontsize=5.2, color=CDI_INK,
                 va="bottom", ha="right")
 d0 = WB.sort_values("age").iloc[0]
-nwg = int(WB[WB.form == "WG"].n_children.sum()); nws = int(WB[WB.form == "WS"].n_children.sum())
-ax.text(d0.age / 12 * 0.92, d0.pred_4afc + 1.5,
-        f"children\n(Wordbank CDI;\n{nwg:,} / {nws:,} administrations)", fontsize=5.0,
+ax.text(d0.age / 12 * 0.92, d0.pred_4afc + 1.5, "children\n(Wordbank CDI)", fontsize=5.2,
         color=CDI_INK, ha="right", va="center", linespacing=1.4)
 
 # ---- B: LEVANTE ------------------------------------------------------------------
@@ -100,9 +100,9 @@ bx.errorbar(KIDS.age_yr, 100 * KIDS.acc_macro,
             yerr=[100 * (KIDS.acc_macro - KIDS.lo), 100 * (KIDS.hi - KIDS.acc_macro)],
             fmt="-o", color=T.CHILD, ms=2.8, lw=0.9, elinewidth=0.6, capsize=1.4,
             markeredgecolor=CDI_INK, markeredgewidth=0.4, zorder=5)
-nk = int(KIDS.n_children.sum())
-bx.text(0.55, 80, f"children, same items\n(LEVANTE, IRT full-scale;\nEnglish, n={nk})",
-        fontsize=5.0, color=CDI_INK, ha="center", va="center", linespacing=1.4)
+nk = int(KIDS.n_children_total.iloc[0])
+bx.text(0.55, 80, f"children\n(LEVANTE 4AFC, N={nk})", fontsize=5.2, color=CDI_INK,
+        ha="center", va="center", linespacing=1.4)
 
 def rate_bar(a, x0=0.028, yb=21.8):
     """One bar for the horizontal uncertainty: the utterances-per-hour conversion is a

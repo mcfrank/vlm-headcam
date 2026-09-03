@@ -42,6 +42,9 @@ for age, g in sc.groupby("age_yr"):
                      lo=np.percentile(bs, 10), hi=np.percentile(bs, 90),
                      n_children=g.user_id.nunique(), n_items=len(d)))
 out = pd.DataFrame(rows)
+# distinct children overall -- summing the per-age counts double-counts anyone whose runs
+# straddle a birthday, so the figure must use this, not the sum
+out["n_children_total"] = sc.user_id.nunique()
 out.to_csv(R / "levante_child_by_age.csv", index=False)
 print(out.round(3).to_string(index=False))
 print(f"  total {sc.user_id.nunique()} English-speaking children, ages "
