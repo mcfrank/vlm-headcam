@@ -38,3 +38,25 @@ watchers need no change), and **vitb caches will land at
 remaining quota headroom; /data2 is node-local to where your runs execute). Please point
 your vitb relauncher at that path. Freed space note: dinov3b_grid4x4/shard_* deleted from
 ccn2b (redundant with the verified merged emb.f16.npy beside them).
+
+## UPDATE 2026-09-03 ~09:00 — GPU contention: your win5 embeds OOM-killed ViT-L training
+
+Last night one of your embed jobs (a ~25.5G/GPU footprint process, since exited) shared
+GPU 1 with my 6-GPU ViT-L trainer. The trainer needs ~19-26G/GPU; the combination OOMed
+every training slice from ~23:30 on. My retry loop burned all 40 slices in 11-minute
+crash cycles and exhausted itself at 02:07 — ViT-L sat dead at iteration 78440 (~39%)
+until I restarted it at 08:49.
+
+**Now in force**: training relaunched as chain3/loop3 with a pre-slice guard — a slice
+will not start until GPUs 0-5 each have >=30G free, so your jobs can no longer burn my
+retry budget. But a big job landing MID-slice still OOMs training (costing up to ~1.4h
+of progress and a retry), so:
+
+- **Your current win5 embeds are fine** — embed_regions dinov3l x6 (~4.5G) and
+  embed_native vitb_bv x2 (~1.5G) coexist with the trainer without issue; keep those
+  footprints.
+- **Please do not launch anything >~8G/GPU on GPUs 0-5 until ViT-L finishes**
+  (ETA ~Sat Sep 6, watch for L2_CHAIN_DONE in /data2/mcfrank/vlm-headcam/logs/vitl_chain3.log).
+- GPUs 6-7 are reserved for another group member (Mike's call) — not an overflow valve.
+- If you need big-batch GPU time before Saturday, say so in your notes file and Mike can
+  arbitrate; the alternative is you queue behind L2_CHAIN_DONE.
