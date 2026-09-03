@@ -133,3 +133,22 @@ crash-loop). Fix, now standard: bracket the last character of any pkill pattern
 (`pkill -f "dino_l_loo[p]"`) so the pattern never matches a cmdline containing itself.
 ViT-L relaunched clean under the v2 loop (single trainer, no refusal, iter 0 at 00:04,
 ~2.2k orphan iters sacrificed — pre-first-checkpoint). Sentinel v3 armed. ETA ~Sep 5.
+
+## 2026-09-03: OOM crash-loop postmortem → loop v3 memory guard
+Pipeline session's win5 embed jobs shared GPUs 0-5 with the ViT-L trainer; a ~25.5G
+process on GPU 1 left <100M free and every slice OOMed ~11min in (compile, then first
+big alloc). Loop v2 had no notion of "the GPU is occupied": it burned all 40 retry
+slices in 2.5h (23:30-02:07) at iteration 78440 and exited EXHAUSTED. ~12h stall
+(02:07-08:49) before restart.
+
+Fixes (loop3/chain3, deployed 08:49):
+- **Pre-slice memory guard**: a slice waits (5-min polls, logged to vitl_slices.log,
+  not counted against the 40-slice cap) until GPUs 0-5 each have >=30G free.
+- **chain3 probes only 99999/149999**: 49999 was probed before the crash, and its ckpt
+  has rotated out (max_to_keep=8) — chain2's until-loop on a rotated ckpt would have
+  blocked all later probes until train end. Lesson: never gate on a checkpoint that
+  rotation can delete; gate on "ckpt exists OR iteration passed it".
+- Contention protocol written to NOTE_TO_PIPELINE_SESSION.md: embeds <=~8G/GPU coexist
+  fine; anything bigger queues behind L2_CHAIN_DONE or goes through Mike.
+Residual risk: a big job landing MID-slice still OOMs that slice (~1.4h max lost work,
+then the guard holds the retry until memory frees). Accepted.
