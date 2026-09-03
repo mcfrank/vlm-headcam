@@ -63,16 +63,16 @@ for enc, key, lab, col in ENC:
 NWB = {f: int(WB[WB.form == f].n_children.sum()) for f in ("WG", "WS")}
 for form, meas, mk, ls in [("WG", "understands", "o", "-"), ("WS", "produces", "^", (0, (2.5, 1.5)))]:
     d = WB[WB.form == form].sort_values("age")
-    meas = f"{meas} (n={NWB[form]:,})"
+    meas = f"{meas}\n(n={NWB[form]:,})"
     ax.plot(d.age / 12, d.pred_4afc, marker=mk, ms=2.6, lw=0.9, ls=ls, color=T.CHILD,
             markerfacecolor="white", markeredgecolor=CDI_INK, markeredgewidth=0.6, zorder=5)
     end = d.iloc[-1]
     if form == "WS":
-        ax.text(end.age / 12 * 1.06, end.pred_4afc - 4.5, meas, fontsize=5.2, color=CDI_INK,
-                va="top", ha="left")
+        ax.text(end.age / 12 * 1.10, end.pred_4afc - 10.0, meas, fontsize=5.2,
+                color=CDI_INK, va="top", ha="left", linespacing=1.35)
     else:
-        ax.text(end.age / 12 * 0.90, end.pred_4afc + 2.2, meas, fontsize=5.2, color=CDI_INK,
-                va="bottom", ha="right")
+        ax.text(0.78, 62, meas, fontsize=5.2, color=CDI_INK, va="center", ha="right",
+                linespacing=1.35)
 d0 = WB.sort_values("age").iloc[0]
 ax.text(d0.age / 12 * 0.92, d0.pred_4afc + 1.5, "children\n(Wordbank CDI)", fontsize=5.2,
         color=CDI_INK, ha="right", va="center", linespacing=1.4)
@@ -101,8 +101,8 @@ bx.errorbar(KIDS.age_yr, 100 * KIDS.acc_macro,
             fmt="-o", color=T.CHILD, ms=2.8, lw=0.9, elinewidth=0.6, capsize=1.4,
             markeredgecolor=CDI_INK, markeredgewidth=0.4, zorder=5)
 nk = int(KIDS.n_children_total.iloc[0])
-bx.text(0.55, 80, f"children\n(LEVANTE 4AFC, N={nk})", fontsize=5.2, color=CDI_INK,
-        ha="center", va="center", linespacing=1.4)
+bx.text(3.6, 74, f"children\n(LEVANTE 4AFC, N={nk})", fontsize=5.2, color=CDI_INK,
+        ha="right", va="center", linespacing=1.4)
 
 def rate_bar(a, x0=0.028, yb=21.8):
     """One bar for the horizontal uncertainty: the utterances-per-hour conversion is a
