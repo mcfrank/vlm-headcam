@@ -262,7 +262,7 @@ cx.text(nx + nb * nc + 0.7, ny - nb * nc / 2, "InfoNCE\ntrue pairs on\nthe diago
         fontsize=5.0, color=T.INK, va="center", linespacing=1.3)
 # evaluation: 4AFC over out-of-corpus object photos
 ey = ny - nb * nc - 3.0
-cx.text(1.0, ey + 0.3, f"evaluation: “cat”?   {KONKLE_CATS}-way 4AFC, out-of-corpus photos",
+cx.text(1.0, ey + 0.3, f"evaluation: “cat”?   {KONKLE_CATS}-category 4AFC, out-of-corpus photos",
         fontsize=5.4, color=T.INK, va="bottom")
 kw = 4.6
 for i, (lab, fn) in enumerate(KONKLE):
