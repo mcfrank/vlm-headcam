@@ -1,11 +1,9 @@
 #!/usr/bin/env Rscript
-# Wordbank-based child anchors for fig2B: for each Konkle test-60 word with a CDI (American
-# English) item, the proportion of children who know it at each age; predicted 4AFC assumes a
-# child picks the target if they know the word, else guesses (p + (1-p)/4).
-# Comprehension ("understands") from WG (8-18 mo); production from WS (16-30 mo) — production
-# is a lower bound on comprehension. Writes results/wordbank_anchors.csv (+ per-item file).
+# Wordbank-based child anchors for the Konkle words -> results/wordbank_anchors.csv
+# Comprehension ("understands") from WG (8-18 mo); production from WS (16-30 mo).
+# Predicted 4AFC assumes know-it-or-guess: p + (1-p)/4.
+# Also writes the administration counts (N children) behind each age point.
 suppressMessages({library(wordbankr); library(dplyr); library(tidyr); library(purrr)})
-
 konkle <- c("airplane","apple","bagel","ball","balloon","basket","bed","bell","bike","bill",
             "bird","boot","bottle","bowl","bucket","butterfly","button","cake","camera","cat",
             "chair","cheese","clock","cookie","crib","dog","doll","fan","guitar","hat","jacket",
@@ -17,42 +15,31 @@ alts <- list(bike=c("bike","bicycle"), tv=c("tv","television"), phone=c("telepho
              cat=c("cat","kitty","kitty cat"), dog=c("dog","doggy","puppy"),
              doll=c("doll","dolly"), airplane=c("airplane","plane"), key=c("key","keys"),
              watch=c("watch","wristwatch"), rock=c("rock","stone"), tape=c("tape (n)","tape"))
-
-norm <- function(x) {
-  x <- tolower(x); x <- sub(" \\(.*\\)$", "", x); trimws(x)
-}
-
-run <- function(form, ages, measure_fun, measure_name) {
-  items <- get_item_data(language = "English (American)", form = form) |>
-    filter(item_kind == "word")
+norm <- function(x) trimws(sub(" \\(.*\\)$", "", tolower(x)))
+run <- function(form, ages, fun, measure) {
+  items <- get_item_data(language="English (American)", form=form) |> filter(item_kind=="word")
   items$defn <- norm(items$item_definition)
-  match_word <- function(w) {
+  ids <- sapply(konkle, function(w) {
     cands <- if (w %in% names(alts)) alts[[w]] else w
-    hit <- items |> filter(defn %in% cands)
-    if (nrow(hit)) hit$item_id[1] else NA_character_
-  }
-  ids <- sapply(konkle, match_word)
+    hit <- items |> filter(defn %in% cands); if (nrow(hit)) hit$item_id[1] else NA_character_ })
   matched <- konkle[!is.na(ids)]
-  cat(sprintf("%s: matched %d / %d words; unmatched: %s\n", form, length(matched), length(konkle),
-              paste(konkle[is.na(ids)], collapse = " ")))
-  dat <- get_instrument_data(language = "English (American)", form = form,
-                             items = unname(ids[!is.na(ids)]), administration_info = TRUE)
-  dat |>
+  cat(sprintf("%s: matched %d/%d words\n", form, length(matched), length(konkle)))
+  get_instrument_data(language="English (American)", form=form,
+                      items=unname(ids[!is.na(ids)]), administration_info=TRUE) |>
     filter(age %in% ages) |>
-    mutate(word = matched[match(item_id, ids[!is.na(ids)])],
-           knows = measure_fun(value)) |>
+    mutate(word=matched[match(item_id, ids[!is.na(ids)])], knows=fun(value)) |>
     group_by(age, word) |>
-    summarise(p = mean(knows, na.rm = TRUE), n_admin = n(), .groups = "drop") |>
-    mutate(form = form, measure = measure_name)
+    summarise(p=mean(knows, na.rm=TRUE), n_admin=n_distinct(data_id), .groups="drop") |>
+    mutate(form=form, measure=measure)
 }
-
-wg <- run("WG", seq(8, 18, 2), \(v) v %in% c("understands", "produces"), "understands")
-ws <- run("WS", seq(16, 30, 2), \(v) v == "produces", "produces")
+wg <- run("WG", seq(8,18,2), \(v) v %in% c("understands","produces"), "understands")
+ws <- run("WS", seq(16,30,2), \(v) v == "produces", "produces")
 items <- bind_rows(wg, ws)
-write.csv(items, "results/wordbank_anchors_items.csv", row.names = FALSE)
-anchors <- items |>
-  group_by(form, measure, age) |>
-  summarise(n_items = n(), mean_p_know = mean(p), pred_4afc = 100 * mean(p + (1 - p) / 4),
-            .groups = "drop")
-write.csv(anchors, "results/wordbank_anchors.csv", row.names = FALSE)
+write.csv(items, "results/wordbank_anchors_items.csv", row.names=FALSE)
+anchors <- items |> group_by(form, measure, age) |>
+  summarise(n_items=n(), n_children=max(n_admin), mean_p_know=mean(p),
+            pred_4afc=100*mean(p + (1-p)/4), .groups="drop")
+write.csv(anchors, "results/wordbank_anchors.csv", row.names=FALSE)
 print(as.data.frame(anchors))
+cat(sprintf("\nTOTAL administrations: WG (comprehension) %d children; WS (production) %d children\n",
+            sum(anchors$n_children[anchors$form=="WG"]), sum(anchors$n_children[anchors$form=="WS"])))
