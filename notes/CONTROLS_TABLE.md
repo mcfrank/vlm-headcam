@@ -1,0 +1,24 @@
+# Supplementary controls — manuscript tracker (2026-09-03)
+
+Encoder tags → paper names: `dinov3l` = **L-OTS** (DINOv3 ViT-L, internet), `dinov3b` = **B-OTS**
+(ViT-B, internet), `vitb_bv` = **B-BV** (ViT-B trained on BabyView 2026.1), `vits_bv` = **S-BV**
+(ViT-S, BabyView). L-BV (ViT-L, BabyView) retrain pending. All numbers = Konkle test-60 4AFC
+(chance 25), dev-117 epoch selection, final audio-filtered corpus (1,686,105 pairs, 48 children).
+Data: `results/runs.parquet` (families below), `results/indomain_eval.csv`,
+`results/encoder_probe_domains.csv`, `results/aligned_control_diagnostics.json`.
+
+| # | control | question answered | encoders | design | families | result | suggested placement |
+|---|---|---|---|---|---|---|---|
+| C1 | **In-domain word-learning eval** | Is OTS > BV an evaluation-domain artifact? | all 4 | held-out BabyView frames from the 1,258 language-excluded videos: 603 frames, 82 concrete categories, ≤1 frame/video/category, embedding-deduped; every F scaling model evaluated | `indomain_eval.csv` | gap persists in-domain: full-corpus L-OTS 73.2 / B-OTS 67.4 / B-BV 47.7 / S-BV 47.4 (Konkle: ~82/79/44/40) | SI fig (scaling curves, in-domain) + main-text sentence |
+| C2 | **Encoder prototype probe, both domains** | Does coarse category quality explain the gap? | all 4 | head-free leave-one-out prototype 4AFC, Konkle and in-domain | `encoder_probe_domains.csv` | near-matched: Konkle 100/99.8/96.9/96.5; in-domain 60.4/56.6/55.4/54.4 → separability does not explain a 25–40-pt lexical gap | same SI fig, panel |
+| C3 | **Child-speech (KCHI) control** | Does training on the child's own utterances (22.9% of pairs) matter? | L-OTS | no-KCHI (1,299,191 pairs) vs matched-N random draws, 3+3 seeds | `F_dinov3l_nokchi`, `F_dinov3l_randmatch` | 80.27±0.16 vs 80.87±1.66 → null | Methods sentence; SI table row |
+| C4 | **Diversity, 30k budget** | figS2 third line | L-OTS | k∈{1,3,10,25,48} children @30k, 5 random draws | `F_dinov3l_div30k_{k}c` | done; flattest budget (as on preview) | figS2 |
+| C5 | **No-MIL (whole-frame)** | What does region-MIL buy? | all 4 | mean-over-grid R=1 caches (train+eval); {30k, 300k, full} × 5 seeds paired to region manifests; region `base` topped up to n=5 | `F_<enc>_wf{30000,300000,wffull}` vs `F_<enc>_{rand_30000,rand_300000,base}` | **null everywhere**: paired Δ −2.4…+2.5, all within seed sd (e.g. L-OTS full 81.6 vs 81.6) | SI fig (paired Δ); Methods: "no reliable improvement" |
+| C6 | **Alignment-selection controls** | (a) Is the aligned advantage eval-noun exposure / short utterances? (b) Do the aligned 10% carry the signal? | all 4 | A = alignment≥50 (171,782 = 10.2%). Arms: aligned-only; exposure+length-matched random (same N, same joint (eval-noun × length-bin) distribution — equates eval-noun pairs 31,047 vs 30,946; plain random has 12,906); full−A; full−random(|A|). 3 seeds | `F_<enc>_{alignedonly,matchrand,minusaligned,minusrand}` | L-OTS: base 81.6 · aligned-only **87.6** · matched-random **41.0** · full−aligned **42.7** · full−random 81.3. B-OTS 78.7/84.6/34.6/37.2/77.1; B-BV 44.1/49.8/26.4/31.9/42.8; S-BV 39.6/46.7/28.5/30.7/39.1 | **main text** (one sentence + SI fig, 5 bars × 4 encoders) |
+| C7 | **Temporal window ±5 s MIL** | Does temporal MIL help? (expected null) | all 4 | complete ±5 s neighbor caches (3.43M new frames); max over regions×frames; 30k × 5 + 300k × 3, paired to region manifests | `F_<enc>_win5_{30000,300000}` | embeddings running (B-OTS, S-BV done; B-BV, L-OTS in progress) → runs ~tomorrow | SI fig + sentence |
+| C8 | **L-BV retrain** | size-matched developmental encoder | L-BV | caches → 64-run main suite + C5 + C6 + C1/C2 | `F_dinov3l_bv2_*` (tbd) | pending DINO session | main figs |
+
+Interpretive notes for the writing
+- C5: the architecture claim simplifies — a single mean-pooled frame vector learns as well as region-MIL at every scale and for every encoder.
+- C6: "referential episodes carry essentially all of the signal" — for BV encoders the exposure-matched random arm sits AT CHANCE; for OTS it sits ~45 pts below aligned-only. Gemini's ≥50 criterion bundles naming with a prominently visible object, so "referential" = word + clear view co-occurring.
+- C1/C2 compose with the encoder result: coarse category separability is nearly encoder-invariant; what differs is what cross-situational contrastive learning can extract.
