@@ -9,14 +9,13 @@ EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings; W5=/data2/mcfrank/e
 until grep -q "WIN5_EMBED_DONE: 8/8" logs/win5_embed.log 2>/dev/null; do sleep 900; done
 declare -A CACHE EV DV
 CACHE[dinov3b]="$EMB/dinov3b_grid4x4 $W5/dinov3b/shard_0 $W5/dinov3b/shard_1"; EV[dinov3b]=emb_enc_grid_eval/dinov3b_ots_konkle; DV[dinov3b]=emb_dv3_konkle_dev16
-CACHE[dinov3l]="$(ls -d $EMB/dinov3l_grid4x4/shard_* | tr '\n' ' ') $W5/dinov3l/shard_0 $W5/dinov3l/shard_1"; EV[dinov3l]=emb_ch8_eval/dinov3l_grid4x4_konkle; DV[dinov3l]=emb_ch8_eval/dinov3l_grid4x4_konkle_dev
+CACHE[dinov3l]="$(ls -d $EMB/dinov3l_grid4x4/shard_* $W5/dinov3l/shard_* | tr '\n' ' ')"; EV[dinov3l]=emb_ch8_eval/dinov3l_grid4x4_konkle; DV[dinov3l]=emb_ch8_eval/dinov3l_grid4x4_konkle_dev
 CACHE[vits_bv]="$(ls -d $EMB/vits_bv_grid4x4/shard_* | tr '\n' ' ') $W5/vits_bv/shard_0 $W5/vits_bv/shard_1"; EV[vits_bv]=emb_ch8_eval/vits_bv_konkle; DV[vits_bv]=emb_ch8_eval/vits_bv_konkle_dev
 CACHE[vitb_bv]="$(ls -d $EMB/vitb_bv_grid4x4/shard_* | tr '\n' ' ') $W5/vitb_bv/shard_0 $W5/vitb_bv/shard_1"; EV[vitb_bv]=emb_ch8_eval/vitb_bv_konkle; DV[vitb_bv]=emb_ch8_eval/vitb_bv_konkle_dev
-while :; do
-  FREE=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits | awk -F", " '$2<41000{print $1}' | tr '\n' ' ')
-  GPUS=($FREE); NG=${#GPUS[@]}; [ "$NG" -ge 1 ] && break; sleep 600
-done
-i=0; echo "GPUs: $FREE"
+# GPUs 0-5 belong to the L-BV DINO trainer (rank 0 needs ~38 GB; a <41 GB-used rule would land
+# on top of it and OOM it). Pin to GPUs 6-7, two runs per GPU.
+GPUS=(6 7 6 7); NG=4
+i=0; echo "GPUs: ${GPUS[*]}"
 one () {
   local e=$1 tag=$2 man=$3 s=$4
   [ -f "runs/F_${e}_${tag}_s$s/metrics.json" ] && return
