@@ -8,11 +8,16 @@ highest-rated pairs -- a subset of the same set (align_170000 is 170,000 of thes
 dropping 1,782 of the 33,993 tied at exactly 50).
   base            the whole corpus
   aligned-only    train on A alone
-  matched-random  |A| pairs drawn to match A's joint (eval-noun x utterance-length)
-                  distribution, so eval-noun exposure is equated (31,047 vs 30,946 pairs;
-                  a plain random draw of that size has only 12,906)
+  plain random    |A| pairs drawn uniformly -- the naive size control
+  matched-random  |A| NON-aligned pairs drawn to match A's joint (eval-noun x
+                  utterance-length) distribution, so eval-noun exposure is equated
+                  (30,205 vs 30,303 pairs; a plain draw of that size has only 12,328)
   full - aligned  the corpus with A removed
-  full - random   the corpus with a random |A| removed (the removal control)
+  full - matched  the corpus with the matched-unaligned set removed (the removal control)
+
+The two new arms close the loop: matched-unaligned pairs -- a target noun spoken while its
+referent is judged absent -- train WORSE than a plain random draw of the same size, and
+removing them from the corpus HELPS, while removing the aligned pairs collapses learning.
 """
 import sys, numpy as np
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
@@ -21,13 +26,16 @@ import matplotlib.pyplot as plt
 
 ENC = [("dinov3l", "L-OTS", T.OTHER), ("dinov3b", "B-OTS", T.FREE),
        ("vitb_bv", "B-BV", T.INDOM), ("vits_bv", "S-BV", T.INDOM2)]
+# Six arms, ordered so the two contrasts read left to right: what the aligned pairs buy on
+# their own (bars 2-4, all 172k) and what removing them costs (bars 5-6, all 1.51M).
 ARMS = [("base", "whole corpus", T.NEUTRAL),
         ("alignedonly", "aligned (≥ 50)", T.ORACLE),
+        ("rand172k", "plain random", "#9c9a92"),
         ("matchrand", "matched random", T.SUB),
         ("minusaligned", "full − aligned", T.INDOM),
-        ("minusrand", "full − random", T.NEUTRAL)]
+        ("minusmatch", "full − matched", T.NEUTRAL)]
 
-fig, axes = plt.subplots(1, 4, figsize=(T.W2, 2.7), sharey=True,
+fig, axes = plt.subplots(1, 4, figsize=(T.W2, 2.9), sharey=True,
                          gridspec_kw=dict(wspace=0.12))
 xs = np.arange(len(ARMS))
 for a, (enc, key, col) in zip(axes, ENC):
@@ -36,13 +44,13 @@ for a, (enc, key, col) in zip(axes, ENC):
         f = D.family(f"F_{enc}_{arm if arm != 'base' else 'base'}")
         a.bar(i, f["mean"] - 25, bottom=25, width=0.66, color=acol, zorder=3,
               yerr=f["sd"], error_kw=dict(elinewidth=0.7, capsize=1.8, ecolor=T.INK))
-        a.text(i, f["mean"] + f["sd"] + 1.6, f"{f['mean']:.0f}", ha="center", fontsize=5.4,
+        a.text(i, f["mean"] + f["sd"] + 1.6, f"{f['mean']:.0f}", ha="center", fontsize=5.0,
                color=T.INK)
         vals.append(f["mean"])
     a.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=2)
     a.axhline(vals[0], color=T.SUB, lw=0.5, ls=(0, (1, 2)), zorder=2)
     a.set_xticks(xs)
-    a.set_xticklabels([l for _, l, _ in ARMS], fontsize=5.0, rotation=42, ha="right",
+    a.set_xticklabels([l for _, l, _ in ARMS], fontsize=4.6, rotation=42, ha="right",
                       rotation_mode="anchor")
     a.set_title(key, fontsize=6.5, color=col, pad=3)
     a.set_ylim(22, 95)
