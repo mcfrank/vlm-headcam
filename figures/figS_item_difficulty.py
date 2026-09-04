@@ -56,22 +56,24 @@ for s, n in SC:
 S = pd.DataFrame(rows)
 axc = ax.twinx()
 axc.plot(S.n, S.ceil, color=T.NEUTRAL, lw=1.0, ls=(0, (2, 1.5)), zorder=1)
-axc.set_ylim(0, 100); axc.set_ylabel("items at ceiling (>90%)", fontsize=6, color=T.SUB)
+axc.set_ylim(0, 100); axc.set_ylabel("% of items scoring >90%", fontsize=6, color=T.SUB)
 axc.tick_params(labelsize=6, colors=T.SUB)
 for sp in axc.spines.values():
     sp.set_visible(False)
-axc.text(1.75e6, S.ceil.iloc[-1] + 4, "at ceiling", fontsize=5.2, color=T.SUB, ha="right")
+axc.text(2.6e6, 78, "items at ceiling\n(right axis)", fontsize=5.0, color=T.SUB,
+         ha="right", va="center", linespacing=1.3)
 for k, lab, mk in [("pr", "production", "^"), ("cm", "comprehension", "o")]:
     ax.plot(S.n, S[k], marker=mk, ms=3, lw=1.1, color=T.FREE,
             ls="-" if k == "pr" else (0, (2, 1.5)), zorder=3)
     ax.text(S.n.iloc[-1] * 1.35, S[k].iloc[-1], lab, fontsize=5.2, color=T.FREE, va="center")
-for n_, v, k in zip(S.n, S.pr, S.np_):
-    ax.text(n_, v + 0.035, str(k), fontsize=4.4, color=T.SUB, ha="center")
+for n_, k in zip(S.n, S.np_):
+    ax.text(n_, -0.085, str(k), fontsize=4.6, color=T.SUB, ha="center")
+ax.text(7.5e3, -0.108, "items compared", fontsize=4.6, color=T.SUB, ha="left")
 ax.axhline(0, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=1)
 ax.axvline(3e5, color=T.GRID, lw=1.4, zorder=0)
 ax.text(3e5, 0.60, "shown in\nB, C", fontsize=5.2, color=T.SUB, ha="center", va="top",
         linespacing=1.3)
-ax.set_xscale("log"); ax.set_xlim(6e3, 6e6); ax.set_ylim(-0.10, 0.62)
+ax.set_xscale("log"); ax.set_xlim(6.5e3, 4.5e6); ax.set_ylim(-0.12, 0.62)
 ax.set_xlabel("training pairs")
 ax.set_ylabel("child-alignment of item profile (−ρ)")
 ax.set_zorder(axc.get_zorder() + 1); ax.patch.set_visible(False)
