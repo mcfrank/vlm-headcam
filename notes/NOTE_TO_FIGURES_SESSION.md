@@ -32,6 +32,15 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   LANDED (24/24, in runs.parquet): plain random 172k L-OTS 60.3 / B-OTS 52.3 / B-BV 31.5 / S-BV
   31.6; full−matched 84.1 / 80.9 / 45.0 / 41.9 (above full corpus for every encoder; full−aligned
   42.7 / 37.2 / 31.9 / 30.7).
+
+## 2026-09-04: temporal-window ±5 s control landed (32/32, in runs.parquet)
+- Families F_<enc>_win5_{30000,300000}_s<s>, paired to F_<enc>_rand_{30000,300000}_s<s> exactly
+  like the no-MIL figure. Suggested SI panel: paired differences (window − region) per encoder ×
+  scale, same layout as figS_nomil. Numbers: 30k all null (−2.0/+0.2/−0.5/+0.3 for L-OTS/B-OTS/
+  B-BV/S-BV); 300k L-OTS +3.6±0.7, B-OTS +4.9±3.4, B-BV −0.5±1.7, S-BV +0.7±0.9. Caption should
+  say windows were complete (10.96/11 frames mean; 98.5% full) — this is NOT the partial design.
+- Once the figure script exists, its stem becomes the \ref anchor in results/experiments_table.tex
+  automatically (add it to MANUAL in make_experiments_table.py if the stem doesn't match "win").
 - fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
   now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
   moved up 2–6 pts at mid scales; if you re-render fig4, pull first.

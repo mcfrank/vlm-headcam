@@ -1097,6 +1097,17 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   the noun-present/object-absent pairs HELPS, while removing the aligned pairs collapses (42.7/
   37.2/31.9/30.7). Honest contrasts for the text: aligned-only 87.6 vs plain random 60.3;
   full − aligned 42.7 vs full − matched 84.1. minusmatch vocab 14,731–14,760 (vs 15,608).
+
+### 2026-09-04 — temporal-window ±5 s control DONE (32/32)
+- Neighbor embeds: B-OTS/S-BV 2 shards each, L-OTS 6 shards (re-spread), B-BV 2 shards via the
+  DINO session's native embedder (in-memory, writes at end; ~30 h). ~0.5% of neighbor frames not
+  on disk (MISSING). run_window.sh had listed only L-OTS shards 0–1 → fixed to glob all six
+  BEFORE any run started; runner pinned to GPUs 6–7 (L-BV trainer rank 0 needs ~38 GB on GPU 0).
+- Occupancy verified from cache indexes (rand_30000_s0): mean 10.96/11 frames, 98.5% full windows.
+- Paired Δ (window − region, same manifests/seeds): 30k: L-OTS −2.0±3.3, B-OTS +0.2±2.4, B-BV
+  −0.5±0.5, S-BV +0.3±3.0. 300k: **L-OTS +3.6±0.7 (71.5 vs 67.8), B-OTS +4.9±3.4 (64.8 vs 59.9)**,
+  B-BV −0.5±1.7, S-BV +0.7±0.9. So: not a pure null — a few points for the OTS encoders at 300k,
+  nothing at 30k or for BV. Write it that way; don't call it null.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
