@@ -5,6 +5,6 @@ Aligned-pair scaling,"L-OTS, B-OTS, B-BV, S-BV",10k; 30k; 100k; 170k,3,48,Konkle
 Ladder at reduced scale,L-OTS,100k (all rungs from one matched subsample); 300k (all rungs from one matched subsample),3,24,Konkle,fig3_development,matched subsample per seed
 Diversity (children at fixed budget),L-OTS,30k budget; 100k budget; 300k budget,5,65,Konkle,figS_diversity,random child draw per seed
 No-MIL (whole-frame) control,"L-OTS, B-OTS, B-BV, S-BV",30k; 300k; full (1.69M),5,60,Konkle,figS_nomil,mean-over-grid R=1; paired to region runs
-Alignment-selection controls,"L-OTS, B-OTS, B-BV, S-BV",172k (aligned); 172k (matched); 1.51M (full−random); 1.51M (full−aligned),3,48,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
-Child-speech (KCHI) control,L-OTS,1.30M (no child speech); 1.30M (matched),3,6,Konkle,figS_kchi,matched-N random
+Alignment-selection controls,"L-OTS, B-OTS, B-BV, S-BV","172k (plain random); 1.51M (full−random); 172k (aligned); 1.51M (full−aligned); 172k (matched, unaligned); 1.51M (full−matched)",3,72,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
+Child-speech (KCHI) control,L-OTS,1.30M (matched); 1.30M (no child speech),3,6,Konkle,figS_kchi,matched-N random
 Temporal-window (+-5 s) control,(pending),,,0,Konkle,,complete neighbor caches

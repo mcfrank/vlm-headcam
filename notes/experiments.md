@@ -1091,6 +1091,12 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   evidence that noun-without-referent pairs mislead.
   → `run_controls2.sh`: F_<enc>_{rand172k,minusmatch}_s{0,1,2}, all four encoders (24 runs),
   marker `CONTROLS_B_DONE`. Launched 2026-09-03 on all 8 GPUs (sharing with win5 embeds).
+  **DONE 24/24 (17:30 PDT).** Plain random 172k: L-OTS 60.3±2.7, B-OTS 52.3, B-BV 31.5, S-BV
+  31.6 (audit's ≈61 interpolation confirmed). Full − matched: L-OTS 84.1±2.2, B-OTS 80.9, B-BV
+  45.0, S-BV 41.9 — above the full corpus (81.6/78.7/44.1/39.6) for every encoder, i.e. removing
+  the noun-present/object-absent pairs HELPS, while removing the aligned pairs collapses (42.7/
+  37.2/31.9/30.7). Honest contrasts for the text: aligned-only 87.6 vs plain random 60.3;
+  full − aligned 42.7 vs full − matched 84.1. minusmatch vocab 14,731–14,760 (vs 15,608).
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

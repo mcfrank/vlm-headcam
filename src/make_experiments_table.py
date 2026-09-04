@@ -29,7 +29,7 @@ BLOCKS = [
     ("Ladder at reduced scale", r"^lad\d+_(base|filtnat|t15|t2)$", "Konkle", "matched subsample per seed"),
     ("Diversity (children at fixed budget)", r"^div(30k|100k|300k)_\d+c$", "Konkle", "random child draw per seed"),
     ("No-MIL (whole-frame) control", r"^wf(30000|300000|full)$", "Konkle", "mean-over-grid R=1; paired to region runs"),
-    ("Alignment-selection controls", r"^(alignedonly|matchrand|minusaligned|minusrand)$", "Konkle", "exposure+length-matched; full-minus"),
+    ("Alignment-selection controls", r"^(alignedonly|rand172k|matchrand|minusaligned|minusmatch|minusrand)$", "Konkle", "exposure+length-matched; full-minus"),
     ("Child-speech (KCHI) control", r"^(nokchi|randmatch)$", "Konkle", "matched-N random"),
     ("Temporal-window (+-5 s) control", r"^win5_\d+$", "Konkle", "complete neighbor caches"),
 ]
@@ -56,8 +56,10 @@ def fmt(n):
     return f"{n/1e6:.2g}M" if n >= 1e6 else (f"{n//1000}k" if n >= 1000 else str(n))
 
 NAMED = {"base": "full (1.69M)", "filtnat": "172k referent-bearing", "t15": "172k referent-bearing",
-         "t2": "172k referent-bearing", "alignedonly": "172k (aligned)", "matchrand": "172k (matched)",
-         "minusaligned": "1.51M (full−aligned)", "minusrand": "1.51M (full−random)",
+         "t2": "172k referent-bearing", "alignedonly": "172k (aligned)", "rand172k": "172k (plain random)",
+         "matchrand": "172k (matched, unaligned)",
+         "minusaligned": "1.51M (full−aligned)", "minusmatch": "1.51M (full−matched)",
+         "minusrand": "1.51M (full−random)",
          "nokchi": "1.30M (no child speech)", "randmatch": "1.30M (matched)"}
 
 def nominal(cond):

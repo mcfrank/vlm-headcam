@@ -29,6 +29,9 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   it) and SWAP full−random for full−matched (the removal the text describes; full−random is just
   the 1M scaling point and can go to the SI text). Suggested order per encoder: full · aligned-
   only · plain random 172k · matched random · full−aligned · full−matched.
+  LANDED (24/24, in runs.parquet): plain random 172k L-OTS 60.3 / B-OTS 52.3 / B-BV 31.5 / S-BV
+  31.6; full−matched 84.1 / 80.9 / 45.0 / 41.9 (above full corpus for every encoder; full−aligned
+  42.7 / 37.2 / 31.9 / 30.7).
 - fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
   now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
   moved up 2–6 pts at mid scales; if you re-render fig4, pull first.
