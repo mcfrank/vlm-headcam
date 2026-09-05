@@ -1108,6 +1108,15 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   −0.5±0.5, S-BV +0.3±3.0. 300k: **L-OTS +3.6±0.7 (71.5 vs 67.8), B-OTS +4.9±3.4 (64.8 vs 59.9)**,
   B-BV −0.5±1.7, S-BV +0.7±0.9. So: not a pure null — a few points for the OTS encoders at 300k,
   nothing at 30k or for BV. Write it that way; don't call it null.
+- **Queued (Mike: "shouldn't discount it"): window control at 1M and FULL scale.** Round-1
+  neighbor caches cover only the 30k/300k windows (at full scale: 70% full windows, 9.6/11).
+  `build_win_frames2.py` → 1,493,236 residual frames (99.1% of the 1.51M needed are on disk);
+  `/data2/mcfrank/win5b_embed.sh` embeds them for all four encoders, 2 shards each, on GPUs 6–7
+  only (L-OTS shard + chain vitb_bv→vits_bv→dinov3b per GPU) → `/data2/mcfrank/emb_win5b`;
+  marker `WIN5B_EMBED_DONE: 8/8`; `run_window2.sh` (gated) → F_<enc>_win5_{1000000,full}_s{0,1,2},
+  24 runs, paired to rand_1000000_s<s> / base, on cards with <5 GB used only. ETA ~Tue 09-08.
+  If the gain persists at full scale: SI result + one main-text sentence (temporal slack recovers
+  misaligned pairs; only encoders that can tell objects apart exploit it) — NOT a main-rig rerun.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
