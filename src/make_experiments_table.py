@@ -31,7 +31,7 @@ BLOCKS = [
     ("No-MIL (whole-frame) control", r"^wf(30000|300000|full)$", "Konkle", "mean-over-grid R=1; paired to region runs"),
     ("Alignment-selection controls", r"^(alignedonly|rand172k|matchrand|minusaligned|minusmatch|minusrand)$", "Konkle", "exposure+length-matched; full-minus"),
     ("Child-speech (KCHI) control", r"^(nokchi|randmatch)$", "Konkle", "matched-N random"),
-    ("Temporal-window (+-5 s) control", r"^win5_\d+$", "Konkle", "complete neighbor caches"),
+    ("Temporal-window (+-5 s) control", r"^win5_(\d+|full)$", "Konkle", "complete neighbor caches"),
 ]
 
 # figure -> family patterns (templated {enc}/{e} expanded to any encoder)
