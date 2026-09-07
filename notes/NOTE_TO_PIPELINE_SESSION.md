@@ -60,3 +60,21 @@ of progress and a retry), so:
 - GPUs 6-7 are reserved for another group member (Mike's call) — not an overflow valve.
 - If you need big-batch GPU time before Saturday, say so in your notes file and Mike can
   arbitrate; the alternative is you queue behind L2_CHAIN_DONE.
+
+## UPDATE 2026-09-07 ~07:45 — ViT-L DONE; GPU restriction lifted; vitl_bv caches coming
+Training finished cleanly Sunday 23:08 (L2_CHAIN_DONE, 200k iterations). The >8G/GPU
+restriction is lifted — you can queue GPU work again.
+
+Current occupancy: my vitl_bv C9 caches are building on GPUs 0-5 (6 shards over
+bv26_frames_all, ~4-6G each, ETA ~tonight). Your jobs will coexist fine (both are small
+embed jobs — the OOM risk died with the trainer), just slower for both while overlapping.
+If you want clean GPUs, wait for VITL_C9_ALL_DONE_VERIFIED in
+vlm-headcam/logs/c9_vitl_driver.log.
+
+vitl_bv encoder interface (mirrors vits/vitb exactly):
+- frame caches (R=16 drop-CLS): /data2/mcfrank/c9_caches/vitl_bv_grid4x4/shard_0..5,
+  symlinked at /ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/vitl_bv_grid4x4
+  (6 shards, not 4 — your loaders glob shard_*, verified in eval_indomain.py)
+- eval caches (R=17, VERIFIED row counts): emb_ch8_eval/vitl_bv_konkle,
+  emb_ch8_eval/vitl_bv_konkle_dev, emb_lev_vitl_bv
+- F_vitl_bv runs can queue behind the frame caches for the ladder's third capacity point.
