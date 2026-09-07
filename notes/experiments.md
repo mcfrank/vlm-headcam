@@ -1117,6 +1117,19 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   24 runs, paired to rand_1000000_s<s> / base, on cards with <5 GB used only. ETA ~Tue 09-08.
   If the gain persists at full scale: SI result + one main-text sentence (temporal slack recovers
   misaligned pairs; only encoders that can tell objects apart exploit it) — NOT a main-rig rerun.
+
+### 2026-09-06/07 — window control at 1M + full DONE (24/24; embeds Sat 14:23, runs Sun 05:50)
+- Full-corpus windows verified complete from the cache indexes: 10.95/11 mean, 98.4% full.
+- Paired Δ (window − region): 1M: L-OTS +1.6±1.5, B-OTS +2.0±1.9, B-BV 0.0±2.3, S-BV +2.2±1.8.
+  **Full: L-OTS +4.5±1.4 (86.1 vs 81.7; seeds +2.8/+5.2/+5.4), B-OTS +2.5±1.8 (81.1 vs 78.6),
+  B-BV −3.8±2.0 (41.1 vs 44.9), S-BV +0.7±1.3.** Across all four scales the OTS encoders gain
+  (300k/full clearest), the BV encoders never do. Best L-OTS model is now 86.1 (temporal MIL).
+- **Manifest accounting correction** (found via the full-run log): `bv26a_base` has 1,686,392
+  rows, not 1,686,105 — the Gemini merge in build_ladder_manifests fans out 287 rows where the
+  pair key (video, second, text) repeats in both files (31,830 exact-duplicate rows total, of which
+  31,476 are genuine repeats already in the English-filtered corpus). Vocab-empty pairs are 4,133
+  (not 3,846); effective 1,682,259 is unchanged. 0.02% — not worth rebuilding/rerunning; state it
+  in the methods and in PAPER_REPRO.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

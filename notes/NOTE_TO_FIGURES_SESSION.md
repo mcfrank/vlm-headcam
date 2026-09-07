@@ -41,6 +41,11 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   say windows were complete (10.96/11 frames mean; 98.5% full) — this is NOT the partial design.
 - Once the figure script exists, its stem becomes the \ref anchor in results/experiments_table.tex
   automatically (add it to MANUAL in make_experiments_table.py if the stem doesn't match "win").
+- 2026-09-07: extended to 1M and FULL (F_<enc>_win5_1000000_s{0,1,2} paired to rand_1000000_s<s>;
+  F_<enc>_win5_full_s{0,1,2} paired to base_s{0,1,2}; all in runs.parquet). Paired Δ: 1M +1.6/
+  +2.0/0.0/+2.2; full **+4.5/+2.5/−3.8/+0.7** (L-OTS/B-OTS/B-BV/S-BV). So the panel is 4 scales ×
+  4 encoders; the story is "OTS encoders gain from temporal MIL, most at full scale; BV never do".
+  Full L-OTS with window = 86.1 — worth a marker on fig2's scaling panel or a sentence, Mike's call.
 - fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
   now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
   moved up 2–6 pts at mid scales; if you re-render fig4, pull first.

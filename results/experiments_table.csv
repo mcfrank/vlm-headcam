@@ -2,9 +2,9 @@ experiment,encoders,pairs,seeds,runs,evaluation,figures,note
 Scaling (random subsamples) + full corpus,"L-OTS, B-OTS, B-BV, S-BV",3k; 10k; 30k; 100k; 300k; 1M; full (1.69M),3–8,180,Konkle; LEVANTE; in-domain,"fig2_scaling, figS_indomain, figS_levante, figS_lexicon_tsne, figS_nomil",
 Aligned-pair scaling,"L-OTS, B-OTS, B-BV, S-BV",10k; 30k; 100k; 170k,3,48,Konkle,"fig2_scaling, figS_alignment_encoders",top-N by Gemini alignment
 "Ladder, full corpus","L-OTS, B-OTS, B-BV, S-BV",172k referent-bearing,3,36,Konkle,fig3_development,+ base row above
-Ladder at reduced scale,L-OTS,100k (all rungs from one matched subsample); 300k (all rungs from one matched subsample),3,24,Konkle,fig3_development,matched subsample per seed
+Ladder at reduced scale,L-OTS,300k (all rungs from one matched subsample); 100k (all rungs from one matched subsample),3,24,Konkle,fig3_development,matched subsample per seed
 Diversity (children at fixed budget),L-OTS,100k budget; 30k budget; 300k budget,5,65,Konkle,figS_diversity,random child draw per seed
 No-MIL (whole-frame) control,"L-OTS, B-OTS, B-BV, S-BV",30k; 300k; full (1.69M),5,60,Konkle,figS_nomil,mean-over-grid R=1; paired to region runs
-Alignment-selection controls,"L-OTS, B-OTS, B-BV, S-BV","172k (plain random); 172k (aligned); 1.51M (full−aligned); 172k (matched, unaligned); 1.51M (full−matched); 1.51M (full−random)",3,72,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
-Child-speech (KCHI) control,L-OTS,1.30M (no child speech); 1.30M (matched),3,6,Konkle,figS_kchi,matched-N random
-Temporal-window (+-5 s) control,"L-OTS, B-OTS, B-BV, S-BV",30k; 300k,3–5,32,Konkle,,complete neighbor caches
+Alignment-selection controls,"L-OTS, B-OTS, B-BV, S-BV","172k (plain random); 1.51M (full−matched); 172k (matched, unaligned); 172k (aligned); 1.51M (full−random); 1.51M (full−aligned)",3,72,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
+Child-speech (KCHI) control,L-OTS,1.30M (matched); 1.30M (no child speech),3,6,Konkle,figS_kchi,matched-N random
+Temporal-window (+-5 s) control,"L-OTS, B-OTS, B-BV, S-BV",30k; 300k; 1M,3–5,44,Konkle,,complete neighbor caches

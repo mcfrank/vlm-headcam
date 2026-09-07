@@ -59,7 +59,7 @@ NAMED = {"base": "full (1.69M)", "filtnat": "172k referent-bearing", "t15": "172
          "t2": "172k referent-bearing", "alignedonly": "172k (aligned)", "rand172k": "172k (plain random)",
          "matchrand": "172k (matched, unaligned)",
          "minusaligned": "1.51M (full−aligned)", "minusmatch": "1.51M (full−matched)",
-         "minusrand": "1.51M (full−random)",
+         "minusrand": "1.51M (full−random)", "win5_full": "full (1.69M)",
          "nokchi": "1.30M (no child speech)", "randmatch": "1.30M (matched)"}
 
 def nominal(cond):

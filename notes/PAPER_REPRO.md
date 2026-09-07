@@ -81,3 +81,10 @@ make_levante_ages) reading ONLY committed `results/*`.
 8. Legacy files carry no in-file marker; this document is the authority. If a stricter
    "ONLY" is wanted for an archival code release, export the Stage 0–4 list to a clean
    `paper-code/` snapshot at submission (script it; do not move files mid-project).
+
+## 2026-09-07 addendum: training-manifest row count
+`manifests/bv26a_base.parquet` has 1,686,392 rows vs 1,686,105 English-filtered pairs: the Gemini
+merge in `build_ladder_manifests.py` fans out 287 rows where (video_id, frame_idx, text) repeats in
+both inputs. 4,133 rows are vocab-empty → 1,682,259 effective (unchanged). 0.02%; documented, not
+rebuilt (rebuilding would invalidate every F_ run's exact manifest). Methods text should quote
+1,686,392 training rows / 4,133 vocab-empty / 1,682,259 effective, with the 287-row note.
