@@ -27,7 +27,9 @@ ENC = {
     "dinov3l": (sorted(glob.glob(f"{EMB}/dinov3l_grid4x4/shard_*")), "emb_ch8_eval/dinov3l_grid4x4_konkle"),
     "vits_bv": (sorted(glob.glob(f"{EMB}/vits_bv_grid4x4/shard_*")), "emb_ch8_eval/vits_bv_konkle"),
     "vitb_bv": (sorted(glob.glob(f"{EMB}/vitb_bv_grid4x4/shard_*")), "emb_ch8_eval/vitb_bv_konkle"),
+    "vitl_bv": (sorted(glob.glob(f"{EMB}/vitl_bv_grid4x4/shard_*")), "emb_ch8_eval/vitl_bv_konkle"),
 }
+ENC = {k: v for k, v in ENC.items() if v[0] and Path(v[1], "index.parquet").exists()}   # skip encoders whose caches aren't there yet
 ev = pd.read_parquet("manifests/eval_frames_indomain.parquet")
 kv = pd.read_parquet("manifests/konkle_manifest.parquet")
 

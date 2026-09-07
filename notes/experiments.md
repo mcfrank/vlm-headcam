@@ -1130,6 +1130,25 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   31,476 are genuine repeats already in the English-filtered corpus). Vocab-empty pairs are 4,133
   (not 3,846); effective 1,682,259 is unchanged. 0.02% — not worth rebuilding/rerunning; state it
   in the methods and in PAPER_REPRO.
+
+### 2026-09-07 — L-BV (vitl_bv) campaign queued: replaces S-BV → 2×2 (L/B × BV/OTS)
+- Encoder: DINO session's `/data2/mcfrank/dino_s4_vitl` ckpt 199999 (vit_large/16, native loader).
+  DINO's `c9_vitl.sh` covers eval caches (konkle/konkle_dev/lev, done 07:20) + main frame cache
+  (bv26_frames_all, 6 shards on GPUs 0–5, ~9 h) → `/ccn2b/.../vitl_bv_grid4x4` symlink, marker
+  `VITL_C9_ALL_DONE_VERIFIED`.
+- Mine: (1) window neighbor caches, 4.92M frames (round-1 ∪ round-2 lists), staggered: early 1.65M
+  in 2 shards on GPUs 6–7 now; late 3.27M in 6 shards on GPUs 0–5 gated on the main cache
+  (`build_win_frames_vitl.py`, `/data2/mcfrank/vitl_embed_driver.sh` → `emb_win5/vitl_bv/shard_0-7`,
+  marker `VITL_WIN5_DONE: 8/8`). Frames read from `/data2/mcfrank/frames_1fps_local` (498/500 neighbor
+  frames present). (2) no-MIL mean caches (`make_wf_caches.py vitl_bv`, CPU, same gate).
+  (3) `run_vitl.sh`: the 113-run per-encoder sequence — A: rand 45 + ladder 9 + aligned 12 +
+  alignment controls 18 (gate: main cache); B: wf 15 (gate: wf caches); C: window 14 (gate: window
+  caches). Marker `VITL_RUNS_DONE`. Two runs per GPU on all 8 cards.
+- Downstream scripts now know vitl_bv: eval_indomain (ENC + skip-if-missing), eval_lev_scaling,
+  eval_items_konkle, lex_ws_scaling, lex_extract, lex_rungs, make_wf_caches. Figures: figures
+  session (encoder lists in fig2/fig4/figS_*; S-BV → L-BV swap).
+- NOT queued for L-BV (L-OTS-only SI analyses): diversity (65 runs), ladder@100k/300k (24), KCHI (6).
+- Disk: /data2 438 GB free before; main cache ~57 GB + window ~161 GB → ~220 GB after.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

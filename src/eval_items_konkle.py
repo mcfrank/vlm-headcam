@@ -31,6 +31,7 @@ ENC_SETS = {  # per-encoder (test, dev) caches — item accuracy is meaningless 
     "dinov3l": ("emb_ch8_eval/dinov3l_grid4x4_konkle", "emb_ch8_eval/dinov3l_grid4x4_konkle_dev"),
     "vits_bv": ("emb_ch8_eval/vits_bv_konkle", "emb_ch8_eval/vits_bv_konkle_dev"),
     "vitb_bv": ("emb_ch8_eval/vitb_bv_konkle", "emb_ch8_eval/vitb_bv_konkle_dev"),
+    "vitl_bv": ("emb_ch8_eval/vitl_bv_konkle", "emb_ch8_eval/vitl_bv_konkle_dev"),
 }
 _cache_memo = {}
 def enc_caches(enc):
@@ -44,7 +45,7 @@ dirs = sorted(sum((glob.glob(g) for g in a.runs_glob.split(",")), []))
 for rd in dirs:
     if not Path(rd, "model.pt").exists():
         continue
-    m = re.search(r"F_(dinov3l|dinov3b|vits_bv|vitb_bv)_(.+)_s(\d+)$", rd)
+    m = re.search(r"F_(dinov3l|dinov3b|vits_bv|vitb_bv|vitl_bv)_(.+)_s(\d+)$", rd)
     if not m: continue
     enc, tag, seed = m.group(1), m.group(2), int(m.group(3))
     if tag.startswith("rand_"):

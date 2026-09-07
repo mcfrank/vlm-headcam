@@ -32,6 +32,8 @@ FAMILIES = {
     "F-dinov3b-aligned": ("F_dinov3b_align_{n}", None, "bv26a_align", ALIGN_SCALES),
     "F-dinov3l-aligned": ("F_dinov3l_align_{n}", None, "bv26a_align", ALIGN_SCALES),
     "F-vitb_bv-aligned": ("F_vitb_bv_align_{n}", None, "bv26a_align", ALIGN_SCALES),
+    "F-vitl_bv": ("F_vitl_bv_rand_{n}", "F_vitl_bv_base", "bv26a", None),
+    "F-vitl_bv-aligned": ("F_vitl_bv_align_{n}", None, "bv26a_align", ALIGN_SCALES),
     "F-vits_bv-aligned": ("F_vits_bv_align_{n}", None, "bv26a_align", ALIGN_SCALES),
     "B26": ("B26_rand_{n}", "B26_lad_base", "bv26", None),
     "L-OTS": ("C8_dinov3l_grid4x4_rand_{n}", "C8_dinov3l_grid4x4_base", "bv26", None),
