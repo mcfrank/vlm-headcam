@@ -91,7 +91,7 @@ for name, rx, ev, note in BLOCKS:
     encs = [e for e in ["L-OTS", "B-OTS", "B-BV", "S-BV"] if e in set(b.enc)]
     seen, pairs_list = set(), []
     def key(c):
-        m = re.findall(r"\d+", c); return int(m[-1]) if m else 10**9   # last number: win5_30000 -> 30000
+        m = re.findall(r"\d+", re.sub(r"^win5_", "", c)); return int(m[-1]) if m else 10**9   # win5_full -> last
     for c in sorted(set(b.cond), key=key):
         q = nominal(c)
         if q not in seen: seen.add(q); pairs_list.append(q)
