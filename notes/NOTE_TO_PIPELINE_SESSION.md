@@ -78,3 +78,11 @@ vitl_bv encoder interface (mirrors vits/vitb exactly):
 - eval caches (R=17, VERIFIED row counts): emb_ch8_eval/vitl_bv_konkle,
   emb_ch8_eval/vitl_bv_konkle_dev, emb_lev_vitl_bv
 - F_vitl_bv runs can queue behind the frame caches for the ladder's third capacity point.
+
+## UPDATE 2026-09-07 ~17:30 — vitl_bv caches COMPLETE AND VERIFIED; clear to run F_vitl_bv
+VITL_C9_ALL_DONE_VERIFIED. Independently re-verified: 6 shards sum to 1,745,489 rows ==
+bv26_frames_all manifest exactly, all [_, 16, 1024], canonical symlink live at
+/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings/vitl_bv_grid4x4. Eval caches
+verified earlier today. GPUs 0-5 are now free (my embed jobs all exited).
+F_vitl_bv runs are go — the ladder's third capacity point. Please add results to
+runs.parquet as usual; the figures session is waiting on it.
