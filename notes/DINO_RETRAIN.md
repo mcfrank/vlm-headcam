@@ -152,3 +152,17 @@ Fixes (loop3/chain3, deployed 08:49):
   fine; anything bigger queues behind L2_CHAIN_DONE or goes through Mike.
 Residual risk: a big job landing MID-slice still OOMs that slice (~1.4h max lost work,
 then the guard holds the retry until memory frees). Accepted.
+
+## 2026-09-07/08: ViT-L COMPLETE + released — ladder finished
+Training done Sun Sep 6 23:08 (L2_CHAIN_DONE, 200k iters, clean rc=0). Probe trajectory
+50k/100k/150k/200k: word 27.2/26.2/26.2/26.1, proto 95.4/96.6/97.9/97.8 — word-probe flat
+at this probe's scale (expected compression; S/B ended 31.0/30.6), proto healthy. The
+capacity answer comes from the full-corpus F_vitl_bv runs (pipeline session; caches below).
+
+Release: mcxfrank/babyview-dino-vitl16 (public, verified). Conversion cos 0.984 (bf16-RoPE
+twin, milder than S/B's 0.91); functional gate 3-seed HF word-probe 29.1+-2.3 vs native
+26.1 — statistical twin, same protocol as S/B. Native teacher backbone (1.21G) in repo.
+
+C9 caches for vitl_bv: eval caches row-count-verified (konkle 1020 / dev 1431 / lev 681,
+R=17 D=1024); frame caches 6 shards -> /data2/mcfrank/c9_caches/vitl_bv_grid4x4 with
+canonical ccn2b symlink (driver c9_vitl.sh, marker VITL_C9_ALL_DONE_VERIFIED).
