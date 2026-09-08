@@ -20,7 +20,7 @@ import lex_score as LS
 from lex_ws_scaling import pairs, cache
 
 R = Path(__file__).resolve().parent.parent
-ENCODERS = ["dinov3b", "dinov3l", "vitb_bv", "vits_bv", "vitl_bv"]
+ENCODERS = ["dinov3b", "dinov3l", "dinov3s", "vitb_bv", "vits_bv", "vitl_bv"]
 RUNGS = [("aligned", "F_{e}_align_170000", "bv26a_align_170000"),
          ("filtnat", "F_{e}_lad_filtnat", "bv26a_filtnat"),
          ("word selection", "F_{e}_lad_t15", "bv26a_t15"),

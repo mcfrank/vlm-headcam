@@ -31,12 +31,12 @@ dev = "cuda" if torch.cuda.is_available() else "cpu"
 
 items = pd.read_csv(a.items)
 CACHES = {k: load_region_cache(f"emb_lev_{k}") for k in
-          ["dinov3b", "dinov3l", "dinov3l_bv", "vits_bv", "vitb_bv", "vitl_bv"]}
+          ["dinov3b", "dinov3l", "dinov3l_bv", "vits_bv", "vitb_bv", "vitl_bv", "dinov3s"]}
 
 RUNS = []
-LBL = {"dinov3l": "L-OTS", "dinov3b": "B-OTS", "vits_bv": "S-BV", "vitb_bv": "B-BV", "vitl_bv": "L-BV"}
+LBL = {"dinov3l": "L-OTS", "dinov3b": "B-OTS", "dinov3s": "S-OTS", "vits_bv": "S-BV", "vitb_bv": "B-BV", "vitl_bv": "L-BV"}
 for rd in sorted(glob.glob("runs/F_*")):
-    m = re.search(r"F_(dinov3l|dinov3b|vits_bv|vitb_bv|vitl_bv)_(rand_(\d+)|base)_s(\d+)$", rd)
+    m = re.search(r"F_(dinov3l|dinov3b|dinov3s|vits_bv|vitb_bv|vitl_bv)_(rand_(\d+)|base)_s(\d+)$", rd)
     if not m or not Path(rd, "model.pt").exists():
         continue
     N = int(m.group(3)) if m.group(3) else 1686105

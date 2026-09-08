@@ -30,7 +30,7 @@ OUT = ROOT / "scratch" / "lexicon"
 # kept so the earlier figures still rebuild.
 RUN_RE = re.compile(r"^(B26_(rand_\d+|lad\d*_?(base|filtnat|t15|t2))"
                     r"|C8_dinov3l(_bv)?_grid4x4_(rand_\d+|base)"
-                    r"|F_(dinov3b|dinov3l|vitb_bv|vits_bv|vitl_bv)_"
+                    r"|F_(dinov3b|dinov3l|dinov3s|vitb_bv|vits_bv|vitl_bv)_"
                     r"(rand_\d+|base|align_\d+|lad_(filtnat|t15|t2)))_s\d$")
 
 # ---- 1. embedding matrices -------------------------------------------------------

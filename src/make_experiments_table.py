@@ -11,8 +11,9 @@ import pandas as pd
 
 runs = pd.read_parquet("results/runs.parquet")
 f = runs[runs.run.str.startswith("F_")].copy()
-ENC = {"dinov3l": "L-OTS", "dinov3b": "B-OTS", "vitb_bv": "B-BV", "vits_bv": "S-BV"}
-pat = re.compile(r"F_(dinov3l|dinov3b|vitb_bv|vits_bv)_(.+)_s(\d+)$")
+ENC = {"dinov3l": "L-OTS", "dinov3b": "B-OTS", "dinov3s": "S-OTS",
+       "vitl_bv": "L-BV", "vitb_bv": "B-BV", "vits_bv": "S-BV"}
+pat = re.compile(r"F_(dinov3l|dinov3b|dinov3s|vitl_bv|vitb_bv|vits_bv)_(.+)_s(\d+)$")
 rows = []
 for r in f.itertuples():
     m = pat.match(r.run)
@@ -77,7 +78,7 @@ def nominal(cond):
 
 def figs_for(block_conds):
     hit = []
-    fams = [f"F_{e}_{c}" for e in ["dinov3l", "dinov3b", "vitb_bv", "vits_bv"] for c in block_conds]
+    fams = [f"F_{e}_{c}" for e in ENC for c in block_conds]
     for fig, rx in figmap.items():
         if any(r.match(fam) for r in rx for fam in fams):
             hit.append(fig)
@@ -88,7 +89,7 @@ for name, rx, ev, note in BLOCKS:
     b = d[d.cond.str.match(rx)]
     if b.empty:
         out.append(dict(experiment=name, encoders="(pending)", pairs="", seeds="", runs=0, evaluation=ev, figures="", note=note)); continue
-    encs = [e for e in ["L-OTS", "B-OTS", "B-BV", "S-BV"] if e in set(b.enc)]
+    encs = [e for e in ["L-OTS", "B-OTS", "S-OTS", "L-BV", "B-BV", "S-BV"] if e in set(b.enc)]
     seen, pairs_list = set(), []
     def key(c):
         m = re.findall(r"\d+", re.sub(r"^win5_", "", c)); return int(m[-1]) if m else 10**9   # win5_full -> last
@@ -115,7 +116,8 @@ with open("results/experiments_table.tex", "w") as fh:
     fh.write("\\begin{tabular}{p{3.1cm}p{1.5cm}p{4.6cm}p{0.8cm}p{0.7cm}p{2.3cm}p{2.8cm}}\\toprule\n")
     fh.write("Experiment & Encoders & Training pairs & Seeds & Runs & Evaluation & Figures \\\\\\midrule\n")
     for r in T.itertuples():
-        encs = "all four" if r.encoders == "L-OTS, B-OTS, B-BV, S-BV" else str(r.encoders)
+        encs = {"L-OTS, B-OTS, B-BV, S-BV": "all four",
+                "L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV": "all six"}.get(str(r.encoders), str(r.encoders))
         figs = ", ".join(figref(x.strip()) for x in str(r.figures).split(",") if x.strip() and x.strip() != "nan")
         fh.write(f"{r.experiment} & {encs} & {r.pairs} & {r.seeds} & {r.runs} & {r.evaluation} & {figs} \\\\\n")
     fh.write("\\bottomrule\\end{tabular}\\end{table*}\n")

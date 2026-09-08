@@ -8,7 +8,7 @@ from pathlib import Path
 
 EMB = "/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings"
 JOBS = []
-for enc in ["dinov3b", "dinov3l", "vits_bv", "vitb_bv", "vitl_bv"]:
+for enc in ["dinov3b", "dinov3l", "vits_bv", "vitb_bv", "vitl_bv", "dinov3s"]:
     d = f"{EMB}/{enc}_grid4x4" if enc != "dinov3b" else f"{EMB}/dinov3b_grid4x4"
     srcs = [d] if Path(d, "emb.f16.npy").exists() else sorted(glob.glob(f"{d}/shard_*"))
     JOBS.append((enc, srcs, f"/data2/mcfrank/vlm-headcam/emb_wf/{enc}"))
@@ -16,7 +16,8 @@ EVAL = {"dinov3b": ("emb_enc_grid_eval/dinov3b_ots_konkle", "emb_dv3_konkle_dev1
         "dinov3l": ("emb_ch8_eval/dinov3l_grid4x4_konkle", "emb_ch8_eval/dinov3l_grid4x4_konkle_dev"),
         "vits_bv": ("emb_ch8_eval/vits_bv_konkle", "emb_ch8_eval/vits_bv_konkle_dev"),
         "vitb_bv": ("emb_ch8_eval/vitb_bv_konkle", "emb_ch8_eval/vitb_bv_konkle_dev"),
-        "vitl_bv": ("emb_ch8_eval/vitl_bv_konkle", "emb_ch8_eval/vitl_bv_konkle_dev")}
+        "vitl_bv": ("emb_ch8_eval/vitl_bv_konkle", "emb_ch8_eval/vitl_bv_konkle_dev"),
+        "dinov3s": ("emb_ch8_eval/dinov3s_konkle", "emb_ch8_eval/dinov3s_konkle_dev")}
 
 def meancache(src, dst):
     e = np.load(f"{src}/emb.f16.npy", mmap_mode="r")

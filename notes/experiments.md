@@ -1149,6 +1149,24 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   session (encoder lists in fig2/fig4/figS_*; S-BV → L-BV swap).
 - NOT queued for L-BV (L-OTS-only SI analyses): diversity (65 runs), ladder@100k/300k (24), KCHI (6).
 - Disk: /data2 438 GB free before; main cache ~57 GB + window ~161 GB → ~220 GB after.
+- **First L-BV results (2026-09-07 evening, 88/113 in): L-BV = B-BV at every scale.** rand 30k
+  26.7 vs 26.3; 100k 29.2 vs 30.3; 300k 34.9 vs 34.7; 1M 40.1 vs 40.9; full 44.2 vs 44.1; ladder t2
+  52.4 vs 53.4; aligned 100k 45.1 vs 46.5 (L-OTS: 38.5/53.9/69.0/81.3/81.6/91.4/88.3). Tripling the
+  developmental encoder buys nothing; the OTS–BV gap is pretraining source, not size. With S-BV
+  39.6 at full: size helps S→B (+4.5) then saturates.
+
+### 2026-09-07 (late) — S-OTS queued behind L-BV → full 3×2 (S/B/L × OTS/BV)
+- Mike: keep S-BV (needed to show B is an improvement, since the BV size effect saturates), add
+  S-OTS so both regimes have S/B/L. Paper labels by parameter count: 22M / 86M / 304M
+  (OTS-22M … BV-304M), decided on figure legibility.
+- Encoder tag `dinov3s` = facebook/dinov3-vits16-pretrain-lvd1689m (in the offline HF cache; same
+  7B-teacher distillation family as the B and L). Recipe = L-OTS: embed_konkle (R=17) for Konkle
+  test/dev + LEVANTE; embed_regions --drop-cls for the main cache (8 shards → $EMB/dinov3s_grid4x4)
+  and the 4.92M window neighbors (8 shards → emb_win5/dinov3s); make_wf_caches dinov3s.
+  `/data2/mcfrank/dinov3s_driver.sh` gated on VITL_RUNS_DONE; markers S_MAIN_DONE / WF_ENC_DONE
+  dinov3s / S_WIN5_DONE. `run_dinov3s.sh` = the 113-run sequence, gated likewise; marker S_RUNS_DONE.
+  ETA ~1.5 days after L-BV finishes (~Wed 09-09).
+- All downstream scripts (evals, lexicon, wf, experiments table with "all six") know dinov3s.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
