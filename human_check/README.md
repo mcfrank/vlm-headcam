@@ -82,7 +82,14 @@ gcloud run services add-iam-policy-binding gemini-check --region us-central1 \
   --member serviceAccount:service-246740721864@gcp-sa-iap.iam.gserviceaccount.com --role roles/run.invoker
 ```
 
-Without the last binding, IAP lets people sign in but Cloud Run answers 403. `deploy.sh` needs
+Without the last binding, IAP lets people sign in but Cloud Run answers 403.
+
+**Only Stanford Google accounts can sign in.** IAP for Cloud Run uses a Google-managed OAuth
+client, which admits only identities inside the project's organization (stanford.edu); a granted
+gmail.com address gets a Google sign-in error, not the app. Grant people's @stanford.edu
+addresses. Letting outside accounts in needs a custom OAuth client with an "External" consent
+screen made in the Cloud Console, then `gcloud iap settings set` with its id/secret on the
+service (docs: run/docs/securing/identity-aware-proxy-cloud-run#custom-oauth-client). `deploy.sh` needs
 gcloud >= 584 for `--iap` (552 lacked it; `gcloud components update`).
 
 *B. ssh tunnel to ccn2-14* (works today, no GCP step): `bash human_check/run_node.sh` on the
