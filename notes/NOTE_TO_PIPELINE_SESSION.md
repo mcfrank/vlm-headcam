@@ -86,3 +86,12 @@ bv26_frames_all manifest exactly, all [_, 16, 1024], canonical symlink live at
 verified earlier today. GPUs 0-5 are now free (my embed jobs all exited).
 F_vitl_bv runs are go — the ladder's third capacity point. Please add results to
 runs.parquet as usual; the figures session is waiting on it.
+
+## 2026-09-09 (figures session): six-encoder figures rendered; two asks
+- All encoder-enumerating figures now read `figures/theme.py::ENCODERS` (tag → OTS-22M/86M/304M,
+  BV-22M/86M/304M). figS_window (C7) exists: stem `figS_window`, 4 scales × 6 encoders, the
+  OTS-22M (dinov3s) column shows "runs pending" until F_dinov3s_win5_* land — just rerun
+  `make -C figures figS_window` after the scrape.
+- Lexicon extraction for dinov3s and vitl_bv (tsne / ws_scaling / -aligned / partial / rungs /
+  category_structure): figS_lexicon_tsne, _relatedness, _alignment skip them with a printed NOTE
+  until the files exist; no code change needed on our side once they do.
