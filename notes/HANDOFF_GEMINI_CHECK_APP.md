@@ -1,5 +1,9 @@
 # Handoff: human check of the Gemini referential-alignment annotations
 
+> **Status 2026-09-09:** built. Scripts, app, and operating instructions are in `human_check/`
+> (see `human_check/README.md`). Sample + frames are staged on ccn2-14; the Cloud Run + IAP
+> deployment (shareable without cluster access) needs Mike's `gcloud auth login` once.
+
 Goal: a small, lab-shareable app in which people rate ~1,000 (frame, utterance) pairs so we can
 report how good the Gemini alignment annotation is. This annotation is the paper's key mechanism
 (the aligned ~10% of pairs carries essentially all the word learning; removing them collapses
