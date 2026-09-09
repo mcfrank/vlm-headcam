@@ -87,9 +87,11 @@ Without the last binding, IAP lets people sign in but Cloud Run answers 403.
 **Only Stanford Google accounts can sign in.** IAP for Cloud Run uses a Google-managed OAuth
 client, which admits only identities inside the project's organization (stanford.edu); a granted
 gmail.com address gets a Google sign-in error, not the app. Grant people's @stanford.edu
-addresses. Letting outside accounts in needs a custom OAuth client with an "External" consent
-screen made in the Cloud Console, then `gcloud iap settings set` with its id/secret on the
-service (docs: run/docs/securing/identity-aware-proxy-cloud-run#custom-oauth-client). `deploy.sh` needs
+addresses, or open it up (done 2026-09-09 for Bria): a custom OAuth client
+(`gcloud iap oauth-brands create` + `gcloud iap oauth-clients create`, attached with
+`gcloud iap settings set --resource-type cloud-run --service gemini-check`) plus the consent
+screen's audience set to **External** and the app published, which only the Cloud Console can do
+(Google Auth Platform > Branding / Audience). Test-mode External apps admit only listed test users. `deploy.sh` needs
 gcloud >= 584 for `--iap` (552 lacked it; `gcloud components update`).
 
 *B. ssh tunnel to ccn2-14* (works today, no GCP step): `bash human_check/run_node.sh` on the
