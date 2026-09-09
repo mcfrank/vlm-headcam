@@ -51,27 +51,27 @@
 
   <section id="help" class="hidden">
     <h2>Instructions</h2>
-    <p>You will see one video frame from a child's head-mounted camera and one utterance that was spoken at that moment (by the child, a parent, or someone else). Speech is often not about anything on screen.</p>
-    <p><b>Question 1.</b> Does the utterance refer to a concrete, physical object that is actually <i>visible in this frame</i>?</p>
+    <p>You will see one video frame from a head-mounted camera worn by a young child, and one utterance (by the child, a caregiver, or someone else) transcribed from that same moment. Speech is often not about anything on screen.</p>
+    <p><b>Question 1.</b> How strongly does the utterance refer to a concrete, physical object that is actually <i>visible in this frame</i>?</p>
     <ul>
-      <li><b>No visible referent</b> — small talk, the object named is not in view or can't be identified, or the utterance isn't about a concrete object.</li>
-      <li><b>Present but small / partial / one of many</b> — the named object is there, but small, cut off, in the background, or one of several similar things.</li>
-      <li><b>Clearly present</b> — the utterance names a prominent, plainly visible object.</li>
-      <li><b>Can't tell</b> — frame is unusable (black, blurred, occluded) or the utterance is unintelligible. Use sparingly.</li>
+      <li><b>No visible referent</b> — small talk, the object is absent or unidentifiable, or the utterance is not about a concrete object.</li>
+      <li><b>Present but small / partial / one of many</b> — the named object is present but small, partial, or one of many.</li>
+      <li><b>Clearly present</b> — the utterance clearly names a prominent, plainly visible, central object.</li>
+      <li><b>Can't tell</b> — the frame or the utterance is unusable (black, blurred, unintelligible). Use sparingly.</li>
     </ul>
-    <p><b>Question 2.</b> If the answer is not "no", type the single object referred to as a lowercase common noun (e.g. <i>cup</i>, <i>dog</i>). If several objects are named, give the one the utterance is most about. People count as objects only if the utterance is about their body or clothing (e.g. "your hand", "my shoe").</p>
-    <p>Judge only what is visible in this single frame, not what you imagine is nearby. Go with your first impression; ~10 seconds per item is fine. Keys: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>0</kbd> answer, <kbd>Enter</kbd> submits the noun, <kbd>b</kbd> goes back to fix the previous item. You can stop at any time and resume later — every answer is saved immediately.</p>
+    <p><b>Question 2.</b> If the answer is not "no", type the single visible object referred to, as a lowercase common noun (e.g. <i>cup</i>, <i>dog</i>).</p>
+    <p>Judge only this one frame and this one utterance. Go with your first impression; ~10 seconds per item is fine. Keys: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>0</kbd> answer, <kbd>Enter</kbd> submits the noun, <kbd>b</kbd> goes back to fix the previous item. You can stop at any time and resume later — every answer is saved immediately.</p>
     <p style="text-align:center"><button id="helpOk">Got it</button></p>
   </section>
 
   <section id="task" class="hidden">
     <div class="frame"><img id="img" alt="video frame"></div>
     <div class="utt"><span id="utt"></span></div>
-    <div class="q">Does the utterance refer to a concrete object visible in the frame?</div>
+    <div class="q">How strongly does the utterance refer to a concrete object visible in the frame?</div>
     <div class="btns">
-      <button data-a="none"><kbd>1</kbd>No visible referent<small>small talk / object absent or unidentifiable</small></button>
-      <button data-a="partial"><kbd>2</kbd>Present but small / partial / one of many<small>named object is there, but not prominent</small></button>
-      <button data-a="clear"><kbd>3</kbd>Clearly present<small>prominent, plainly visible</small></button>
+      <button data-a="none"><kbd>1</kbd>No visible referent<small>small talk / absent / not about a concrete object</small></button>
+      <button data-a="partial"><kbd>2</kbd>Present but small / partial / one of many<small>the named object is present but not prominent</small></button>
+      <button data-a="clear"><kbd>3</kbd>Clearly present<small>prominent, plainly visible, central</small></button>
       <button data-a="cant_tell"><kbd>0</kbd>Can't tell<small>unusable frame or utterance</small></button>
     </div>
     <div class="ref" id="ref">
