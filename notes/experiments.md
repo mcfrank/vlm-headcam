@@ -1194,6 +1194,15 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   "fair" = chance for unplayable). With n=5 seeds now: playable-only full = L-OTS 57.5, B-OTS
   47.0, S-OTS 41.6, L-BV 35.0, B-BV 33.2, S-BV 33.7; fair = 47.7 / 40.4 / 36.6 / 31.9 / 30.7 / 31.1.
   Refresh the draft numbers from results/encoder_grid.csv (make_encoder_grid.py).
+- **Six-encoder grid landed (11:00):** results/encoder_grid.csv. Headlines: OTS size effect
+  monotone S<B<L everywhere (Konkle full 67.0/78.7/81.6; in-domain 57.5/67.2/73.2; LEVANTE fair
+  36.6/40.4/47.7); BV saturates at 86M (Konkle full 39.6/44.1/44.2; in-domain 47.6/47.6/48.0;
+  LEVANTE 31.1/30.7/31.9); regime gap at matched size: 22M OTS full (67.0) > 304M BV full (44.2),
+  and 22M OTS at 100k (39.8) ≈ 304M BV at 1.69M. Same sign for every manipulation in all six cells.
+- item_eval_final.csv now six encoders (63,060 rows); konkle_wg40_per_seed.csv regenerated. New
+  encoders have base s0–4 in the item file; old four s0–2 only → top-up queued
+  (item_eval_base34.csv, append when done).
+- In-domain reproduces exactly for the old four; probes: S-OTS 53.9/99.8, L-BV 54.6/97.8.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

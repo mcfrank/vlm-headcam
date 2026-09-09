@@ -67,6 +67,34 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   regenerated file labels them "L-OTS (2025.2)" / "L-BV (preview, 2025.2)"; nothing to change in
   the figure code except adding the two new encoders — the collisions disappear by label. Draft
   LEVANTE numbers are playable-only accuracy; fig4B plots "fair". Both are in encoder_grid.csv.
+
+## 2026-09-09 (midday): HANDOFF — six-encoder data are in place; what to render
+Data (all committed, all local under results/):
+- runs.parquet — F_<enc>_<cond>_s<seed> for enc ∈ {dinov3s, dinov3b, dinov3l, vits_bv, vitb_bv,
+  vitl_bv}; best_acc = dev-selected test accuracy. S-OTS is complete EXCEPT the window family
+  (F_dinov3s_win5_*, lands ~2026-09-10 early; rerun scrape_runs + pull runs.parquet then).
+- item_eval_final.csv — item-level Konkle for all six (rand, lad, align families; test60 + dev117).
+  NB: new encoders have base s0–4 in the lad family, old four have s0–2 only (top-ups queued).
+- konkle_wg40_per_seed.csv, wordbank_anchors_40.csv — fig4A inputs, now six encoders.
+- lev_scaling_final.csv — six encoders + legacy rows relabeled "L-OTS (2025.2)", "L-BV (preview,
+  2025.2)" (exclude by label; nothing else changed — old rows reproduce exactly).
+- indomain_eval.csv (word learning, all F scaling models, six encoders); encoder_probe_domains.csv
+  (probe, six encoders, grid-only for all).
+- encoder_grid.csv — the summary 3×2 table (Konkle scales, aligned, ladder, controls, no-MIL,
+  window, LEVANTE fair, in-domain), with sd and n; make_encoder_grid.py regenerates it.
+Labels (Mike's decision): parameter counts. tag → label: dinov3s "OTS-22M", dinov3b "OTS-86M",
+  dinov3l "OTS-304M", vits_bv "BV-22M", vitb_bv "BV-86M", vitl_bv "BV-304M". Suggested encoding:
+  hue = regime (blues OTS / oranges BV from theme), marker = size (o/s/^ for 22/86/304M) shared
+  across regimes. The three BV curves nearly coincide — that IS the result; markers disambiguate.
+Figures to touch: fig2 (scaling + aligned scaling: six curves), fig4 (A: six curves on 40 words;
+  B: LEVANTE fair, six), figS_alignment_encoders, figS_alignment_controls (6 bars × 6 encoders:
+  full · aligned-only · plain random 172k · matched random · full−aligned · full−matched),
+  figS_nomil (paired Δ, six), NEW figS_window (paired Δ, 4 scales × six; S-OTS column pending),
+  figS_indomain, figS_encoder_probe, figS_levante, figS_item_difficulty, figS_lexicon_* (lexicon
+  extraction for the new encoders NOT yet run — say if you need it before I get to it).
+Text-facing numbers: results/encoder_grid.csv is the single source for the encoder table in the
+  paper (params 22M/86M/304M; add DINOv3 ViT-S/16 "facebook/dinov3-vits16-pretrain-lvd1689m" and
+  the DINO session's dino_s4_vitl to the encoder methods table).
 - fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
   now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
   moved up 2–6 pts at mid scales; if you re-render fig4, pull first.
