@@ -70,6 +70,21 @@ bash human_check/deploy.sh grant alice@stanford.edu bob@stanford.edu
 
 Pull responses back for analysis with `gcs_sync.py pull`.
 
+Deployed 2026-09-09: service `gemini-check` (us-central1), bucket
+`gs://hs-hs-langcog-gemini-gemini-check` (1,051 objects), URL
+https://gemini-check-246740721864.us-central1.run.app (IAP active). The deploying account is
+Editor + Project IAM Admin on the project, not Owner, so two grants had to be done by hand once:
+
+```bash
+gcloud projects add-iam-policy-binding hs-hs-langcog-gemini --member user:mcfrank@stanford.edu --role roles/run.admin
+gcloud projects add-iam-policy-binding hs-hs-langcog-gemini --member user:mcfrank@stanford.edu --role roles/iap.admin
+gcloud run services add-iam-policy-binding gemini-check --region us-central1 \
+  --member serviceAccount:service-246740721864@gcp-sa-iap.iam.gserviceaccount.com --role roles/run.invoker
+```
+
+Without the last binding, IAP lets people sign in but Cloud Run answers 403. `deploy.sh` needs
+gcloud >= 584 for `--iap` (552 lacked it; `gcloud components update`).
+
 *B. ssh tunnel to ccn2-14* (works today, no GCP step): `bash human_check/run_node.sh` on the
 node, then each rater runs `ssh -L 8501:localhost:8501 ccn2-14` and opens http://localhost:8501
 (they type a name; use the same name to resume).
