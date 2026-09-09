@@ -1167,6 +1167,17 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   dinov3s / S_WIN5_DONE. `run_dinov3s.sh` = the 113-run sequence, gated likewise; marker S_RUNS_DONE.
   ETA ~1.5 days after L-BV finishes (~Wed 09-09).
 - All downstream scripts (evals, lexicon, wf, experiments table with "all six") know dinov3s.
+
+### 2026-09-08 — L-BV DONE (113/113, 17:52); S-OTS caches started
+- Controls mirror B-BV cell for cell: aligned-only 49.5 (B-BV 49.8), plain random 172k 31.4 (31.5),
+  matched random 28.3 (26.4), full−aligned 30.6 (31.9), full−matched 44.9 (45.0), full−random 43.5
+  (42.8). No-MIL paired Δ: +1.2/−0.3/−0.7 (30k/300k/full) — null. Window paired Δ: +1.7±2.5 /
+  −0.4±3.4 / +1.9±0.7 / +1.1±2.2 (30k/300k/1M/full) — null; B-BV's −3.8 at full is not reproduced
+  by the larger BV encoder, so treat the BV window effect as "no reliable benefit", not a loss.
+- runs.parquet scraped (660 runs); experiments table regenerated (L-BV rows fill in; families
+  now read "L-OTS, B-OTS, L-BV, B-BV, S-BV" until S-OTS lands → "all six").
+- Still to run for L-BV after S-OTS: item-level Konkle, LEVANTE, in-domain + probe, lexicon
+  (scripts wired). Do them for both new encoders in one pass.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

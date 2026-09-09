@@ -46,6 +46,19 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   +2.0/0.0/+2.2; full **+4.5/+2.5/−3.8/+0.7** (L-OTS/B-OTS/B-BV/S-BV). So the panel is 4 scales ×
   4 encoders; the story is "OTS encoders gain from temporal MIL, most at full scale; BV never do".
   Full L-OTS with window = 86.1 — worth a marker on fig2's scaling panel or a sentence, Mike's call.
+
+## 2026-09-08: encoder grid becomes 3×2 — L-BV landed, S-OTS running
+- New encoder tags in runs.parquet: `vitl_bv` (L-BV, 304M, DONE 113/113: the same families as the
+  other four) and `dinov3s` (S-OTS, 22M, landing 09-09). S-BV STAYS (Mike: needed to show B is an
+  improvement, since the BV size effect saturates at B: S 39.6 → B 44.1 → L 44.2).
+- Mike's label decision: parameter counts, not ViT letters — OTS 22M / 86M / 304M and BV 22M / 86M /
+  304M (psychologist readers). Encoding suggestion: hue = regime (blues OTS, oranges BV as in theme),
+  marker = size (shared across regimes), one six-entry legend. The three BV curves nearly overlap —
+  that's the result, but markers must disambiguate them. fig2, fig4, figS_alignment_encoders,
+  figS_nomil, figS_alignment_controls, figS_indomain, figS_levante, figS_encoder_probe, figS_item_
+  difficulty, figS_lexicon_* all enumerate encoders — add vitl_bv/dinov3s and the new labels.
+- L-BV numbers, for sanity: rand 30k 26.7 / 100k 29.2 / 300k 34.9 / 1M 40.1 / full 44.2; aligned
+  100k 45.1; ladder t2 52.4; controls and no-MIL/window all within seed noise of B-BV.
 - fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
   now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
   moved up 2–6 pts at mid scales; if you re-render fig4, pull first.
