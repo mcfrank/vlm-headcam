@@ -59,6 +59,14 @@ Both scrape into runs.parquet as usual; I'll commit when each family completes.
   difficulty, figS_lexicon_* all enumerate encoders — add vitl_bv/dinov3s and the new labels.
 - L-BV numbers, for sanity: rand 30k 26.7 / 100k 29.2 / 300k 34.9 / 1M 40.1 / full 44.2; aligned
   100k 45.1; ladder t2 52.4; controls and no-MIL/window all within seed noise of B-BV.
+
+## 2026-09-09: LEVANTE file bug — re-render fig4B and figS_levante after the new file lands
+- results/lev_scaling_final.csv had legacy 2025.2-corpus runs labeled plain "L-OTS" and "L-BV";
+  below full scale they shared (encoder, N, seed) with the final F_ rows, so your groupby means
+  pooled 2025.2 models into the L-OTS curve (and "L-BV" meant Khai's preview encoder). The
+  regenerated file labels them "L-OTS (2025.2)" / "L-BV (preview, 2025.2)"; nothing to change in
+  the figure code except adding the two new encoders — the collisions disappear by label. Draft
+  LEVANTE numbers are playable-only accuracy; fig4B plots "fair". Both are in encoder_grid.csv.
 - fig4A is already regenerated here (figures/out/fig4_development.*): models and both CDI forms
   now on the same 40 CDI-matched Konkle words (make_wordbank_40.py; docstring explains). Curves
   moved up 2–6 pts at mid scales; if you re-render fig4, pull first.

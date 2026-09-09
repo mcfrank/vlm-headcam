@@ -51,7 +51,9 @@ for rd in sorted(glob.glob("runs/C8_dinov3l*")):
     m = re.search(r"C8_(dinov3l(?:_bv)?)_grid4x4_(rand_(\d+)|base)_s(\d+)$", rd)
     if not m or not Path(rd, "model.pt").exists():
         continue
-    enc = "L-BV" if "_bv" in m.group(1) else "L-OTS"
+    # legacy 2025.2-corpus runs: label them DISTINCTLY. Plain "L-OTS"/"L-BV" collided with the
+    # final F_ runs at every shared (N, seed) and with the new vitl_bv encoder ("L-BV").
+    enc = "L-BV (preview, 2025.2)" if "_bv" in m.group(1) else "L-OTS (2025.2)"
     N = int(m.group(3)) if m.group(3) else 1820000
     RUNS.append((rd, enc, m.group(1).replace("dinov3l", "dinov3l") if "_bv" in m.group(1) else "dinov3l", N, int(m.group(4))))
     RUNS[-1] = (rd, enc, "dinov3l_bv" if "_bv" in m.group(1) else "dinov3l", N, int(m.group(4)))

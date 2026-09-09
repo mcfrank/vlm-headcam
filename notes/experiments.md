@@ -1178,6 +1178,22 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   now read "L-OTS, B-OTS, L-BV, B-BV, S-BV" until S-OTS lands → "all six").
 - Still to run for L-BV after S-OTS: item-level Konkle, LEVANTE, in-domain + probe, lexicon
   (scripts wired). Do them for both new encoders in one pass.
+
+### 2026-09-09 — downstream evals for L-BV + S-OTS; LEVANTE label-collision bug found
+- Launched (S-OTS at 99/113, window family pending): item-level Konkle for vitl_bv and dinov3s
+  (→ item_eval_{vitl_bv,dinov3s}.csv, to be appended to item_eval_final.csv), LEVANTE for all
+  F_ scaling models (→ lev_scaling_final6.csv), in-domain word learning + probe for all six.
+- **BUG (pre-existing) in eval_lev_scaling.py**: the legacy C8 runs (2025.2 corpus; dinov3l and
+  Khai's dinov3l_bv preview) were labeled plain "L-OTS"/"L-BV". At every shared (N, seed) below
+  full scale they COLLIDED with the final F_ rows (2,544 duplicate item-rows per scale ≤100k,
+  1,590 at 300k, 954 at 1M), and fig4B / figS_levante pool duplicates in their groupby → the
+  L-OTS LEVANTE curve below full scale mixed 2025.2-corpus models in. Full-scale rows were clean
+  (legacy full = 1,820,000, filtered by N ≤ 1,686,105). Fixed: legacy labels are now
+  "L-OTS (2025.2)" / "L-BV (preview, 2025.2)"; file regenerated. Figures need re-render.
+- LEVANTE statistics: the draft's 59.8/47.4/34.5/32.4 are PLAYABLE-ONLY accuracy (fig4B plots
+  "fair" = chance for unplayable). With n=5 seeds now: playable-only full = L-OTS 57.5, B-OTS
+  47.0, S-OTS 41.6, L-BV 35.0, B-BV 33.2, S-BV 33.7; fair = 47.7 / 40.4 / 36.6 / 31.9 / 30.7 / 31.1.
+  Refresh the draft numbers from results/encoder_grid.csv (make_encoder_grid.py).
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
