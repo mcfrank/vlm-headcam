@@ -97,7 +97,7 @@ def fade(c, t=0.48):
 
 
 ENC_B = [("dinov3l", "-", True, (78.0, 88.8)),
-         ("vitb_bv", (0, (2.5, 1.5)), False, (37.5, 48.5))]
+         ("vitl_bv", (0, (2.5, 1.5)), False, (37.5, 48.5))]
 bgrid = np.logspace(3.3, 6.6, 220)
 align_end = None
 for enc, ls, filled, (uy_lab, ay_lab) in ENC_B:
