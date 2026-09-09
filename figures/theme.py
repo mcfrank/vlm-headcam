@@ -22,10 +22,41 @@ W1, W15, W2 = 3.42, 4.5, 7.0
 OI = dict(blue="#0072B2", sky="#56B4E9", vermillion="#D55E00", orange="#E69F00",
           purple="#AA4499", sand="#DDCC77", wine="#882255", grey="#BBBBBB")
 
-FREE    = OI["blue"]       # unaided / free learning; the workhorse (B-OTS) encoder
-OTHER   = OI["sky"]        # the second off-the-shelf encoder (L-OTS)
-INDOM   = OI["vermillion"] # in-domain (BabyView-trained) encoders — the negative result
-INDOM2  = OI["orange"]     # the second BabyView-trained encoder
+# ---------------------------------------------------------------- encoders
+# The six frozen encoders: three sizes x two pre-training regimes. Labels are parameter
+# counts (not ViT letters) for non-ML readers. Hue = regime (blues off-the-shelf, oranges
+# BabyView-trained), lightness = size (darker = larger), marker = size, shared across
+# regimes so the three near-coincident BabyView curves stay tellable apart.
+# `legacy` is the S/B/L key still used in results/lev_scaling_final.csv; `lex` the lexicon
+# family stem in results/lexicon_*.csv.
+ENCODERS = [
+    dict(tag="dinov3l", label="OTS-304M", legacy="L-OTS", regime="OTS", size=304, marker="^",
+         color="#004070", desc="DINOv3 ViT-L/16, off-the-shelf"),
+    dict(tag="dinov3b", label="OTS-86M",  legacy="B-OTS", regime="OTS", size=86,  marker="s",
+         color=OI["blue"], desc="DINOv3 ViT-B/16, off-the-shelf"),
+    dict(tag="dinov3s", label="OTS-22M",  legacy="S-OTS", regime="OTS", size=22,  marker="o",
+         color=OI["sky"], desc="DINOv3 ViT-S/16, off-the-shelf"),
+    dict(tag="vitl_bv", label="BV-304M",  legacy="L-BV",  regime="BV",  size=304, marker="^",
+         color="#9A3F00", desc="ViT-L/16, BabyView-trained"),
+    dict(tag="vitb_bv", label="BV-86M",   legacy="B-BV",  regime="BV",  size=86,  marker="s",
+         color=OI["vermillion"], desc="ViT-B/16, BabyView-trained"),
+    dict(tag="vits_bv", label="BV-22M",   legacy="S-BV",  regime="BV",  size=22,  marker="o",
+         color=OI["orange"], desc="ViT-S/16, BabyView-trained"),
+]
+for _e in ENCODERS:
+    _e["lex"] = f"F-{_e['tag']}"
+ENC_BY_TAG = {e["tag"]: e for e in ENCODERS}
+
+
+def enc(tag):
+    """The registry entry for one encoder tag (e.g. 'dinov3l')."""
+    return ENC_BY_TAG[tag]
+
+
+FREE    = enc("dinov3b")["color"]  # unaided / free learning; the workhorse (OTS-86M) encoder
+OTHER   = enc("dinov3l")["color"]  # the largest off-the-shelf encoder (OTS-304M)
+INDOM   = enc("vitb_bv")["color"]  # in-domain (BabyView-trained) encoders — the negative result
+INDOM2  = enc("vits_bv")["color"]  # the smallest BabyView-trained encoder
 ORACLE  = OI["purple"]     # oracle / referential-alignment information the learner is handed
 ORACLE2 = "#7A2E68"        # a nested subset of it (referent spoken subset of aligned)
 LANG    = "#009E73"        # the language stream in the schematic (Okabe-Ito bluish green)
@@ -74,3 +105,31 @@ def save(fig, name):
         fig.savefig(OUT / f"{name}.{ext}")
     plt.close(fig)
     print(f"  wrote figures/out/{name}.pdf + .png")
+
+
+def end_labels(ax, xs, ys, labels, colors, gap, xl, fontsize=5.4, ha="left", leader=True,
+               va="center"):
+    """Direct labels at the right end of several curves, pushed apart vertically so that
+    none overlap (rank order is preserved; each colliding cluster is re-centred on its
+    points). A hairline leader joins a label to its curve end when it had to move.
+    xs/ys: the curve end points; xl: the x at which the labels sit (scalar or per-label)."""
+    import numpy as np
+    xs, ys = np.asarray(xs, float), np.asarray(ys, float)
+    xl = np.broadcast_to(np.asarray(xl, float), xs.shape)
+    order = np.argsort(ys); y = ys[order].copy()
+    for _ in range(500):
+        moved = False
+        for i in range(1, len(y)):
+            if y[i] - y[i - 1] < gap - 1e-9:
+                d = (gap - (y[i] - y[i - 1])) / 2
+                y[i] += d; y[i - 1] -= d; moved = True
+        if not moved:
+            break
+    yl = np.empty_like(y); yl[order] = y
+    for x0, y0, x1, y1, lab, col in zip(xs, ys, xl, yl, labels, colors):
+        ax.text(x1, y1, lab, fontsize=fontsize, color=col, ha=ha, va=va, zorder=7)
+        if leader and abs(y1 - y0) > 0.35 * gap:
+            ax.annotate("", xy=(x0, y0), xytext=(x1, y1), zorder=6,
+                        arrowprops=dict(arrowstyle="-", color=col, lw=0.45, alpha=0.8,
+                                        shrinkA=1.5, shrinkB=1.5))
+    return yl

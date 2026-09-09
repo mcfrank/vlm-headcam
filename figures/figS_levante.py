@@ -16,10 +16,6 @@ R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 lev = pd.read_csv(R / "lev_scaling_final.csv")
 lev = lev[lev.N <= 1_686_105]                     # final-corpus rows only (drop preview runs)
 
-ENC = [("L-OTS", "DINOv3-L\noff-the-shelf", r"F_dinov3l_rand_(\d+)", "F_dinov3l_base", T.OTHER),
-       ("B-OTS", "DINOv3-B\noff-the-shelf", r"F_dinov3b_rand_(\d+)", "F_dinov3b_base", T.FREE),
-       ("B-BV", "ViT-B\nBabyView-trained", r"F_vitb_bv_rand_(\d+)", "F_vitb_bv_base", T.INDOM),
-       ("S-BV", "ViT-S\nBabyView-trained", r"F_vits_bv_rand_(\d+)", "F_vits_bv_base", "#d99aa7")]
 
 fig, bx = plt.subplots(figsize=(T.W15, 2.7))
 
@@ -34,14 +30,17 @@ S = (per_seed.groupby(["encoder", "N"])
         .agg(fair_m=("fair", "mean"), fair_sd=("fair", "std"),
              inv_m=("inv", "mean"), inv_sd=("inv", "std"), coverage=("cov", "mean")).reset_index())
 N_ITEMS = lev.item.nunique()
-for key, lab, rx, full, col in ENC:
-    d = S[S.encoder == key].sort_values("N")
-    bx.errorbar(d.N, 100 * d.fair_m, yerr=100 * d.fair_sd, fmt="-o", color=col, ms=2.8,
-                lw=1.0, elinewidth=0.7, capsize=1.5, zorder=3)
+ends = []
+for E in T.ENCODERS:
+    col = E["color"]
+    d = S[S.encoder == E["legacy"]].sort_values("N")
+    bx.errorbar(d.N, 100 * d.fair_m, yerr=100 * d.fair_sd, fmt="-" + E["marker"], color=col,
+                ms=2.6, lw=1.0, elinewidth=0.7, capsize=1.5, zorder=3)
     di = d[d.coverage * N_ITEMS >= 15]                 # in-vocab-only needs enough items to mean much
     bx.plot(di.N, 100 * di.inv_m, ls=(0, (1.5, 1.5)), lw=0.9, color=col, zorder=2, alpha=0.8)
-    yl = 30.8 if key == "L-BV" else 100 * d.fair_m.iloc[-1]
-    bx.text(d.N.max() * 1.3, yl, lab, fontsize=5.4, color=col, va="center", linespacing=1.25)
+    ends.append((d.N.max(), 100 * d.fair_m.iloc[-1], E["label"], col))
+T.end_labels(bx, [t[0] * 1.25 for t in ends], [t[1] for t in ends], [t[2] for t in ends],
+             [t[3] for t in ends], gap=3.2, xl=[t[0] * 1.6 for t in ends])
 # vocabulary coverage along the bottom (identical for all encoders: a corpus property)
 cov = S[S.encoder == "B-OTS"].sort_values("N")
 for n, c in zip(cov.N, cov.coverage):

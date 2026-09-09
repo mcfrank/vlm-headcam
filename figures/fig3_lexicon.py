@@ -24,7 +24,8 @@ import matplotlib.pyplot as plt
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 RUN, FAM = "F_dinov3l_base_s0", "F-dinov3l"            # top encoder, FINAL corpus
-MODEL = T.OTHER                                        # L-OTS keeps its fig2 colour
+MODEL = T.enc("dinov3l")["color"]                      # OTS-304M keeps its fig2 colour
+MLAB = T.enc("dinov3l")["label"]
 d = pd.read_csv(R / f"lexicon_tsne_{RUN}_NOUN.csv")
 cdi = pd.read_csv(R / "cdi_categories.csv").set_index("word").category
 ws = pd.read_csv(R / f"lexicon_ws_scaling_{FAM}.csv")
@@ -111,9 +112,9 @@ cx.errorbar(g.index, g.m, yerr=g.me, fmt=":o", color=MODEL, ms=2.4, lw=0.9,
             elinewidth=0.5, capsize=1.3, markerfacecolor="white", zorder=2)
 cx.text(0.05, 0.97, "word2vec (same utterances)", fontsize=5.4, color=T.SUB,
         transform=cx.transAxes, va="top")
-cx.text(0.05, 0.885, "L-OTS model", fontsize=5.4, color=MODEL,
+cx.text(0.05, 0.885, f"{MLAB} model", fontsize=5.4, color=MODEL,
         transform=cx.transAxes, va="top")
-cx.text(0.05, 0.80, "· · L-OTS, word2vec partialled out", fontsize=5.4, color=MODEL,
+cx.text(0.05, 0.80, f"· · {MLAB}, word2vec partialled out", fontsize=5.4, color=MODEL,
         alpha=0.8, transform=cx.transAxes, va="top")
 cx.set_xscale("log"); cx.set_xlim(6e3, 3e6); cx.set_ylim(-0.12, 0.5)
 cx.set_xlabel("training pairs")

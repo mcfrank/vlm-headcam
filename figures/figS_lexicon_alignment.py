@@ -18,8 +18,11 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-ENC = [("dinov3l", "F-dinov3l", "L-OTS", T.OTHER), ("dinov3b", "F-dinov3b", "B-OTS", T.FREE),
-       ("vitb_bv", "F-vitb_bv", "B-BV", T.INDOM), ("vits_bv", "F-vits_bv", "S-BV", T.INDOM2)]
+ENC = [(E["tag"], E["lex"], E["label"], E["color"]) for E in T.ENCODERS
+       if (R / f"lexicon_ws_scaling_{E['lex']}-aligned.csv").exists()]
+missing = [E["label"] for E in T.ENCODERS if E["tag"] not in {e[0] for e in ENC}]
+if missing:
+    print(f"  NOTE figS_lexicon_alignment: no lexicon extracted yet for {missing}")
 RUNGS = ["aligned", "filtnat", "word selection", "vision binding"]
 RLAB = ["aligned\nonly", "+ alignment\nfilter", "+ word\nselection", "+ vision\nbinding"]
 
@@ -48,7 +51,7 @@ ax.axvline(170000, color=T.SUB, lw=0.6, ls=(0, (1, 2)), zorder=1)
 ax.text(170000 / 1.15, -0.045, "all referential pairs", fontsize=5.0, color=T.SUB,
         ha="right", va="bottom")
 ax.axhline(0, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=1)
-ax.text(1.9e6, 0.305, "L-OTS", fontsize=5.4, color=T.OTHER, ha="right")
+ax.text(1.9e6, 0.305, T.enc("dinov3l")["label"], fontsize=5.4, color=T.OTHER, ha="right")
 ax.text(0.04, 0.95, "aligned only (solid)\nunfiltered (dashed, open)", transform=ax.transAxes,
         fontsize=5.4, color=T.INK, va="top", linespacing=1.4)
 ax.set_xscale("log"); ax.set_xlim(7e3, 3e6); ax.set_ylim(-0.06, 0.35)
@@ -60,16 +63,19 @@ T.clean(ax)
 rg = pd.read_csv(R / "lexicon_rungs.csv")
 rg = rg[rg.category == "noun"]
 xs = np.arange(len(RUNGS))
+ends = []
 for enc, fam, key, col in ENC:
     d = rg[rg.encoder == enc]
     m = [d[d.rung == r].spearman.mean() for r in RUNGS]
     e = [d[d.rung == r].spearman.std() for r in RUNGS]
     bx.errorbar(xs, m, yerr=e, color=col, marker="o", ms=2.8, lw=1.1, elinewidth=0.6,
                 capsize=1.4, zorder=3)
-    bx.text(len(RUNGS) - 0.85, m[-1], key, fontsize=5.2, color=col, va="center")
+    ends.append((m[-1], key, col))
     if enc == "dinov3l":
         print(f"  NOTE figS_lexicon_alignment B ({key}): " +
               "  ".join(f"{r}={v:.3f}" for r, v in zip(RUNGS, m)))
+T.end_labels(bx, [len(RUNGS) - 1] * len(ends), [t[0] for t in ends], [t[1] for t in ends],
+             [t[2] for t in ends], gap=0.022, xl=len(RUNGS) - 0.85, fontsize=5.2)
 w2v = [rg[rg.rung == r].w2v_spearman.mean() for r in RUNGS]
 bx.plot(xs, w2v, "--s", color=T.SUB, ms=2.4, lw=0.9, zorder=2)
 bx.text(len(RUNGS) - 0.85, w2v[-1], "word2vec", fontsize=5.2, color=T.SUB, va="center")

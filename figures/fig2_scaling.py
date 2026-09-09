@@ -1,8 +1,9 @@
 """Display item 2 — what moves the scaling curve.
 
-A: the encoder moves it up — four encoders on the same training draws (FINAL corpus),
-   free-asymptote logistic per encoder. Off-the-shelf DINOv3 ceilings converge (~85);
-   BabyView-trained encoders saturate far lower.
+A: the encoder moves it up — six encoders (three sizes x two pre-training regimes) on the
+   same training draws (FINAL corpus), free-asymptote logistic per encoder. Off-the-shelf
+   DINOv3 encoders order by size; BabyView-trained encoders saturate far lower and their
+   size effect is flat from 86M up.
 B: alignment moves it left — training only on referential pairs. Every aligned arm is a
    subset of {alignment >= 50}: the N highest-rated pairs (ties at 50 broken at random after
    a shuffle), so align_170000 is 170,000 of the 171,782 pairs rated >= 50 against the same encoder's unfiltered curve from panel A, for the best
@@ -23,19 +24,15 @@ rng = np.random.default_rng(0)
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 
 # ================================ A: encoders ====================================
-ENCODERS = [  # label, scaling-family regex, full-corpus family, color
-    ("DINOv3-L off-the-shelf", r"F_dinov3l_rand_(\d+)", "F_dinov3l_base", T.OTHER),
-    ("DINOv3-B off-the-shelf", r"F_dinov3b_rand_(\d+)", "F_dinov3b_base", T.FREE),
-    ("ViT-B BabyView-trained", r"F_vitb_bv_rand_(\d+)", "F_vitb_bv_base", T.INDOM),
-    ("ViT-S BabyView-trained", r"F_vits_bv_rand_(\d+)", "F_vits_bv_base", T.INDOM2),
-]
 rng = np.random.default_rng(0)
 grid = np.logspace(3.3, 7.8, 260)
 
-for lab, rx, full, col in ENCODERS:
+ends = []
+for E in T.ENCODERS:
+    enc, col = E["tag"], E["color"]
     fams = sorted((int(m.group(1)), f) for f in D.runs.family.unique()
-                  if (m := re.fullmatch(rx, str(f))))
-    fams.append((None, full))
+                  if (m := re.fullmatch(rf"F_{enc}_rand_(\d+)", str(f))))
+    fams.append((None, f"F_{enc}_base"))
     fam = [D.family(f) for _, f in fams]
     x = np.array([fm["n_pairs"] if not np.isnan(fm.get("n_pairs", np.nan)) else n
                   for (n, _), fm in zip(fams, fam)], float)
@@ -47,17 +44,14 @@ for lab, rx, full, col in ENCODERS:
                      sigma=np.maximum(e, 0.5))
     ax.fill_between(grid, lo, hi, color=col, alpha=0.13, lw=0, zorder=1)
     ax.plot(grid, logistic(grid, *popt), color=col, lw=1.0, zorder=2)
-    ax.errorbar(x, y, yerr=e, fmt="o", color=col, ms=2.9, lw=0, elinewidth=0.7,
+    ax.errorbar(x, y, yerr=e, fmt=E["marker"], color=col, ms=2.7, lw=0, elinewidth=0.7,
                 capsize=1.5, zorder=4)
-    A = popt[2]
-    # anchor labels at the full-corpus point, staggered per encoder (asymptotes converge)
-    DY = {"DINOv3-L off-the-shelf": 3.6, "DINOv3-B off-the-shelf": -3.8,
-          "ViT-B BabyView-trained": 4.2, "ViT-S BabyView-trained": -3.6}[lab]
-    KEY = {"DINOv3-L off-the-shelf": "L-OTS", "DINOv3-B off-the-shelf": "B-OTS",
-           "ViT-B BabyView-trained": "B-BV", "ViT-S BabyView-trained": "S-BV"}[lab]
-    ax.text(x[-1] * 1.3, y[-1] + DY, KEY, fontsize=5.6, color=col, ha="left", va="center")
-    print(f"  NOTE fig2 {lab.replace(chr(10), ' ')}: asymptote "
+    ends.append((x[-1], y[-1], E["label"], col))
+    print(f"  NOTE fig2 {E['label']}: asymptote "
           f"{popt[2]:.1f} ± {np.sqrt(pcov[2, 2]):.1f}, n per point {[fm['n'] for fm in fam]}")
+# direct labels at the full-corpus point, pushed apart where curves coincide
+T.end_labels(ax, [t[0] * 1.3 for t in ends], [t[1] for t in ends], [t[2] for t in ends],
+             [t[3] for t in ends], gap=3.6, xl=[t[0] * 1.6 for t in ends], fontsize=5.4)
 
 ax.axhline(CHANCE, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
 ax.text(3.5e6, 22.2, "chance", fontsize=5.6, color=T.SUB, ha="right")
@@ -102,11 +96,12 @@ def fade(c, t=0.48):
     return (r + (1 - r) * t, g + (1 - g) * t, b + (1 - b) * t)
 
 
-ENC_B = [("dinov3l", "L-OTS", T.OTHER, "-", True, (78.0, 88.8)),
-         ("vitb_bv", "B-BV", T.INDOM, (0, (2.5, 1.5)), False, (37.5, 48.5))]
+ENC_B = [("dinov3l", "-", True, (78.0, 88.8)),
+         ("vitb_bv", (0, (2.5, 1.5)), False, (37.5, 48.5))]
 bgrid = np.logspace(3.3, 6.6, 220)
 align_end = None
-for enc, key, col, ls, filled, (uy_lab, ay_lab) in ENC_B:
+for enc, ls, filled, (uy_lab, ay_lab) in ENC_B:
+    key, col = T.enc(enc)["label"], T.enc(enc)["color"]
     F = fit(rng, enc=enc); m_, s_, A_ = F["popt"]
     ref = fade(col)                     # replotted from A: same hue, receded
     bx.plot(bgrid, logistic(bgrid, m_, s_, A_), color=ref, lw=0.9, zorder=2)

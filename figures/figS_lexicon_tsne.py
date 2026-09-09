@@ -1,4 +1,4 @@
-"""the learned noun lexicon under all four encoders.
+"""the learned noun lexicon under every encoder with a lexicon extracted.
 
 fig4A for every encoder: t-SNE of the noun embeddings that clear the random-vector null,
 coloured by MacArthur CDI category. Each map is its own t-SNE, so positions are NOT
@@ -14,17 +14,21 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-ENC = [("dinov3l", "L-OTS", "DINOv3-L off-the-shelf"),
-       ("dinov3b", "B-OTS", "DINOv3-B off-the-shelf"),
-       ("vitb_bv", "B-BV", "ViT-B BabyView-trained"),
-       ("vits_bv", "S-BV", "ViT-S BabyView-trained")]
+ENC = [(E["tag"], E["label"], E["desc"]) for E in T.ENCODERS
+       if (R / f"lexicon_tsne_F_{E['tag']}_base_s0_NOUN.csv").exists()]
+missing = [E["label"] for E in T.ENCODERS if E["tag"] not in {e[0] for e in ENC}]
+if missing:
+    print(f"  NOTE figS_lexicon_tsne: no lexicon extracted yet for {missing}")
 CAT_COL = {"animals": "#117733", "food_drink": "#CC6677", "vehicles": "#332288",
            "toys": "#AA4499", "clothing": "#88CCEE", "body_parts": "#44AA99",
            "household": "#999933", "furniture_rooms": "#DDCC77", "outside": "#6699CC",
            "places": "#888888"}
 cdi = pd.read_csv(R / "cdi_categories.csv").set_index("word").category
 
-fig, axes = plt.subplots(2, 2, figsize=(T.W2, 6.0))
+nrow = (len(ENC) + 1) // 2
+fig, axes = plt.subplots(nrow, 2, figsize=(T.W2, 3.0 * nrow), squeeze=False)
+for a in axes.ravel()[len(ENC):]:
+    a.set_visible(False)
 for a, (enc, key, lab) in zip(axes.ravel(), ENC):
     d = pd.read_csv(R / f"lexicon_tsne_F_{enc}_base_s0_NOUN.csv")
     d["cat"] = d.word.map(cdi)
@@ -38,7 +42,7 @@ for a, (enc, key, lab) in zip(axes.ravel(), ENC):
     cs = pd.read_csv(R / f"lexicon_category_structure_F_{enc}_base.csv")
     gap = cs[cs.category == "ALL"].gap.mean()
     ns = cs[(cs.category != "ALL")].groupby("category").p_perm.max()
-    a.set_title(f"{lab}   ·   {acc:.1f}% 4AFC   ·   cohesion gap {gap:.3f}",
+    a.set_title(f"{key}   ·   {acc:.1f}% 4AFC   ·   cohesion gap {gap:.3f}",
                 fontsize=6.2, color=T.INK, pad=3)
     a.text(0.015, 0.015, f"{len(d)} nouns above null   ·   "
            f"{(ns < 0.05).sum()}/{len(ns)} categories above chance",
@@ -54,7 +58,7 @@ handles = [plt.Line2D([], [], marker="o", lw=0, ms=3.0, color=c,
                       label=k.replace("_", " / ")) for k, c in CAT_COL.items()]
 fig.legend(handles=handles, loc="lower center", ncol=5, fontsize=5.8, frameon=False,
            handletextpad=0.3, columnspacing=1.1, bbox_to_anchor=(0.5, 0.028))
-for a, l in zip(axes.ravel(), "ABCD"):
+for a, l in zip(axes.ravel(), "ABCDEF"):
     T.panel(a, l, dx=-0.03, dy=1.045)
 fig.subplots_adjust(wspace=0.06, hspace=0.14, bottom=0.085)
 T.save(fig, "figS_lexicon_tsne")

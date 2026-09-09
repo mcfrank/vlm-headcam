@@ -1,4 +1,4 @@
-"""Display item 4 — both evals in developmental time, all four encoders, beside children.
+"""Display item 4 — both evals in developmental time, all six encoders, beside children.
 
 A: Konkle. The scaling curve for each encoder re-expressed as years of waking input, faded
    beyond the observed range, with Wordbank CDI trajectories (know-it-or-guess; WG
@@ -11,8 +11,7 @@ A: Konkle. The scaling curve for each encoder re-expressed as years of waking in
 B: LEVANTE. The fair score per encoder (all 159 items, chance credited out-of-vocab) under
    the same logistic — a guess, since the fair ceiling depends on vocabulary growth beyond
    this corpus — against children's MEASURED accuracy by age on the same items (levante-bench
-   trials; macro over items, bootstrap 10-90% CI). Bands omitted with four curves; seed sd is
-   in fig2 / figS5.
+   trials; macro over items, bootstrap 10-90% CI).
 """
 import sys, re, numpy as np, pandas as pd
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
@@ -38,10 +37,6 @@ ngrid = tgrid * UTT_PER_HR * HR_PER_YEAR
 OBS_END = to_yr(1_686_105)
 rng = np.random.default_rng(0)
 
-ENC = [("dinov3l", "L-OTS", "DINOv3-L off-the-shelf", T.OTHER),
-       ("dinov3b", "B-OTS", "DINOv3-B off-the-shelf", T.FREE),
-       ("vitb_bv", "B-BV", "ViT-B BabyView-trained", T.INDOM),
-       ("vits_bv", "S-BV", "ViT-S BabyView-trained", T.INDOM2)]
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6))
 
@@ -59,16 +54,18 @@ def curve_with_fade(a, popt, col, band=None):
 
 
 # ---- A: Konkle -------------------------------------------------------------------
-KDY = {"L-OTS": 2.6, "B-OTS": -2.6, "B-BV": 2.2, "S-BV": -2.4}
-for enc, key, lab, col in ENC:
+ends = []
+for E in T.ENCODERS:
+    enc, key, col = E["tag"], E["label"], E["color"]
     S = (K40[K40.encoder == enc].groupby("N").acc.agg(["mean", "std", "size"])
              .reset_index().sort_values("N"))
     F = fit_points(S.N, S["mean"], S["std"], S["size"])
     print(f"  NOTE fig4 Konkle-40 {key}: asymptote {F['popt'][2]:.1f}; "
           f"40-word means " + ", ".join(f"{int(n)}:{m:.1f}" for n, m in zip(S.N, S['mean'])))
     curve_with_fade(ax, F["popt"], col, band=F["band"](ngrid))
-    ax.text(13.5, logistic(ngrid[-1], *F["popt"]) + KDY[key], key, fontsize=5.4, color=col,
-            ha="right", va="center")
+    ends.append((logistic(ngrid[-1], *F["popt"]), key, col))
+T.end_labels(ax, [13.5] * len(ends), [t[0] for t in ends], [t[1] for t in ends],
+             [t[2] for t in ends], gap=2.6, xl=13.5, ha="right", leader=False)
 NWB = {f: int(WB[WB.form == f].n_children.sum()) for f in ("WG", "WS")}
 for form, meas, mk, ls in [("WG", "understands", "o", "-"), ("WS", "produces", "^", (0, (2.5, 1.5)))]:
     d = WB[WB.form == form].sort_values("age")
@@ -77,8 +74,8 @@ for form, meas, mk, ls in [("WG", "understands", "o", "-"), ("WS", "produces", "
             markerfacecolor="white", markeredgecolor=CDI_INK, markeredgewidth=0.6, zorder=5)
     end = d.iloc[-1]
     if form == "WS":
-        ax.text(end.age / 12 * 1.10, end.pred_4afc - 10.0, meas, fontsize=5.2,
-                color=CDI_INK, va="top", ha="left", linespacing=1.35)
+        ax.text(end.age / 12 * 0.86, end.pred_4afc - 1.0, meas, fontsize=5.2,
+                color=CDI_INK, va="top", ha="right", linespacing=1.35)
     else:
         ax.text(0.78, 62, meas, fontsize=5.2, color=CDI_INK, va="center", ha="right",
                 linespacing=1.35)
@@ -88,10 +85,11 @@ ax.text(d0.age / 12 * 0.92, d0.pred_4afc + 1.5, "children\n(Wordbank CDI)", font
 
 # ---- B: LEVANTE ------------------------------------------------------------------
 lev["fair"] = np.where(lev.playable, lev.correct, 0.25)
-LDY = {"L-OTS": 2.6, "B-OTS": -2.6, "B-BV": 2.6, "S-BV": -2.6}
 LX = 3.0   # children now occupy the right of this panel
-for enc, key, lab, col in ENC:
-    per = lev[lev.encoder == key].groupby(["N", "seed"]).fair.mean().mul(100).reset_index()
+ends = []
+for E in T.ENCODERS:
+    key, col = E["label"], E["color"]
+    per = lev[lev.encoder == E["legacy"]].groupby(["N", "seed"]).fair.mean().mul(100).reset_index()
     S = per.groupby("N").agg(m=("fair", "mean"), sd=("fair", "std"),
                              k=("fair", "size")).reset_index()
     x, y = S.N.values.astype(float), S.m.values
@@ -102,9 +100,10 @@ for enc, key, lab, col in ENC:
     curve_with_fade(bx, popt, col,
                     band=mc_band(x, y, sem, popt, ngrid, rng,
                                  ([3, 0.1, 25.5], [10, 3, 100]), sigma=e))
-    bx.text(LX, logistic(LX * UTT_PER_HR * HR_PER_YEAR, *popt) + LDY[key], key,
-            fontsize=5.4, color=col, ha="right", va="center")
+    ends.append((logistic(LX * UTT_PER_HR * HR_PER_YEAR, *popt), key, col))
     print(f"  NOTE fig4 LEVANTE {key}: fair asymptote {popt[2]:.1f}")
+T.end_labels(bx, [LX] * len(ends), [t[0] for t in ends], [t[1] for t in ends],
+             [t[2] for t in ends], gap=2.6, xl=LX, ha="right", leader=False)
 bx.errorbar(KIDS.age_yr, 100 * KIDS.acc_macro,
             yerr=[100 * (KIDS.acc_macro - KIDS.lo), 100 * (KIDS.hi - KIDS.acc_macro)],
             fmt="-o", color=T.CHILD, ms=2.8, lw=0.9, elinewidth=0.6, capsize=1.4,

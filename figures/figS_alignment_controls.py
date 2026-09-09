@@ -24,8 +24,7 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
-ENC = [("dinov3l", "L-OTS", T.OTHER), ("dinov3b", "B-OTS", T.FREE),
-       ("vitb_bv", "B-BV", T.INDOM), ("vits_bv", "S-BV", T.INDOM2)]
+ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]
 # Six arms, ordered so the two contrasts read left to right: what the aligned pairs buy on
 # their own (bars 2-4, all 172k) and what removing them costs (bars 5-6, all 1.51M).
 ARMS = [("base", "whole corpus", T.NEUTRAL),
@@ -35,10 +34,10 @@ ARMS = [("base", "whole corpus", T.NEUTRAL),
         ("minusaligned", "full − aligned", T.INDOM),
         ("minusmatch", "full − matched", T.NEUTRAL)]
 
-fig, axes = plt.subplots(1, 4, figsize=(T.W2, 2.9), sharey=True,
-                         gridspec_kw=dict(wspace=0.12))
+fig, axes = plt.subplots(2, 3, figsize=(T.W2, 4.9), sharey=True,
+                         gridspec_kw=dict(wspace=0.10, hspace=0.62))
 xs = np.arange(len(ARMS))
-for a, (enc, key, col) in zip(axes, ENC):
+for a, (enc, key, col) in zip(axes.ravel(), ENC):
     vals = []
     for i, (arm, lab, acol) in enumerate(ARMS):
         f = D.family(f"F_{enc}_{arm if arm != 'base' else 'base'}")
@@ -57,7 +56,8 @@ for a, (enc, key, col) in zip(axes, ENC):
     T.clean(a)
     print(f"  NOTE figS_alignment_controls {key}: " +
           "  ".join(f"{lab}={v:.1f}" for (_, lab, _), v in zip(ARMS, vals)))
-axes[0].set_ylabel("Konkle 4AFC (%)")
-axes[0].text(0.03, 0.97, "dotted = whole corpus", transform=axes[0].transAxes,
-             fontsize=5.0, color=T.SUB, va="top")
+for a in axes[:, 0]:
+    a.set_ylabel("Konkle 4AFC (%)")
+axes[1, 0].text(0.03, 0.97, "dotted = whole corpus", transform=axes[1, 0].transAxes,
+                fontsize=5.0, color=T.SUB, va="top")
 T.save(fig, "figS_alignment_controls")

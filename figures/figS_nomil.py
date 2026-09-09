@@ -2,7 +2,7 @@
 
 The no-MIL arm replaces the 4x4 region grid with its mean (R=1 caches, train and eval),
 holding everything else fixed and pairing seed-for-seed against the region-MIL runs on the
-same manifests, at three scales and for all four encoders.
+same manifests, at three scales and for all six encoders.
 
 A: the two arms against each other. Every cell sits on the identity line.
 B: the paired difference, seed-matched. Every cell sits within seed noise of zero, so a
@@ -13,8 +13,7 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
-ENC = [("dinov3l", "L-OTS", T.OTHER), ("dinov3b", "B-OTS", T.FREE),
-       ("vitb_bv", "B-BV", T.INDOM), ("vits_bv", "S-BV", T.INDOM2)]
+ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]
 SCALES = [("30000", "rand_30000", "wf30000", "30k"),
           ("300000", "rand_300000", "wf300000", "300k"),
           ("full", "base", "wffull", "1.69M")]
@@ -32,12 +31,12 @@ ax.plot(lim, lim, color=T.SUB, lw=0.7, ls=(0, (3, 2)), zorder=1)
 ax.text(70, 73.5, "identity", fontsize=5.4, color=T.SUB, ha="center", rotation=41,
         rotation_mode="anchor")
 for i, (enc, key, col) in enumerate(ENC):
-    ax.scatter([24.5], [86 - i * 3.4], s=14, color=col, zorder=4)
-    ax.text(26.5, 86 - i * 3.4, key, fontsize=5.4, color=col, va="center")
+    ax.scatter([24.5], [87 - i * 3.2], s=14, color=col, zorder=4)
+    ax.text(26.5, 87 - i * 3.2, key, fontsize=5.2, color=col, va="center")
 for j, slab in enumerate(["30k", "300k", "1.69M"]):
-    ax.scatter([44], [86 - j * 3.4], s=13, facecolors="none", edgecolors=T.SUB, lw=0.8,
+    ax.scatter([46], [87 - j * 3.2], s=13, facecolors="none", edgecolors=T.SUB, lw=0.8,
                marker=MK[slab], zorder=4)
-    ax.text(46, 86 - j * 3.4, slab, fontsize=5.4, color=T.SUB, va="center")
+    ax.text(48, 87 - j * 3.2, slab, fontsize=5.2, color=T.SUB, va="center")
 ax.set_xlim(lim); ax.set_ylim(lim)
 ax.set_xlabel("region-MIL 4AFC (%)"); ax.set_ylabel("mean-pooled frame 4AFC (%)")
 T.clean(ax, grid_axis=None)
@@ -57,7 +56,9 @@ for i, (enc, key, col) in enumerate(ENC):
         print(f"  NOTE figS_nomil {key} {slab}: MIL {a.mean():.1f} vs no-MIL {b.mean():.1f}, "
               f"paired Δ {d.mean():+.2f} ± {d.std(ddof=1):.2f} (n={len(d)})")
 bx.axhline(0, color=T.SUB, lw=0.7, ls=(0, (4, 3)))
-bx.set_xticks(range(len(ENC))); bx.set_xticklabels([e[1] for e in ENC], fontsize=6)
+bx.set_xticks(range(len(ENC)))
+bx.set_xticklabels([e[1] for e in ENC], fontsize=5.2, rotation=30, ha="right",
+                   rotation_mode="anchor")
 bx.set_ylim(-7, 7); bx.set_ylabel("region-MIL gain (Δ 4AFC, paired)")
 bx.text(0.02, 0.97, "30k · 300k · 1.69M pairs (left to right)", transform=bx.transAxes,
         fontsize=5.4, color=T.SUB, va="top")

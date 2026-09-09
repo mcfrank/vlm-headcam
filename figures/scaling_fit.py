@@ -35,11 +35,12 @@ def fit_points(x, y, e, nseed, rng=None):
     """Free-asymptote logistic through per-scale means (x = pairs, y = mean, e = seed sd)."""
     rng = rng or np.random.default_rng(0)
     x, y, e, nseed = (np.asarray(v, float) for v in (x, y, e, nseed))
-    popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e,
-                           bounds=([3, 0.1, 50], [9, 3, 100]), maxfev=40000)
+    # asymptote floor just above chance, as in fig2A: a floor of 50 pinned the small
+    # BabyView-trained encoders' fits to the bound
+    B = ([3, 0.1, 26], [9, 3, 100])
+    popt, pcov = curve_fit(logistic, x, y, p0=(5, 0.8, 85), sigma=e, bounds=B, maxfev=40000)
     sem = np.maximum(e / np.sqrt(nseed), 0.15)
-    band = lambda grid: mc_band(x, y, sem, popt, grid, rng,
-                                ([3, 0.1, 50], [9, 3, 100]), sigma=e)
+    band = lambda grid: mc_band(x, y, sem, popt, grid, rng, B, sigma=e)
     return dict(x=x, y=y, e=e, sem=sem, n=list(nseed.astype(int)), popt=popt,
                 A_sd=float(np.sqrt(pcov[2, 2])), band=band)
 

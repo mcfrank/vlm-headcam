@@ -4,7 +4,7 @@ fig4C generalized: rho with human relatedness against training scale, for noun-n
 and for all pairs, with the word2vec topline trained on the same utterances and the
 two-tower's partial correlation controlling it.
 
-All four final-corpus encoders; the preview families (B26/L-OTS) are ignored. Each family
+Every final-corpus encoder with a lexicon extracted; the preview families (B26/L-OTS) are ignored. Each family
 is scored against the word2vec trained on its OWN corpus. The encoder ordering is the same
 one fig2 establishes on 4AFC, which is the point: representation quality propagates from
 the eval, through relatedness, to the variance word2vec cannot explain.
@@ -16,11 +16,13 @@ import numpy as np, pandas as pd
 import matplotlib.pyplot as plt
 
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
-ORDER = [("F-dinov3l", "L-OTS", T.OTHER), ("F-dinov3b", "B-OTS", T.FREE),
-         ("F-vitb_bv", "B-BV", T.INDOM), ("F-vits_bv", "S-BV", T.INDOM2)]
+ORDER = [(E["lex"], E["label"], E["color"]) for E in T.ENCODERS]
 have = {re.search(r"lexicon_ws_scaling_(.+)\.csv$", f).group(1)
         for f in glob.glob(str(R / "lexicon_ws_scaling_*.csv"))}
+missing = [k for f, k, _ in ORDER if f not in have]
 ORDER = [o for o in ORDER if o[0] in have]
+if missing:
+    print(f"  NOTE figS_lexicon_relatedness: no lexicon extracted yet for {missing}")
 COL = {f: c for f, _, c in ORDER}
 LAB = {f: k for f, k, _ in ORDER}
 fams = [f for f, _, _ in ORDER]

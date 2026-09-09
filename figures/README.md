@@ -1,9 +1,12 @@
 # figures/ — paper display items
 
 One script per display item. **No script may hardcode a model number**: values come from
-`results/` via `data.claim()` / `data.family()`, so a figure cannot silently drift from the
-tables. Values whose source runs no longer exist are drawn **marked as provisional** (dashed/red
-outline, plus a caption line) — see `notes/PROVENANCE.md`.
+`results/` via `data.family()`, so a figure cannot silently drift from the tables.
+
+Encoders are enumerated from **`theme.ENCODERS`** (tag, label, regime, size, colour, marker):
+six frozen encoders, three sizes × two pre-training regimes, labelled by parameter count
+(OTS-22M/86M/304M off-the-shelf DINOv3; BV-22M/86M/304M BabyView-trained). Hue = regime,
+lightness and marker = size. Add or rename an encoder there, nowhere else.
 
 | Script | Display item |
 |---|---|
@@ -23,11 +26,11 @@ and links with `xr`, so renumbering here would only cause churn. Control ids ref
 | `figS_kchi.py` | C3 | removing the child's own speech, amount-matched |
 | `figS_diversity.py` | C4 | diversity sweeps by pair budget (a null) |
 | `figS_nomil.py` | C5 | region-MIL vs a single mean-pooled frame (a null) |
-| `figS_alignment_controls.py` | C6 | five selection arms per encoder |
-| — | C7 | temporal ±5 s MIL — *not built*, embeddings still running |
-| `figS_alignment_encoders.py` | | the aligned arm for all four encoders |
+| `figS_alignment_controls.py` | C6 | six selection arms per encoder |
+| `figS_window.py` | C7 | temporal ±5 s MIL vs the midpoint frame (OTS-22M column pending) |
+| `figS_alignment_encoders.py` | | the aligned arm for all six encoders |
 | `figS_levante.py` | | the scaling experiment under the LEVANTE eval |
-| `figS_lexicon_tsne.py` | | the noun lexicon under all four encoders |
+| `figS_lexicon_tsne.py` | | the noun lexicon under every encoder with a lexicon extracted |
 | `figS_lexicon_relatedness.py` | | relatedness by word class and encoder |
 | `figS_lexicon_alignment.py` | | what referential selection does to the lexicon |
 | `figS_item_difficulty.py` | | item-level AoA + child-alignment across scale |
