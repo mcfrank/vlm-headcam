@@ -167,10 +167,11 @@ def main():
     def binary_stats(x):
         g, h, w = x.gemini_aligned.values, x.human_aligned.values, x.weight.values
         tp = (g & h).astype(float)
+        p_, r_ = tp.sum() / max(g.sum(), 1), tp.sum() / max(h.sum(), 1)
+        wp, wr = (w * tp).sum() / max((w * g).sum(), 1e-9), (w * tp).sum() / max((w * h).sum(), 1e-9)
         return dict(kappa=cohen_kappa(g, h), agree=np.mean(g == h),
-                    precision=tp.sum() / max(g.sum(), 1), recall=tp.sum() / max(h.sum(), 1),
-                    w_precision=(w * tp).sum() / max((w * g).sum(), 1e-9),
-                    w_recall=(w * tp).sum() / max((w * h).sum(), 1e-9),
+                    precision=p_, recall=r_, f1=2 * p_ * r_ / max(p_ + r_, 1e-9),
+                    w_precision=wp, w_recall=wr, w_f1=2 * wp * wr / max(wp + wr, 1e-9),
                     w_human_aligned_rate=(w * h).sum() / w.sum(),
                     w_gemini_aligned_rate=(w * g).sum() / w.sum())
     point = binary_stats(b)
