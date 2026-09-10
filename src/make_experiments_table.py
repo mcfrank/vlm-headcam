@@ -30,7 +30,7 @@ d = pd.DataFrame(rows)
 BLOCKS = [
     ("Scaling (random subsamples) + full corpus", r"^(rand_\d+|base)$", "Konkle; LEVANTE; in-domain; lexicon", ""),
     ("Aligned-pair scaling", r"^align_\d+$", "Konkle; lexicon", "top-N by Gemini alignment"),
-    ("Ladder, full corpus", r"^lad_(filtnat|t15|t2)$", "Konkle; lexicon", "+ base row above"),
+    ("Ladder, full corpus", r"^lad_(filtnat|t15|t2)$", "Konkle", "+ base row above"),
     ("Ladder at reduced scale", r"^lad\d+_(base|filtnat|t15|t2)$", "Konkle", "matched subsample per seed"),
     ("Diversity (children at fixed budget)", r"^div(30k|100k|300k)_\d+c$", "Konkle", "random child draw per seed"),
     ("No-MIL (whole-frame) control", r"^wf(30000|300000|full)$", "Konkle", "mean-over-grid R=1; paired to region runs"),
@@ -66,7 +66,7 @@ DERIVED = {"fig3_lexicon": ["Scaling"],
            "figS_item_difficulty": ["Scaling"],
            "figS_lexicon_tsne": ["Scaling"],
            "figS_lexicon_relatedness": ["Scaling"],
-           "figS_lexicon_alignment": ["Scaling", "Aligned-pair", "Ladder, full corpus"]}
+           "figS_lexicon_alignment": ["Scaling", "Aligned-pair"]}
 
 def fmt(n):
     return f"{n/1e6:.2g}M" if n >= 1e6 else (f"{n//1000}k" if n >= 1000 else str(n))
