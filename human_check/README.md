@@ -68,7 +68,9 @@ bash human_check/deploy.sh deploy         # prints the https URL
 bash human_check/deploy.sh grant alice@stanford.edu bob@stanford.edu
 ```
 
-Pull responses back for analysis with `gcs_sync.py pull`.
+Pull responses back for analysis with `gcs_sync.py pull`. `responses_v1/` in the bucket (and on the
+node) holds Mike's first 126 ratings, made before the three conventions (people, names, sound
+words) were added on 2026-09-10; they are excluded from the analysis.
 
 Deployed 2026-09-09: service `gemini-check` (us-central1), bucket
 `gs://hs-hs-langcog-gemini-gemini-check` (1,051 objects), URL
