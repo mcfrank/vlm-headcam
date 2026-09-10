@@ -4,7 +4,7 @@ The no-MIL arm replaces the 4x4 region grid with its mean (R=1 caches, train and
 holding everything else fixed and pairing seed-for-seed against the region-MIL runs on the
 same manifests, at three scales and for all six encoders.
 
-A: the two arms against each other. Every cell sits on the identity line.
+A: the two arms against each other (mean-pooled on x, so above the line = MIL gain).
 B: the paired difference, seed-matched. Every cell sits within seed noise of zero, so a
    single mean-pooled frame vector learns as well as region-MIL everywhere we tested.
 """
@@ -24,7 +24,7 @@ MK = {"30k": "o", "300k": "s", "1.69M": "D"}
 for enc, key, col in ENC:
     for _, mil_f, wf_f, slab in SCALES:
         mil = D.family(f"F_{enc}_{mil_f}"); wf = D.family(f"F_{enc}_{wf_f}")
-        ax.errorbar([mil["mean"]], [wf["mean"]], xerr=[mil["sd"]], yerr=[wf["sd"]],
+        ax.errorbar([wf["mean"]], [mil["mean"]], xerr=[wf["sd"]], yerr=[mil["sd"]],
                     fmt=MK[slab], color=col, ms=3.4, elinewidth=0.6, capsize=0, zorder=3)
 lim = [22, 90]
 ax.plot(lim, lim, color=T.SUB, lw=0.7, ls=(0, (3, 2)), zorder=1)
@@ -38,7 +38,7 @@ for j, slab in enumerate(["30k", "300k", "1.69M"]):
                marker=MK[slab], zorder=4)
     ax.text(48, 87 - j * 3.2, slab, fontsize=5.2, color=T.SUB, va="center")
 ax.set_xlim(lim); ax.set_ylim(lim)
-ax.set_xlabel("region-MIL 4AFC (%)"); ax.set_ylabel("mean-pooled frame 4AFC (%)")
+ax.set_xlabel("mean-pooled frame 4AFC (%)"); ax.set_ylabel("region-MIL 4AFC (%)")
 T.clean(ax, grid_axis=None)
 
 # ---- B: paired per-seed differences ---------------------------------------------
@@ -49,9 +49,8 @@ for i, (enc, key, col) in enumerate(ENC):
         common = sorted(set(a.index) & set(b.index))
         d = np.array([a[s] - b[s] for s in common])
         x = i + (j - 1) * 0.22
-        bx.errorbar([x], [d.mean()], yerr=[d.std(ddof=1) / np.sqrt(len(d))], fmt="o",
-                    color=col, ms=3.0, elinewidth=0.7, capsize=1.6, zorder=3,
-                    markerfacecolor=col if j == 2 else "white", markeredgewidth=0.9)
+        bx.errorbar([x], [d.mean()], yerr=[d.std(ddof=1) / np.sqrt(len(d))], fmt=MK[slab],
+                    color=col, ms=3.0, elinewidth=0.7, capsize=1.6, zorder=3)
         bx.scatter([x] * len(d), d, s=4, color=col, alpha=0.35, zorder=2)
         print(f"  NOTE figS_nomil {key} {slab}: MIL {a.mean():.1f} vs no-MIL {b.mean():.1f}, "
               f"paired Δ {d.mean():+.2f} ± {d.std(ddof=1):.2f} (n={len(d)})")

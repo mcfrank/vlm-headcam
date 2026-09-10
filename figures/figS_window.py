@@ -60,8 +60,7 @@ for i, (enc, key, col) in enumerate(ENC):
             continue
         d = np.array([b[s] - a[s] for s in common])
         bx.errorbar([x], [d.mean()], yerr=[d.std(ddof=1) / np.sqrt(len(d))], fmt=MK[slab],
-                    color=col, ms=2.8, elinewidth=0.7, capsize=1.6, zorder=3,
-                    markerfacecolor=col if j == 3 else "white", markeredgewidth=0.9)
+                    color=col, ms=2.8, elinewidth=0.7, capsize=1.6, zorder=3)
         bx.scatter([x] * len(d), d, s=4, color=col, alpha=0.35, zorder=2)
         print(f"  NOTE figS_window {key} {slab}: midpoint {a.mean():.1f} vs window "
               f"{b.mean():.1f}, paired Δ {d.mean():+.2f} ± {d.std(ddof=1):.2f} (n={len(d)})")
