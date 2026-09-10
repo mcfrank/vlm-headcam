@@ -31,6 +31,7 @@ print(f"  NOTE figS_lexicon_relatedness: final-corpus lexicons {[LAB[f] for f in
 
 fig, axes = plt.subplots(1, 2, figsize=(T.W2, 2.5), sharey=True)
 for a, (cat, title) in zip(axes, [("noun", "noun–noun pairs"), ("all", "all pairs")]):
+    ends = []
     for fam in fams:
         ws = pd.read_csv(R / f"lexicon_ws_scaling_{fam}.csv")
         d = ws[(ws.category == cat) & (ws.scale >= 1e4)]
@@ -47,11 +48,12 @@ for a, (cat, title) in zip(axes, [("noun", "noun–noun pairs"), ("all", "all pa
                        lw=0.9, elinewidth=0.5, capsize=1.2, markerfacecolor="white", zorder=2)
         except FileNotFoundError:
             pass
-        a.text(d.scale.max() * 1.25, m["mean"].iloc[-1], LAB[fam], fontsize=5.2,
-               color=col, va="center")
+        ends.append((d.scale.max(), m["mean"].iloc[-1], LAB[fam], col))
         if cat == "noun":
             print(f"     {LAB[fam]}: rho {m['mean'].iloc[-1]:.3f}, "
                   f"w2v {w.values[-1]:.3f}, n_pairs {int(d.n_pairs.max())}")
+    T.end_labels(a, [t[0] * 1.2 for t in ends], [t[1] for t in ends], [t[2] for t in ends],
+                 [t[3] for t in ends], gap=0.03, xl=[t[0] * 1.55 for t in ends], fontsize=5.0)
     a.axhline(0, color=T.SUB, lw=0.6, ls=(0, (4, 3)), zorder=1)
     a.text(0.03, 0.95, title, transform=a.transAxes, fontsize=6.2, color=T.INK, va="top")
     a.set_xscale("log"); a.set_xlim(6e3, 9e6); a.set_ylim(-0.12, 0.55)

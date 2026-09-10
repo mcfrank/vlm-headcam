@@ -27,7 +27,7 @@ and links with `xr`, so renumbering here would only cause churn. Control ids ref
 | `figS_diversity.py` | C4 | diversity sweeps by pair budget (a null) |
 | `figS_nomil.py` | C5 | region-MIL vs a single mean-pooled frame (a null) |
 | `figS_alignment_controls.py` | C6 | six selection arms per encoder |
-| `figS_window.py` | C7 | temporal ±5 s MIL vs the midpoint frame (OTS-22M column pending) |
+| `figS_window.py` | C7 | temporal ±5 s MIL vs the midpoint frame |
 | `figS_alignment_encoders.py` | | the aligned arm for all six encoders |
 | `figS_levante.py` | | the scaling experiment under the LEVANTE eval |
 | `figS_lexicon_tsne.py` | | the noun lexicon under every encoder with a lexicon extracted |
