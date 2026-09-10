@@ -16,7 +16,8 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
-ENC = [(E["tag"], E["label"], E["color"]) for E in reversed(T.ENCODERS)]   # smallest first
+ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]   # keys: strongest on top
+AXIS = ENC[::-1]                                                    # axes: strongest on the right
 SCALES = [("rand_30000", "win5_30000", "30k"), ("rand_300000", "win5_300000", "300k"),
           ("rand_1000000", "win5_1000000", "1M"), ("base", "win5_full", "1.69M")]
 MK = {"30k": "o", "300k": "s", "1M": "^", "1.69M": "D"}
@@ -46,7 +47,7 @@ ax.set_xlabel("midpoint frame 4AFC (%)"); ax.set_ylabel("±5 s window 4AFC (%)")
 T.clean(ax, grid_axis=None)
 
 # ---- B: paired per-seed differences ---------------------------------------------
-for i, (enc, key, col) in enumerate(ENC):
+for i, (enc, key, col) in enumerate(AXIS):
     for j, (mid_f, win_f, slab) in enumerate(SCALES):
         a = D.runs[D.runs.family == f"F_{enc}_{mid_f}"].set_index("seed").best_acc
         b = D.runs[D.runs.family == f"F_{enc}_{win_f}"].set_index("seed").best_acc
@@ -66,7 +67,7 @@ for i, (enc, key, col) in enumerate(ENC):
               f"{b.mean():.1f}, paired Δ {d.mean():+.2f} ± {d.std(ddof=1):.2f} (n={len(d)})")
 bx.axhline(0, color=T.SUB, lw=0.7, ls=(0, (4, 3)))
 bx.set_xticks(range(len(ENC)))
-bx.set_xticklabels([e[1] for e in ENC], fontsize=5.2, rotation=30, ha="right",
+bx.set_xticklabels([e[1] for e in AXIS], fontsize=5.2, rotation=30, ha="right",
                    rotation_mode="anchor")
 bx.set_ylim(-8, 8); bx.set_ylabel("window gain (Δ 4AFC, paired)")
 bx.text(0.02, 0.97, "30k · 300k · 1M · 1.69M pairs (left to right)", transform=bx.transAxes,

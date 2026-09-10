@@ -13,7 +13,8 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
-ENC = [(E["tag"], E["label"], E["color"]) for E in reversed(T.ENCODERS)]   # smallest first
+ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]   # keys: strongest on top
+AXIS = ENC[::-1]                                                    # axes: strongest on the right
 SCALES = [("30000", "rand_30000", "wf30000", "30k"),
           ("300000", "rand_300000", "wf300000", "300k"),
           ("full", "base", "wffull", "1.69M")]
@@ -42,7 +43,7 @@ ax.set_xlabel("mean-pooled frame 4AFC (%)"); ax.set_ylabel("region-MIL 4AFC (%)"
 T.clean(ax, grid_axis=None)
 
 # ---- B: paired per-seed differences ---------------------------------------------
-for i, (enc, key, col) in enumerate(ENC):
+for i, (enc, key, col) in enumerate(AXIS):
     for j, (_, mil_f, wf_f, slab) in enumerate(SCALES):
         a = D.runs[D.runs.family == f"F_{enc}_{mil_f}"].set_index("seed").best_acc
         b = D.runs[D.runs.family == f"F_{enc}_{wf_f}"].set_index("seed").best_acc
@@ -56,7 +57,7 @@ for i, (enc, key, col) in enumerate(ENC):
               f"paired Δ {d.mean():+.2f} ± {d.std(ddof=1):.2f} (n={len(d)})")
 bx.axhline(0, color=T.SUB, lw=0.7, ls=(0, (4, 3)))
 bx.set_xticks(range(len(ENC)))
-bx.set_xticklabels([e[1] for e in ENC], fontsize=5.2, rotation=30, ha="right",
+bx.set_xticklabels([e[1] for e in AXIS], fontsize=5.2, rotation=30, ha="right",
                    rotation_mode="anchor")
 bx.set_ylim(-7, 7); bx.set_ylabel("region-MIL gain (Δ 4AFC, paired)")
 bx.text(0.02, 0.97, "30k · 300k · 1.69M pairs (left to right)", transform=bx.transAxes,

@@ -22,7 +22,8 @@ import matplotlib.pyplot as plt
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 pr = pd.read_csv(R / "encoder_probe_domains.csv")
 ind = pd.read_csv(R / "indomain_eval.csv")
-ENC = [(E["tag"], E["label"], E["color"]) for E in reversed(T.ENCODERS)]   # smallest first
+ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]   # keys: strongest on top
+AXIS = ENC[::-1]                                                    # axes: strongest on the right
 MK = {E["tag"]: E["marker"] for E in T.ENCODERS}
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6),
@@ -30,7 +31,7 @@ fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6),
 
 # ---- A: probe by domain ----------------------------------------------------------
 xs = np.arange(len(ENC))
-for i, (enc, key, col) in enumerate(ENC):
+for i, (enc, key, col) in enumerate(AXIS):
     d = pr[pr.encoder == enc].set_index("domain").proto
     ax.plot([i, i], [d["indomain"], d["konkle"]], color=col, lw=1.0, zorder=2)
     ax.scatter([i], [d["konkle"]], s=22, color=col, zorder=3)
@@ -42,7 +43,7 @@ for yy, fc, lb in [(35, T.INK, "Konkle photos"), (30, "white", "held-out BabyVie
                clip_on=False)
     ax.text(-0.18, yy, lb, fontsize=5.4, color=T.INK, va="center")
 ax.set_xticks(xs)
-ax.set_xticklabels([e[1] for e in ENC], fontsize=5.2, rotation=30, ha="right",
+ax.set_xticklabels([e[1] for e in AXIS], fontsize=5.2, rotation=30, ha="right",
                    rotation_mode="anchor")
 ax.set_xlim(-0.5, len(ENC) - 0.4)
 ax.set_ylim(20, 105); ax.set_ylabel("prototype 4AFC (%)\nfrozen encoder, no learned head")
