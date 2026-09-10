@@ -30,13 +30,13 @@ d = pd.DataFrame(rows)
 BLOCKS = [
     ("Scaling (random subsamples) + full corpus", r"^(rand_\d+|base)$", "Konkle; LEVANTE; in-domain; lexicon", ""),
     ("Aligned-pair scaling", r"^align_\d+$", "Konkle; lexicon", "top-N by Gemini alignment"),
-    ("Ladder, full corpus", r"^lad_(filtnat|t15|t2)$", "Konkle", "+ base row above"),
-    ("Ladder at reduced scale", r"^lad\d+_(base|filtnat|t15|t2)$", "Konkle", "matched subsample per seed"),
+    # the ladder families (lad_*, lad100000_*, lad300000_*) are in runs.parquet but no
+    # figure in the manuscript uses them, so they are left out of the table
     ("Diversity (children at fixed budget)", r"^div(30k|100k|300k)_\d+c$", "Konkle", "random child draw per seed"),
     ("No-MIL (whole-frame) control", r"^wf(30000|300000|full)$", "Konkle", "mean-over-grid R=1; paired to region runs"),
     ("Alignment-selection controls", r"^(alignedonly|rand172k|matchrand|minusaligned|minusmatch|minusrand)$", "Konkle", "exposure+length-matched; full-minus"),
     ("Child-speech (KCHI) control", r"^(nokchi|randmatch)$", "Konkle", "matched-N random"),
-    ("Temporal-window (+-5 s) control", r"^win5_(\d+|full)$", "Konkle", "complete neighbor caches"),
+    ("Temporal-window ($\\pm$5 s) control", r"^win5_(\d+|full)$", "Konkle", "complete neighbor caches"),
 ]
 
 # figure -> family patterns (templated {enc}/{e} expanded to any encoder)
@@ -130,7 +130,7 @@ with open("results/experiments_table.tex", "w") as fh:
     fh.write("\\begin{table*}[t]\\centering\\footnotesize\n\\caption{Training runs underlying all figures. "
              "Every run uses a frozen encoder, region-MIL head, InfoNCE, 20 epochs, and dev-117 epoch selection; "
              "quantities are designed training pairs (full corpus = 1,686,105).}\n\\label{tab:experiments}\n")
-    fh.write("\\begin{tabular}{p{3.1cm}p{1.5cm}p{4.6cm}p{0.8cm}p{0.7cm}p{2.3cm}p{2.8cm}}\\toprule\n")
+    fh.write("\\begin{tabular}{p{3.1cm}p{1.5cm}p{4cm}p{0.8cm}p{0.7cm}p{2.3cm}p{2.4cm}}\\toprule\n")
     fh.write("Experiment & Encoders & Training pairs & Seeds & Runs & Evaluation & Figures \\\\\\midrule\n")
     for r in T.itertuples():
         encs = {", ".join(ENC_ORDER): "all six"}.get(str(r.encoders), str(r.encoders))
