@@ -1213,6 +1213,13 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
 - runs.parquet 773 F_ runs; encoder_grid.csv and experiments table regenerated ("all six" rows).
 - Remaining for the new encoders: lexicon extraction/analyses (lex_extract → lex_rungs,
   lex_ws_scaling F-dinov3s / F-vitl_bv) — only if the lexicon SI figures go to six encoders.
+- **Lexicon pipeline run for the new encoders (Mike: yes, six-encoder lexicon figures).**
+  lex_extract on the node (140 new npz: 132 for dinov3s/vitl_bv + base s3/s4 top-ups), mirrored
+  to ._lexicon_cache/emb (558 npz). Local: lex_ws_scaling + lex_partial for F-dinov3s,
+  F-dinov3s-aligned, F-vitl_bv, F-vitl_bv-aligned; lex_tsne --pos NOUN for F_{dinov3s,vitl_bv}
+  _base_s0 (1,301 / 777 above-null nouns vs L-OTS's 930-ish); lex_rungs (six encoders);
+  lex_category_structure F_{dinov3s,vitl_bv}_base (5,000 perms). Headline partials at full:
+  S-OTS noun 0.135, L-BV noun 0.144 (vision-beyond-w2v signal present for both).
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
