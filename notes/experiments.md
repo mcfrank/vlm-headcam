@@ -1220,6 +1220,24 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   _base_s0 (1,301 / 777 above-null nouns vs L-OTS's 930-ish); lex_rungs (six encoders);
   lex_category_structure F_{dinov3s,vitl_bv}_base (5,000 perms). Headline partials at full:
   S-OTS noun 0.135, L-BV noun 0.144 (vision-beyond-w2v signal present for both).
+
+### 2026-09-10 — END OF EXPERIMENTS PHASE → cleanup (Mike: "when in doubt, tar and move to Oak")
+- Plan: `notes/CLEANUP_PLAN.md`; storage map rewritten (`notes/STORAGE.md`).
+- Oak additions shipped + verified 12:02: runs_F_20260910.tar (10.6 G, all 773 F_ checkpoints),
+  eval_assets_20260910.tar (2.3 G, six-encoder eval caches + manifests), lexicon_emb_20260910.tar.
+- **Repo restructure (0a1a429, 442d4f9, 5dde4eb):** src/ = 47 paper-chain modules (import
+  closure from the PAPER_REPRO entry points + gemini_align/pose_lib/train/train_boot); 92 legacy
+  modules → src/archive (README by era); shell drivers → runners/ (cd fixed to repo root), legacy
+  → runners/archive (+ launchers, + 10 node-only runners rescued); book (deprecated), supplement,
+  eval/ → archive/; NOTE_TO_* → notes/sessions; results/README lists 68 paper-visible vs 14 legacy
+  files; root README rewritten; pdfs/talks gitignored; scratch_lev deleted. Verified: make -C
+  figures (21 items), both tables, check_provenance, runner syntax. Node synced (rsync; node is
+  not a git clone) and its root de-cluttered (0 scripts at root).
+- **Node archive driver launched 12:24** (`runners/node_archive_20260910.sh`, verify-then-delete):
+  frames_1fps_local deleted (616 G); BV region caches c9_caches → real dirs on ccn2b + Oak;
+  dinov3s → Oak; window caches (637 G) → per-encoder tars → Oak project/window_caches → deleted;
+  DINO ckpt 199999 ×3 + configs + hf_release → Oak, intermediates deleted; 2025.2 legacy caches
+  (~90 G) + DINO probe caches (~50 G) → tars → Oak → deleted; _retired_20260829 deleted.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

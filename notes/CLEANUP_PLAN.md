@@ -128,6 +128,17 @@ update `MANIFEST.tsv` and the mirror README.
 - **Numbers**: `results/` is committed and cited by path in the SI; `results/encoder_grid.csv`
   is the encoder table's source; `methods_numbers.tex` macros for the text.
 
+## Status (2026-09-10, after Mike's decisions: yes to §2.1–2.4 incl. window caches → Oak)
+- DONE: Oak §3 rows 2–4 (runs_F, eval_assets, lexicon tars; verified). Repo restructure (see
+  `notes/experiments.md` 2026-09-10): `src/` = paper chain, `src/archive/`, `runners/`,
+  `runners/archive/`, `archive/{book,supplement.qmd,eval}`, `notes/sessions/`, `results/README.md`,
+  root README, gitignore (pdfs, talks), scratch_lev removed; node synced and de-cluttered.
+- RUNNING: `runners/node_archive_20260910.sh` (§2.1–2.6 + probe caches, verify-then-delete;
+  log `/data2/mcfrank/oak_stage/node_archive_20260910.log`).
+- OPEN: methods_numbers for six encoders + `\input`; `paper` tag + Zenodo DOI at submission;
+  encoder public release channel **[Mike]**; DINO fork commit hash; `check_provenance.py` still
+  checks the (now archived) book's claim registry — retire or repoint it at `results/README.md`.
+
 ## 5. Order of operations
 
 1. Now (no decisions needed): commit .gitignore; delete `.pre6` backups; regenerate
