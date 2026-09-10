@@ -35,6 +35,8 @@ def main():
     else:
         n = 0
         for o in b.list_blobs(prefix="responses/"):
+            if o.name.endswith("/"):  # directory placeholder objects from the FUSE mount
+                continue
             dst = data / o.name
             dst.parent.mkdir(parents=True, exist_ok=True)
             o.download_to_filename(dst)
