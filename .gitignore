@@ -58,3 +58,5 @@ data/
 scratch_lev/
 ._lexicon_cache/
 supplement.html
+release
+hf_release/

@@ -65,6 +65,11 @@ make_levante_ages) reading ONLY committed `results/*`.
 - **not code**: `skeletons/`, `scratch_lev/`, `vlm_disagree_review/`, `talks/`, `archive/`
 
 ## GAPS / TODO before submission
+> **2026-09-10:** superseded by `notes/CLEANUP_PLAN.md`, which re-inventories the repo, the node
+> and Oak after the six-encoder campaign and lists the additions to THE CHAIN (alignment-control
+> and window manifest builders, all runners, `eval_indomain.py`, `make_encoder_grid.py`,
+> `make_experiments_table.py`, `human_check/`). The items below are kept for the record; their
+> current status is in the plan.
 1. ~~wf cache builder uncommitted~~ → committed as `src/make_wf_caches.py` this audit.
 2. **DINO training code + checkpoints**: fork+hash citation needed; `hf_release/*.pt` (429M)
    are untracked and NOT in the Oak mirror (created after) — add to Oak, and decide
