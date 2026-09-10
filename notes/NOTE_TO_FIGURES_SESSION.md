@@ -92,6 +92,9 @@ Figures to touch: fig2 (scaling + aligned scaling: six curves), fig4 (A: six cur
   figS_nomil (paired Δ, six), NEW figS_window (paired Δ, 4 scales × six; S-OTS column pending),
   figS_indomain, figS_encoder_probe, figS_levante, figS_item_difficulty, figS_lexicon_* (lexicon
   extraction for the new encoders NOT yet run — say if you need it before I get to it).
+2026-09-10 01:53: S-OTS window family landed — runs.parquet now has all 113 runs for all six
+  encoders (F_dinov3s_win5_* included), so figS_window's OTS-22M column can fill in. Paired Δ:
+  −0.5/+3.6/+5.2/+2.2. NB for figS_nomil: S-OTS at full is the one non-null cell (−4.6±1.4).
 Text-facing numbers: results/encoder_grid.csv is the single source for the encoder table in the
   paper (params 22M/86M/304M; add DINOv3 ViT-S/16 "facebook/dinov3-vits16-pretrain-lvd1689m" and
   the DINO session's dino_s4_vitl to the encoder methods table).

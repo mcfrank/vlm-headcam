@@ -1203,6 +1203,16 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   encoders have base s0–4 in the item file; old four s0–2 only → top-up queued
   (item_eval_base34.csv, append when done).
 - In-domain reproduces exactly for the old four; probes: S-OTS 53.9/99.8, L-BV 54.6/97.8.
+
+### 2026-09-10 — S-OTS DONE (113/113, 01:53); the 3×2 grid is complete
+- S-OTS window paired Δ: −0.5±2.4 / +3.6±3.0 / +5.2±1.3 / +2.2±0.6 (30k/300k/1M/full) — the OTS
+  signature (L-OTS +4.5, B-OTS +2.5 at full). Six-encoder window table complete.
+- **S-OTS no-MIL at full: −4.6±1.4 (62.4 vs 67.0, n=5)** — the only non-null no-MIL cell across
+  six encoders × three scales (30k −0.8, 300k +0.6). Region MIL buys a few points for the 22M OTS
+  encoder at full scale; write the SI sentence as "no reliable improvement except…".
+- runs.parquet 773 F_ runs; encoder_grid.csv and experiments table regenerated ("all six" rows).
+- Remaining for the new encoders: lexicon extraction/analyses (lex_extract → lex_rungs,
+  lex_ws_scaling F-dinov3s / F-vitl_bv) — only if the lexicon SI figures go to six encoders.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words
