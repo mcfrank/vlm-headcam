@@ -17,6 +17,13 @@ ship_verify() {  # ship_verify <local tar> <oak dest dir>   -> 0 iff verified
   local n; n=$(rsync -c -n -i "$1" "$2/" 2>>$LOG | grep -c "^>f")
   [ "$n" -eq 0 ] && { log "VERIFIED $1"; return 0; } || { log "FAIL verify $1"; return 1; }
 }
+dir_ship_verify() {  # dir_ship_verify <local dir> <oak dest dir> -> 0 iff every file verifies
+  # NB: `grep -c` exits 1 on a zero count, so never chain the count with && (that bug produced
+  # false FAILs for vits_bv/vitb_bv on the first run; both verified clean by hand).
+  rsync -rlt --partial "$1/" "$2/" >> $LOG 2>&1 || { log "FAIL ship $1"; return 1; }
+  local n; n=$(rsync -c -n -i -r "$1/" "$2/" 2>>$LOG | grep -c "^>f")
+  [ "$n" -eq 0 ] && return 0 || { log "FAIL verify $1 ($n files differ)"; return 1; }
+}
 log "=== node archive start ==="
 
 # 1. local frame copy (pure duplicate of ccn2b frames; all embedding finished)
@@ -38,10 +45,10 @@ for enc in vits_bv vitb_bv vitl_bv; do
   done
   [ $ok -eq 1 ] || continue
   mv $old $EMB/${enc}_grid4x4.symlinks_$(date +%Y%m%d) && mv $new $old && log "SWAPPED $enc -> real dir on ccn2b"
-  rsync -rlt --partial $old/ $OAKE/${enc}_grid4x4/ >> $LOG 2>&1 && n=$(rsync -c -n -i -r $old/ $OAKE/${enc}_grid4x4/ 2>>$LOG | grep -c "^>f") && [ "$n" -eq 0 ] && log "DONE c9_$enc" || log "FAIL oak $enc"
+  dir_ship_verify $old $OAKE/${enc}_grid4x4 && log "DONE c9_$enc" || log "FAIL oak $enc"
 done
 if ! done_ dinov3s_oak; then
-  rsync -rlt --partial $EMB/dinov3s_grid4x4/ $OAKE/dinov3s_grid4x4/ >> $LOG 2>&1 && n=$(rsync -c -n -i -r $EMB/dinov3s_grid4x4/ $OAKE/dinov3s_grid4x4/ 2>>$LOG | grep -c "^>f") && [ "$n" -eq 0 ] && log "DONE dinov3s_oak" || log "FAIL oak dinov3s"
+  dir_ship_verify $EMB/dinov3s_grid4x4 $OAKE/dinov3s_grid4x4 && log "DONE dinov3s_oak" || log "FAIL oak dinov3s"
 fi
 if done_ c9_vits_bv && done_ c9_vitb_bv && done_ c9_vitl_bv && ! done_ c9_delete; then
   rm -rf /data2/mcfrank/c9_caches $EMB/*_grid4x4.symlinks_* && log "DONE c9_delete"
