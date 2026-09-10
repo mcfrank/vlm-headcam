@@ -5,14 +5,18 @@ figures). Emits results/experiments_table.{tex,csv}. Rerun after any new run fam
 usage: python src/make_experiments_table.py"""
 import glob
 import re
+import sys
 from pathlib import Path
 
 import pandas as pd
 
+sys.path.insert(0, "figures")
+import theme as T                      # the encoder registry: tag -> paper label
+
 runs = pd.read_parquet("results/runs.parquet")
 f = runs[runs.run.str.startswith("F_")].copy()
-ENC = {"dinov3l": "L-OTS", "dinov3b": "B-OTS", "dinov3s": "S-OTS",
-       "vitl_bv": "L-BV", "vitb_bv": "B-BV", "vits_bv": "S-BV"}
+ENC = {e["tag"]: e["label"] for e in T.ENCODERS}
+ENC_ORDER = [e["label"] for e in T.ENCODERS]
 pat = re.compile(r"F_(dinov3l|dinov3b|dinov3s|vitl_bv|vitb_bv|vits_bv)_(.+)_s(\d+)$")
 rows = []
 for r in f.itertuples():
@@ -24,9 +28,9 @@ d = pd.DataFrame(rows)
 
 # experiment blocks: (name, regex on cond, evaluation, notes)
 BLOCKS = [
-    ("Scaling (random subsamples) + full corpus", r"^(rand_\d+|base)$", "Konkle; LEVANTE; in-domain", ""),
-    ("Aligned-pair scaling", r"^align_\d+$", "Konkle", "top-N by Gemini alignment"),
-    ("Ladder, full corpus", r"^lad_(filtnat|t15|t2)$", "Konkle", "+ base row above"),
+    ("Scaling (random subsamples) + full corpus", r"^(rand_\d+|base)$", "Konkle; LEVANTE; in-domain; lexicon", ""),
+    ("Aligned-pair scaling", r"^align_\d+$", "Konkle; lexicon", "top-N by Gemini alignment"),
+    ("Ladder, full corpus", r"^lad_(filtnat|t15|t2)$", "Konkle; lexicon", "+ base row above"),
     ("Ladder at reduced scale", r"^lad\d+_(base|filtnat|t15|t2)$", "Konkle", "matched subsample per seed"),
     ("Diversity (children at fixed budget)", r"^div(30k|100k|300k)_\d+c$", "Konkle", "random child draw per seed"),
     ("No-MIL (whole-frame) control", r"^wf(30000|300000|full)$", "Konkle", "mean-over-grid R=1; paired to region runs"),
@@ -51,7 +55,18 @@ for fp in sorted(glob.glob("figures/fig*.py")):
     figmap[Path(fp).stem] = rx
 # scripts whose family references are fully templated (read via helpers) — explicit map
 MANUAL = {"figS_nomil": ["No-MIL", "Scaling"], "figS_alignment_controls": ["Alignment-selection"],
-          "fig3_development": ["Ladder, full corpus", "Ladder at reduced scale"]}
+          "figS_window": ["Temporal-window", "Scaling"]}
+# scripts that consume these runs through DERIVED tables (item-level Konkle, LEVANTE,
+# in-domain, lexicon extractions) rather than by family name, so the regex scan cannot see
+# them. Keyed the same way as MANUAL: figure stem -> experiment-name prefixes.
+DERIVED = {"fig3_lexicon": ["Scaling"],
+           "fig4_development": ["Scaling"],
+           "figS_levante": ["Scaling"],
+           "figS_encoder_probe": ["Scaling"],
+           "figS_item_difficulty": ["Scaling"],
+           "figS_lexicon_tsne": ["Scaling"],
+           "figS_lexicon_relatedness": ["Scaling"],
+           "figS_lexicon_alignment": ["Scaling", "Aligned-pair", "Ladder, full corpus"]}
 
 def fmt(n):
     return f"{n/1e6:.2g}M" if n >= 1e6 else (f"{n//1000}k" if n >= 1000 else str(n))
@@ -89,7 +104,7 @@ for name, rx, ev, note in BLOCKS:
     b = d[d.cond.str.match(rx)]
     if b.empty:
         out.append(dict(experiment=name, encoders="(pending)", pairs="", seeds="", runs=0, evaluation=ev, figures="", note=note)); continue
-    encs = [e for e in ["L-OTS", "B-OTS", "S-OTS", "L-BV", "B-BV", "S-BV"] if e in set(b.enc)]
+    encs = [e for e in ENC_ORDER if e in set(b.enc)]
     seen, pairs_list = set(), []
     def key(c):
         m = re.findall(r"\d+", re.sub(r"^win5_", "", c)); return int(m[-1]) if m else 10**9   # win5_full -> last
@@ -100,7 +115,9 @@ for name, rx, ev, note in BLOCKS:
     seeds = b.groupby(["enc", "cond"]).seed.nunique()
     srange = f"{seeds.min()}–{seeds.max()}" if seeds.min() != seeds.max() else str(seeds.max())
     figs = figs_for(sorted(set(b.cond)))
-    figs += [k for k, v in MANUAL.items() if any(name.startswith(x) for x in v) and k not in figs]
+    figs += [k for k, v in {**MANUAL, **DERIVED}.items()
+             if any(name.startswith(x) for x in v) and k not in figs]
+    figs = sorted(figs, key=lambda k: (not k.startswith("fig") or k.startswith("figS"), k))
     out.append(dict(experiment=name, encoders=", ".join(encs), pairs=pairs, seeds=srange,
                     runs=len(b), evaluation=ev, figures=", ".join(figs), note=note))
 T = pd.DataFrame(out)
@@ -116,8 +133,7 @@ with open("results/experiments_table.tex", "w") as fh:
     fh.write("\\begin{tabular}{p{3.1cm}p{1.5cm}p{4.6cm}p{0.8cm}p{0.7cm}p{2.3cm}p{2.8cm}}\\toprule\n")
     fh.write("Experiment & Encoders & Training pairs & Seeds & Runs & Evaluation & Figures \\\\\\midrule\n")
     for r in T.itertuples():
-        encs = {"L-OTS, B-OTS, B-BV, S-BV": "all four",
-                "L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV": "all six"}.get(str(r.encoders), str(r.encoders))
+        encs = {", ".join(ENC_ORDER): "all six"}.get(str(r.encoders), str(r.encoders))
         figs = ", ".join(figref(x.strip()) for x in str(r.figures).split(",") if x.strip() and x.strip() != "nan")
         fh.write(f"{r.experiment} & {encs} & {r.pairs} & {r.seeds} & {r.runs} & {r.evaluation} & {figs} \\\\\n")
     fh.write("\\bottomrule\\end{tabular}\\end{table*}\n")

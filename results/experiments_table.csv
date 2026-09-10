@@ -1,10 +1,10 @@
 experiment,encoders,pairs,seeds,runs,evaluation,figures,note
-Scaling (random subsamples) + full corpus,"L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV",3k; 10k; 30k; 100k; 300k; 1M; full (1.69M),3–8,270,Konkle; LEVANTE; in-domain,"fig2_scaling, figS_indomain, figS_lexicon_tsne, figS_nomil",
-Aligned-pair scaling,"L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV",10k; 30k; 100k; 170k,3,72,Konkle,"fig2_scaling, figS_alignment_encoders",top-N by Gemini alignment
-"Ladder, full corpus","L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV",172k referent-bearing,3,54,Konkle,fig3_development,+ base row above
-Ladder at reduced scale,L-OTS,100k (all rungs from one matched subsample); 300k (all rungs from one matched subsample),3,24,Konkle,fig3_development,matched subsample per seed
-Diversity (children at fixed budget),L-OTS,100k budget; 30k budget; 300k budget,5,65,Konkle,figS_diversity,random child draw per seed
-No-MIL (whole-frame) control,"L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV",30k; 300k; full (1.69M),5,90,Konkle,figS_nomil,mean-over-grid R=1; paired to region runs
-Alignment-selection controls,"L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV","172k (plain random); 1.51M (full−aligned); 172k (matched, unaligned); 1.51M (full−random); 1.51M (full−matched); 172k (aligned)",3,108,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
-Child-speech (KCHI) control,L-OTS,1.30M (no child speech); 1.30M (matched),3,6,Konkle,figS_kchi,matched-N random
-Temporal-window (+-5 s) control,"L-OTS, B-OTS, S-OTS, L-BV, B-BV, S-BV",30k; 300k; 1M; full (1.69M),3–5,84,Konkle,,complete neighbor caches
+Scaling (random subsamples) + full corpus,"OTS-304M, OTS-86M, OTS-22M, BV-304M, BV-86M, BV-22M",3k; 10k; 30k; 100k; 300k; 1M; full (1.69M),3–8,270,Konkle; LEVANTE; in-domain; lexicon,"fig2_scaling, fig3_lexicon, fig4_development, figS_encoder_probe, figS_indomain, figS_item_difficulty, figS_levante, figS_lexicon_alignment, figS_lexicon_relatedness, figS_lexicon_tsne, figS_nomil, figS_window",
+Aligned-pair scaling,"OTS-304M, OTS-86M, OTS-22M, BV-304M, BV-86M, BV-22M",10k; 30k; 100k; 170k,3,72,Konkle; lexicon,"fig2_scaling, figS_alignment_encoders, figS_lexicon_alignment",top-N by Gemini alignment
+"Ladder, full corpus","OTS-304M, OTS-86M, OTS-22M, BV-304M, BV-86M, BV-22M",172k referent-bearing,3,54,Konkle; lexicon,figS_lexicon_alignment,+ base row above
+Ladder at reduced scale,OTS-304M,100k (all rungs from one matched subsample); 300k (all rungs from one matched subsample),3,24,Konkle,,matched subsample per seed
+Diversity (children at fixed budget),OTS-304M,100k budget; 30k budget; 300k budget,5,65,Konkle,figS_diversity,random child draw per seed
+No-MIL (whole-frame) control,"OTS-304M, OTS-86M, OTS-22M, BV-304M, BV-86M, BV-22M",30k; 300k; full (1.69M),5,90,Konkle,figS_nomil,mean-over-grid R=1; paired to region runs
+Alignment-selection controls,"OTS-304M, OTS-86M, OTS-22M, BV-304M, BV-86M, BV-22M","172k (plain random); 172k (matched, unaligned); 1.51M (full−random); 1.51M (full−matched); 1.51M (full−aligned); 172k (aligned)",3,108,Konkle,figS_alignment_controls,exposure+length-matched; full-minus
+Child-speech (KCHI) control,OTS-304M,1.30M (no child speech); 1.30M (matched),3,6,Konkle,figS_kchi,matched-N random
+Temporal-window (+-5 s) control,"OTS-304M, OTS-86M, OTS-22M, BV-304M, BV-86M, BV-22M",30k; 300k; 1M; full (1.69M),3–5,84,Konkle,figS_window,complete neighbor caches
