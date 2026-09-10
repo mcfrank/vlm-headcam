@@ -60,3 +60,7 @@ scratch_lev/
 supplement.html
 release
 hf_release/
+/*.pdf
+talks/
+archive/book/_book/
+archive/book/figures/frames/

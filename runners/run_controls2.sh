@@ -4,7 +4,7 @@
 #   minusmatch  full corpus minus matchrand_s, 3 seeds (the removal the text describes)
 # all four encoders -> 24 runs. Same rig as run_controls.sh (window 0, dev-selected epoch).
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings

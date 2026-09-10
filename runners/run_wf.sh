@@ -6,7 +6,7 @@
 # coexist with the DINO training campaign on 48G cards — no need to clear anyone., paired to the region runs' manifests, plus region base
 # top-ups s3/s4 so the full-scale pairing is n=5 on both sides. 68 runs.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings

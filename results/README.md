@@ -1,40 +1,82 @@
-# results/ — the single source of truth for model numbers
+# results/ — every number the paper uses, and what reads it
 
-Every number the book or paper reports should be traceable to a row here. Built by scrapers, not
-by hand. Regenerate on ccn2 (where the logs live), then copy the parquets here.
+Generated 2026-09-10 by a scan of `figures/*.py` and `src/make_*.py` for file references.
+Files under **paper-visible** are read by a figure or table generator; the rest are legacy
+(book-era, preview-corpus, or superseded) and are kept only for the record.
 
-| File | What | Built by |
-|---|---|---|
-| `runs.parquet` | one row per training run: best/final 4AFC, best epoch, n_pairs, store | `src/scrape_runs.py` |
-| `evals.parquet` | post-hoc `eval_model.py` Konkle passes recovered from chain-log stdout | `src/scrape_evals.py` |
-| `published.csv` | **hand-curated registry** of every claim made in the book, with its rig + expected source | edited by hand |
-| `provenance_report.csv` | published vs recovered, with MATCH / MISMATCH / UNRECOVERABLE | `src/check_provenance.py` |
-| `lev_vocab_seedmean*.parquet` | LEVANTE-bench per-item results (already clean provenance) | `src/agg_lev_vocab.py` |
+## Paper-visible
 
-```bash
-# on ccn2
-python src/scrape_runs.py && python src/scrape_evals.py
-# locally
-scp "ccn2-14:/data2/mcfrank/vlm-headcam/results/*.parquet" results/
-.venv/bin/python src/check_provenance.py
-```
+| file | read by |
+|---|---|
+| `cdi_categories.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, make_cdi_categories.py |
+| `corpus.csv` | figS_alignment_scores.py |
+| `encoder_grid.csv` | make_encoder_grid.py |
+| `encoder_probe_domains.csv` | figS_encoder_probe.py |
+| `evals.parquet` | check_provenance.py |
+| `experiments_table.csv` | make_experiments_table.py |
+| `experiments_table.tex` | make_experiments_table.py |
+| `indomain_eval.csv` | figS_encoder_probe.py, figS_indomain.py, make_encoder_grid.py |
+| `item_eval_final.csv` | figS_item_difficulty.py, make_wordbank_40.py |
+| `konkle_wg40_per_seed.csv` | fig4_development.py, make_wordbank_40.py |
+| `lev_scaling.csv` | fig4_development.py, figS_levante.py, make_encoder_grid.py, make_levante_ages.py, theme.py |
+| `lev_scaling_final.csv` | fig4_development.py, figS_levante.py, make_encoder_grid.py, make_levante_ages.py, theme.py |
+| `levante_child_by_age.csv` | fig4_development.py, make_levante_ages.py |
+| `levante_en_item_d.csv` | make_levante_ages.py |
+| `levante_en_scores.csv` | make_levante_ages.py |
+| `lexicon_category_structure_F_dinov3b_base.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_category_structure_F_dinov3l_base.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_category_structure_F_dinov3s_base.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_category_structure_F_vitb_bv_base.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_category_structure_F_vitl_bv_base.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_category_structure_F_vits_bv_base.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_partial_F-dinov3b-aligned.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-dinov3b.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-dinov3l-aligned.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-dinov3l.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-dinov3s-aligned.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-dinov3s.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-vitb_bv-aligned.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-vitb_bv.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-vitl_bv-aligned.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-vitl_bv.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-vits_bv-aligned.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_partial_F-vits_bv.csv` | fig3_lexicon.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py |
+| `lexicon_rungs.csv` | figS_lexicon_alignment.py |
+| `lexicon_tsne_F_dinov3b_base_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_dinov3l_base_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_dinov3l_lad_filtnat_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_dinov3l_rand_100000_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_dinov3s_base_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_vitb_bv_base_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_vitl_bv_base_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_tsne_F_vits_bv_base_s0_NOUN.csv` | fig3_lexicon.py, figS_lexicon_tsne.py, figS_lexicon_tsne.py/fig3_lexicon.py |
+| `lexicon_ws_scaling_F-dinov3b-aligned.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-dinov3b.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-dinov3l-aligned.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-dinov3l.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-dinov3s-aligned.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-dinov3s.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-vitb_bv-aligned.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-vitb_bv.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-vitl_bv-aligned.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-vitl_bv.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-vits_bv-aligned.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `lexicon_ws_scaling_F-vits_bv.csv` | fig3_lexicon.py, figS_lexicon_alignment.py, figS_lexicon_relatedness.py, figS_lexicon_relatedness.py/fig3_lexicon.py/figS_lexicon_alignment.py |
+| `literature.csv` | fig2_scaling.py |
+| `methods_numbers.json` | make_methods_numbers.py |
+| `methods_numbers.tex` | make_methods_numbers.py |
+| `pipeline_counts.json` | fig1_pipeline.py, make_pipeline_counts.py |
+| `provenance_report.csv` | check_provenance.py, data.py |
+| `published.csv` | check_provenance.py, data.py |
+| `reeval_corrected.csv` | check_provenance.py |
+| `runs.parquet` | check_provenance.py, data.py, make_encoder_grid.py, make_experiments_table.py |
+| `titration.csv` | data.py |
+| `utterance_rate.csv` | fig4_development.py, figS_speech_density.py |
+| `wordbank_anchors.csv` | fig4_development.py, make_wordbank_40.py |
+| `wordbank_anchors_40.csv` | fig4_development.py, make_wordbank_40.py |
+| `wordbank_anchors_items.csv` | make_wordbank_40.py |
+| `wordbank_rasch.csv` | figS_item_difficulty.py |
 
-## Two metric conventions exist — always say which
+## Legacy / not read by the paper
 
-- **old rig** (`train_region_mil.py`, exploration era): the in-training eval was the CDI-detector
-  4AFC; the published number came from a *separate* `eval_model.py … eval_frames_konkle.parquet`
-  pass at the end of a chain script, reported at the **final** epoch. Those stdout lines are the
-  only record — `scrape_evals.py` recovers them from `logs/*chain*.log`, `logs/scaling_seeds.log`.
-- **clean rig** (`train_frame_mil.py`, current): evaluates on Konkle test-60 *during* training and
-  reports the **best** epoch. Recorded per-epoch in the run's text log.
-
-The rig offset is ~+2–3 points (best-epoch + eval-during-training vs final-epoch). **Never put an
-old-rig and a clean-rig number on the same axis without saying so** — the current ch6 scaling
-figure does exactly that (see `notes/PROVENANCE.md`).
-
-## Status (2026-08-21 audit)
-
-38 published claims: **30 MATCH, 1 MISMATCH, 7 UNRECOVERABLE.** The unrecoverable set is the whole
-ch4 ladder plus the captioner — their run dirs were deleted in the July home-dir cleanup and only
-`DONE` stub logs survive. **They must be re-run before the paper cites them.** The manifests and
-embedding caches all still exist, so this is a few GPU-hours, not a redo.
+`cues.csv`, `item_eval_b26.csv`, `lev_vocab_seedmean.parquet`, `lev_vocab_seedmean_freq.parquet`, `lexicon_category_structure_C8_dinov3l_grid4x4_base.csv`, `lexicon_partial_B26.csv`, `lexicon_partial_L-OTS.csv`, `lexicon_relatedness.csv`, `lexicon_rsa.csv`, `lexicon_tsne_B26_lad_base_s0.csv`, `lexicon_tsne_B26_lad_base_s0_NOUN.csv`, `lexicon_tsne_C8_dinov3l_grid4x4_base_s0_NOUN.csv`, `lexicon_ws_scaling_B26.csv`, `lexicon_ws_scaling_L-OTS.csv`

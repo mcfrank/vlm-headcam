@@ -6,7 +6,7 @@
 # OTS arms start immediately and the new BV encoders join when the C9/eval caches land.
 # Resumable; in-flight-guarded; frame-coverage gated. Relaunch anytime to fill gaps.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings

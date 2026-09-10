@@ -2,7 +2,7 @@
 # +-5 s temporal-window MIL control (SI), complete windows: 4 encoders x {30k x5, 300k x3}.
 # Caches = main region cache + neighbor cache (trainer unions cache dirs). Gated on embeds.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings; W5=/data2/mcfrank/emb_win5

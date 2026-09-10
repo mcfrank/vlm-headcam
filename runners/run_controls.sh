@@ -6,7 +6,7 @@
 #     within +-5 s), 4 encoders x {30k,300k,full} x 5 seeds, paired to the region manifests
 #     like run_wf.sh. Caches hold only pair-frames, so window occupancy is partial — logged.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings

@@ -48,3 +48,27 @@ div_36c,06,36 children,old,34.4,34.43,0.03,3,LIVE,logs/scaling_chain.log
 div_bigchild,06,biggest single child,old,35.8,35.77,-0.03,3,LIVE,logs/scaling_chain.log
 div_poolbig,06,pooled matched-count,old,42.8,42.83,0.03,3,LIVE,logs/scaling_chain.log
 arch_caption,09,from-scratch captioner,clean,62.1,,,0,MISSING,cap
+final_scale_3k,06,random 3k (L-OTS),final,,26.59,,8,LIVE,metrics.json
+final_scale_10k,06,random 10k (L-OTS),final,,31.67,,8,LIVE,metrics.json
+final_scale_30k,06,random 30k (L-OTS),final,,38.48,,8,LIVE,metrics.json
+final_scale_100k,06,random 100k (L-OTS),final,,53.87,,8,LIVE,metrics.json
+final_scale_300k,06,random 300k (L-OTS),final,,69.04,,5,LIVE,metrics.json
+final_scale_1M,06,random 1M (L-OTS),final,,81.31,,3,LIVE,metrics.json
+final_scale_full,06,full corpus 1.69M (L-OTS),final,,81.57,,5,LIVE,metrics.json
+final_align_10k,06,aligned 10k (L-OTS),final,,64.76,,3,LIVE,metrics.json
+final_align_30k,06,aligned 30k (L-OTS),final,,76.18,,3,LIVE,metrics.json
+final_align_100k,06,aligned 100k (L-OTS),final,,88.29,,3,LIVE,metrics.json
+final_align_170k,06,aligned 170k (L-OTS),final,,88.85,,3,LIVE,metrics.json
+final_ladder_base,04,"pure (L-OTS, full)",final,,81.57,,5,LIVE,metrics.json
+final_ladder_filtnat,04,"+ alignment filter (L-OTS, full)",final,,88.34,,3,LIVE,metrics.json
+final_ladder_t15,04,"+ word selection (L-OTS, full)",final,,87.68,,3,LIVE,metrics.json
+final_ladder_t2,04,"+ vision binding (L-OTS, full)",final,,91.39,,3,LIVE,metrics.json
+final_enc_dinov3l,08,DINOv3-L OTS full corpus,final,,81.57,,5,LIVE,metrics.json
+final_enc_dinov3b,08,DINOv3-B OTS full corpus,final,,78.71,,5,LIVE,metrics.json
+final_enc_vitb_bv,08,DINOv3-B BabyView-2026.1 full corpus,final,,44.11,,5,LIVE,metrics.json
+final_enc_vits_bv,08,DINOv3-S BabyView-2026.1 full corpus,final,,39.65,,5,LIVE,metrics.json
+final_div100k_1c,06,1 children @100k,final,,49.28,,5,LIVE,metrics.json
+final_div100k_3c,06,3 children @100k,final,,48.13,,5,LIVE,metrics.json
+final_div100k_10c,06,10 children @100k,final,,48.97,,5,LIVE,metrics.json
+final_div100k_25c,06,25 children @100k,final,,51.5,,5,LIVE,metrics.json
+final_div100k_48c,06,48 children @100k,final,,50.46,,5,LIVE,metrics.json

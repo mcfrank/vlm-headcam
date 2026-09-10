@@ -3,7 +3,7 @@
 # Gates: S_MAIN_DONE (dinov3s_driver.sh), WF_ENC_DONE dinov3s, S_WIN5_DONE: 8/8.
 # GPUs: every card, two runs per card (window embeds for this encoder, ~2 GB each, coexist).
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings

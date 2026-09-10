@@ -5,7 +5,7 @@
 # Gated on the round-2 join marker. GPUs chosen at start: only cards with <5 GB used (never the
 # L-BV trainer's), two runs per card.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings; W5=/data2/mcfrank/emb_win5; W5B=/data2/mcfrank/emb_win5b

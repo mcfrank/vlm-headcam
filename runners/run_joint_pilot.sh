@@ -3,7 +3,7 @@
 # matched frozen runs (B26_rand_300000_s0..2, mean 62.1). Waits for bundle 2 to finish and
 # for the 224px frame cache. metrics.json family: B26J_300000. ~5h/run, one GPU each.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 

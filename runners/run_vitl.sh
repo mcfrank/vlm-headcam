@@ -11,7 +11,7 @@
 # (make_wf_caches), VITL_WIN5_DONE (vitl_embed_driver). Resumable / in-flight guarded.
 # GPUs: every card, two runs per card (region runs ~5-10 GB; late window embeds ~3 GB coexist).
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings

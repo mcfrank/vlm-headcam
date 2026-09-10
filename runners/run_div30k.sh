@@ -2,7 +2,7 @@
 # Figures-session request (2): diversity 30k series on the final rig — completes figS2's
 # third budget line. F_dinov3l_div30k_{1,3,10,25,48}c x 5 seeds = 25 runs, L-OTS caches.
 set -u
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."   # repo root
 export HF_HOME=/ccn2/u/khaiaw/.cache/huggingface HF_HUB_OFFLINE=1
 PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
 EMB=/ccn2b/dataset/babyview/2026.1/outputs/image_embeddings
