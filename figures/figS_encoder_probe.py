@@ -37,7 +37,7 @@ for i, (enc, key, col) in enumerate(ENC):
     ax.scatter([i], [d["indomain"]], s=20, facecolors="white", edgecolors=col, lw=1.0, zorder=3)
 ax.axhline(25, color=T.SUB, lw=0.6, ls=(0, (4, 3)))
 ax.text(len(ENC) - 0.55, 27, "chance", fontsize=5.4, color=T.SUB, ha="right")
-for yy, fc, lb in [(76, T.INK, "Konkle photos"), (71, "white", "held-out BabyView frames")]:
+for yy, fc, lb in [(35, T.INK, "Konkle photos"), (30, "white", "held-out BabyView frames")]:
     ax.scatter([-0.32], [yy], s=20, facecolors=fc, edgecolors=T.INK, lw=1.0, zorder=4,
                clip_on=False)
     ax.text(-0.18, yy, lb, fontsize=5.4, color=T.INK, va="center")
@@ -53,7 +53,7 @@ for enc, key, col in ENC:
     x = pr[(pr.encoder == enc) & (pr.domain == "indomain")].proto.iloc[0]
     d = ind[(ind.encoder == enc) & (ind.N == 1686105)].acc
     bx.errorbar([x], [d.mean()], yerr=[d.std()], fmt=MK[enc], color=col, ms=4.6,
-                elinewidth=0.8, capsize=2, zorder=3, label=key)
+                elinewidth=0.8, capsize=2, zorder=3)
 xr = pr[pr.domain == "indomain"].proto
 yr = [ind[(ind.encoder == e) & (ind.N == 1686105)].acc.mean() for e, _, _ in ENC]
 bx.annotate("", xy=(xr.min(), 80), xytext=(xr.max(), 80),
@@ -64,8 +64,10 @@ bx.annotate("", xy=(62.0, min(yr)), xytext=(62.0, max(yr)),
             arrowprops=dict(arrowstyle="<->", color=T.SUB, lw=0.7))
 bx.text(61.6, (min(yr) + max(yr)) / 2, f"{max(yr) - min(yr):.0f} pts\nof word\nlearning",
         fontsize=5.4, color=T.SUB, va="center", ha="right", linespacing=1.3)
-bx.legend(loc="lower left", fontsize=5.0, handletextpad=0.3, borderpad=0.2, labelspacing=0.3,
-          markerscale=0.8)
+# encoder key, drawn the same way as the keys in figS_nomil / figS_window
+for i, (enc, key, col) in enumerate(ENC):
+    bx.scatter([53.3], [44 - i * 3.2], s=14, color=col, marker=MK[enc], zorder=4)
+    bx.text(53.75, 44 - i * 3.2, key, fontsize=5.2, color=col, va="center")
 bx.set_xlim(52.8, 62.6); bx.set_ylim(26, 86)
 bx.set_xlabel("prototype 4AFC (%), in domain")
 bx.set_ylabel("in-domain word-learning 4AFC (%)\nfull corpus")
