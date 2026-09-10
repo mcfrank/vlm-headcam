@@ -1,7 +1,7 @@
 """Blind human check of the Gemini referential-alignment annotation.
 
-The rater sees exactly what Gemini saw (one frame + the utterance) and answers Gemini's two
-questions. Gemini's own answers are NOT in the data dir; the analysis joins on item_id later.
+The rater sees exactly what Gemini saw (one frame + the utterance) and answers yes/no to Gemini's
+question at its 50-point anchor (object visible, even if small/partial/one of many). Gemini's own answers are NOT in the data dir; the analysis joins on item_id later.
 
 State is entirely server-side, one JSON file per (rater, item) under
 DATA_DIR/responses/<rater>/<item_id>.json, so a rater can stop and resume from any browser and
@@ -28,7 +28,8 @@ ITEMS = {it["id"]: it["text"] for it in json.loads((DATA / "items.json").read_te
 ORDER = sorted(ITEMS)
 RESP = DATA / "responses"
 TARGET = int(os.environ.get("RATERS_PER_ITEM", 3))
-ANSWERS = {"none": 0, "partial": 50, "clear": 100, "cant_tell": None}
+ANSWERS = {"no": 0, "yes": 100, "cant_tell": None,
+           "none": 0, "partial": 50, "clear": 100}  # last three: the pre-2026-09-11 three-level format
 
 app = FastAPI()
 

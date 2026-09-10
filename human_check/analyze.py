@@ -5,14 +5,18 @@ responses dir (one JSON per rater x item, from the app; pull with gcs_sync.py if
 Cloud Run). Outputs, all aggregate (no frames, no ids, no rater names):
     results/gemini_human_check.csv              long table: metric, value, n, ci_lo, ci_hi
     results/gemini_human_check_calibration.csv  per Gemini-score stratum
+    results/gemini_human_check_threshold.csv    precision/recall/F1 of Gemini >= t vs the human majority
 A rater table (names, counts, median RT) is printed and written NEXT TO the responses dir, not
 into the repo.
 
-Definitions. Human score per rating: none=0, partial=50, clear=100; cant_tell excluded.
-Item human score = mean over raters; item human-aligned = majority of raters said partial/clear
-(exact ties -> unresolved, excluded from binary metrics). Gemini-aligned = score >= 50 (the
-paper's rule). Weighted precision/recall reweight items by n_pop/n_sample of their stratum, so
-they estimate the corpus-level precision/recall of the >=50 rule. CIs: 1000 item bootstraps.
+Definitions. Ratings are binary since 2026-09-11 (no=0 / yes=100, at Gemini's 50-point anchor:
+object visible even if small/partial/one of many); the earlier three-level ratings map
+none=0, partial=50, clear=100. cant_tell excluded. Item human score = mean over raters; item
+human-aligned = majority of raters said yes (exact ties -> unresolved, excluded from binary
+metrics). Gemini-aligned = score >= 50 (the paper's rule); a threshold sweep (>= t for t in
+50..100) is written too, since the human judgment is binary and the boundary is the paper's
+choice. Weighted precision/recall reweight items by n_pop/n_sample of their stratum, so they
+estimate the corpus-level precision/recall. CIs: 1000 item bootstraps.
 
 Usage:
     python human_check/analyze.py --sample /data2/mcfrank/gemini_check/sample.parquet \
@@ -86,12 +90,20 @@ def synonyms(w):
         return set()
 
 
+EQUIV = [{"mom", "mommy", "mama", "mother"}, {"dad", "daddy", "papa", "father"}, {"person", "man", "woman", "adult", "dad", "mom", "mommy", "daddy"},
+         {"kid", "child", "baby", "girl", "boy", "toddler"}, {"dog", "doggy", "doggie", "puppy"}, {"cat", "kitty", "kitten"},
+         {"bunny", "rabbit"}, {"bird", "birdie", "birdies"}, {"tv", "screen", "television", "ipad", "tablet", "phone"},
+         {"book", "page"}, {"food", "snack", "meal"}, {"drink", "water", "milk", "juice"}, {"toy", "toys"}]
+
+
 def ref_match(g, h):
     g, h = g.strip().lower(), h.strip().lower()
     if not g or not h:
         return None
     if g == h:
         return "exact"
+    if any(g in e and h in e for e in EQUIV):
+        return "lemma"
     gl, hl = singular(g), singular(h)
     if gl == hl or gl in h.split() or hl in g.split():
         return "lemma"
@@ -130,6 +142,7 @@ def main():
     r["aligned"] = (r.score >= 50).astype(int)
 
     # ---- inter-rater ----
+    r["answer"] = r.answer.replace({"none": "no", "partial": "yes", "clear": "yes"})  # old format -> binary
     units3 = r.groupby("item_id").answer.apply(list).tolist()
     units2 = r.groupby("item_id").aligned.apply(list).tolist()
     n_multi = sum(len(u) >= 2 for u in units3)
@@ -166,6 +179,20 @@ def main():
     for k, v in point.items():
         add(f"binary_{k}", v, len(b), (boots[k].quantile(0.025), boots[k].quantile(0.975)))
 
+    # ---- threshold sweep: Gemini >= t vs human majority ----
+    rows = []
+    for t in [50, 60, 70, 80, 90, 100]:
+        g, h, w = (b.gemini_alignment >= t).astype(int).values, b.human_aligned.values, b.weight.values
+        tp = (g & h).astype(float)
+        p_, r_ = tp.sum() / max(g.sum(), 1), tp.sum() / max(h.sum(), 1)
+        wp, wr = (w * tp).sum() / max((w * g).sum(), 1e-9), (w * tp).sum() / max((w * h).sum(), 1e-9)
+        rows.append(dict(threshold=t, n_gemini_pos=int(g.sum()), precision=p_, recall=r_, f1=2 * p_ * r_ / max(p_ + r_, 1e-9),
+                         w_precision=wp, w_recall=wr, w_f1=2 * wp * wr / max(wp + wr, 1e-9),
+                         corpus_share=float(s.weight[s.gemini_alignment >= t].sum() / s.weight.sum())))
+    thr = pd.DataFrame(rows).round(4)
+    thr.to_csv(Path(args.out) / "gemini_human_check_threshold.csv", index=False)
+    print(thr.to_string(index=False))
+
     # ---- calibration by stratum ----
     cal = (d.groupby("stratum").agg(n_items=("item_id", "size"), gemini_mean=("gemini_alignment", "mean"),
                                     human_mean=("human_score", "mean"), human_aligned=("human_aligned", "mean"),
@@ -186,7 +213,7 @@ def main():
 
     # ---- referent accuracy among items both call aligned ----
     rr = r.merge(s[["item_id", "gemini_referent"]], on="item_id").merge(b[["item_id", "human_aligned"]], on="item_id")
-    rr = rr[(rr.aligned == 1) & (rr.human_aligned == 1) & (rr.referent.str.len() > 0)].copy()
+    rr = rr[(rr.aligned == 1) & (rr.human_aligned == 1) & (rr.referent.fillna("").str.len() > 0)].copy()  # old 3-level ratings only
     rr["match"] = [ref_match(g, h) for g, h in zip(rr.gemini_referent, rr.referent)]
     add("referent_n_ratings", len(rr))
     for lvl, ok in [("exact", {"exact"}), ("lemma", {"exact", "lemma"}), ("synonym", {"exact", "lemma", "synonym"})]:

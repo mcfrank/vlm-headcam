@@ -41,13 +41,19 @@ stratum. 1,500 items in all. Items carry opaque random ids; `items.json` holds o
 ## The app
 
 Rater sees one frame (512 px longest edge as stored; Gemini saw the same frame downsized to 512)
-and the utterance. Q1 three buttons matching the prompt's anchors (none / present-but-small /
-clearly present, plus can't-tell); Q2 free-text noun when Q1 != none. Keys 1/2/3/0, Enter, `b`.
-Five conventions, all read off Gemini's own outputs (its prompt never stated them), are in the
-instructions and repeated under every item: people count as objects; names and nicknames refer
-to whatever visible thing they name; sound words count when the source is in view; pronouns
-count when the referent is identifiable; pictures in a book are "book". The check therefore
-measures agreement with Gemini's operative definition, which the SI should say.
+and the utterance, and answers **yes / no / can't rate** (keys J / F / B; Z or ← goes back).
+"Yes" is pinned to Gemini's 50-point anchor: the object is in view even if small, partial, or one
+of many, so the human judgment is the binary the paper's `>= 50` rule makes, and the analysis
+sweeps the threshold. Before 2026-09-11 the format was three-level (none / present-but-small /
+clearly present) plus a free-text referent; those ratings map onto the binary and the referent
+analysis uses only them. Six conventions, read off Gemini's own outputs and its "actually
+VISIBLE" instruction, are in the instructions and repeated under every item: only this frame
+(the camera-wearer and off-screen things are not visible); people count when in view; names and
+nicknames refer to what they name; sound words and pronouns count when the thing is in view;
+pictures count when the utterance names what is pictured (flipped 2026-09-11 from "write book":
+Gemini itself is inconsistent here, and a pictured elephant named "elephant" is the pairing the
+paper cares about). The check therefore measures agreement with Gemini's operative definition,
+which the SI should say.
 
 **Resumable / multi-rater.** Nothing is stored in the browser except the rater's name. Every
 answer is one JSON file on the server, so a rater can close the tab and continue from any
@@ -76,8 +82,8 @@ bash human_check/deploy.sh grant alice@stanford.edu bob@stanford.edu
 ```
 
 Pull responses back for analysis with `gcs_sync.py pull`. `responses_v1/` in the bucket (and on the
-node) holds Mike's first 126 ratings, made before the three conventions (people, names, sound
-words) were added on 2026-09-10; they are excluded from the analysis.
+node) holds Mike's first 126 ratings, made before the conventions were added on 2026-09-10, and
+`responses_v2_book/` the 39 ratings made under the old "write book" rule; both are excluded.
 
 Deployed 2026-09-09: service `gemini-check` (us-central1), bucket
 `gs://hs-hs-langcog-gemini-gemini-check` (1,051 objects), URL
@@ -109,8 +115,10 @@ node, then each rater runs `ssh -L 8501:localhost:8501 ccn2-14` and opens http:/
 
 ## Analysis
 
-`analyze.py` writes `results/gemini_human_check.csv` (long: metric, value, n, bootstrap CI) and
-`results/gemini_human_check_calibration.csv` (per stratum). Metrics: Krippendorff's alpha and
+`analyze.py` writes `results/gemini_human_check.csv` (long: metric, value, n, bootstrap CI),
+`results/gemini_human_check_calibration.csv` (per stratum) and
+`results/gemini_human_check_threshold.csv` (precision / recall / F1 of Gemini >= t, sample and
+corpus-weighted, for t = 50..100). Metrics: Krippendorff's alpha and
 mean pairwise kappa (3-level and binary); Spearman Gemini-vs-human; kappa, agreement, and
 sample + corpus-weighted precision/recall of the >=50 rule against the human majority;
 calibration (human mean by Gemini bin); false-negative rate among Gemini-0 items with/without a

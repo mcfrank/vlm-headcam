@@ -22,12 +22,11 @@
   button.sel { border-color: var(--acc); background:#e8effb; }
   button kbd { display:inline-block; min-width:1.5em; text-align:center; font: 13px monospace; background:#eee; border-radius:4px; padding:1px 4px; margin-right:6px; color:#333; }
   button small { display:block; color:var(--muted); font-size:12px; }
-  .ref { display:none; justify-content:center; align-items:center; gap:10px; margin-top: 14px; }
-  .ref input { font: inherit; font-size: 20px; padding: 8px 12px; border:1px solid var(--line); border-radius:8px; width: 300px; }
+  .btns button { min-width: 220px; }
   .remind { text-align:center; color:var(--muted); font-size:13px; margin-top:14px; }
   .nav { display:flex; justify-content:center; gap: 18px; margin-top: 18px; font-size:14px; }
   .nav button { padding:6px 12px; font-size:14px; }
-  #login, #help { max-width: 620px; margin: 40px auto; background:var(--card); padding: 24px 28px; border-radius: 10px; border:1px solid var(--line); }
+  #login, #help { max-width: 640px; margin: 40px auto; background:var(--card); padding: 24px 28px; border-radius: 10px; border:1px solid var(--line); }
   #login input { font: inherit; font-size: 18px; padding: 8px 12px; width: 100%; margin: 10px 0; }
   #help li { margin: 6px 0; }
   .hidden { display:none !important; }
@@ -53,44 +52,37 @@
   <section id="help" class="hidden">
     <h2>Instructions</h2>
     <p>You will see one video frame from a head-mounted camera worn by a young child, and one utterance (by the child, a caregiver, or someone else) transcribed from that same moment. Speech is often not about anything on screen.</p>
-    <p><b>Question 1.</b> How strongly does the utterance refer to a concrete, physical object that is actually <i>visible in this frame</i>?</p>
+    <p><b>The question:</b> does the utterance refer to a concrete, physical object that is actually <i>visible in this frame</i>?</p>
     <ul>
-      <li><b>No visible referent</b> — small talk, the object is absent or unidentifiable, or the utterance is not about a concrete object.</li>
-      <li><b>Present but small / partial / one of many</b> — the named object is present but small, partial, or one of many.</li>
-      <li><b>Clearly present</b> — the utterance clearly names a prominent, plainly visible, central object.</li>
-      <li><b>Can't tell</b> — the frame or the utterance is unusable (black, blurred, unintelligible). Use sparingly.</li>
+      <li><b>Yes</b> <kbd>J</kbd> — the object it refers to is in view. It counts even if it is small, partial, in the background, or one of many.</li>
+      <li><b>No</b> <kbd>F</kbd> — small talk, the utterance is not about a concrete object, or the object is absent or unidentifiable in this frame.</li>
+      <li><b>Can't rate</b> <kbd>B</kbd> — the frame or the utterance is unusable (black, blurred, unintelligible). Use sparingly.</li>
     </ul>
-    <p><b>Question 2.</b> If the answer is not "no", type the single visible object referred to, as a lowercase common noun (e.g. <i>cup</i>, <i>dog</i>).</p>
-    <p><b>Three conventions</b> (they match how the automatic annotation was scored, so please follow them even if they feel arbitrary):</p>
+    <p><b>Conventions</b> (they match how the automatic annotation was scored, so please follow them even if they feel arbitrary):</p>
     <ul>
-      <li><b>People count as objects.</b> "Hi, Dad" with Dad in view → clearly present, referent <i>dad</i>. Same for <i>baby</i>, <i>hand</i>, etc.</li>
-      <li><b>Names and nicknames refer to whatever they name.</b> "Leave Pepper alone" with the dog in view → referent <i>dog</i>; "your Jessie toy" → <i>doll</i>. If you can't tell what the name refers to, choose no visible referent.</li>
-      <li><b>Sound words count</b> when the thing making the sound is in view. "Quack, quack" with a toy duck in view → referent <i>duck</i>; with nothing duck-like visible → no visible referent.</li>
-      <li><b>Pronouns count.</b> "Press it" with a visible button being pressed → referent <i>button</i>; "I want to eat it" with cheese in view → <i>cheese</i>. If you can't tell what "it" is, choose no visible referent.</li>
-      <li><b>Pictures in a book: write <i>book</i>.</b> "There's a tiger licking his nose" while looking at a picture book → referent <i>book</i>, not <i>tiger</i>. (Same for a screen, photo, or poster: name the object, not what it depicts.)</li>
+      <li><b>Only what is in this frame.</b> The child wearing the camera is not visible; neither is anything off screen. "Let's change your diaper" with no baby in view → No. "Leave Pepper alone" with no dog in view → No.</li>
+      <li><b>People count as objects</b> when they are in view. "Hi, Dad" with Dad in view → Yes. Same for baby, hand, foot.</li>
+      <li><b>Names and nicknames refer to whatever they name.</b> "Leave Pepper alone" with the dog in view → Yes.</li>
+      <li><b>Sound words count</b> when the thing making the sound is in view. "Quack, quack" with a toy duck in view → Yes.</li>
+      <li><b>Pronouns count</b> when you can tell what they refer to. "Press it" with a visible button being pressed → Yes. If you can't tell what "it" is → No.</li>
+      <li><b>Pictures count.</b> "Goodnight elephant" while looking at a picture of an elephant → Yes. Read-aloud text that names nothing in the picture, or talk with no identifiable pictured referent → No. Talk about the book itself ("turn the page") → Yes, the book is the object.</li>
     </ul>
-    <p>Judge only this one frame and this one utterance. Go with your first impression; ~10 seconds per item is fine. Keys: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>0</kbd> answer, <kbd>Enter</kbd> submits the noun, <kbd>b</kbd> goes back to fix the previous item. You can stop at any time and resume later — every answer is saved immediately.</p>
+    <p>Go with your first impression; a few seconds per item is fine. <kbd>Z</kbd> or <kbd>←</kbd> goes back to fix the previous item. You can stop at any time and resume later — every answer is saved immediately. Items are served in a random order.</p>
     <p style="text-align:center"><button id="helpOk">Got it</button></p>
   </section>
 
   <section id="task" class="hidden">
     <div class="frame"><img id="img" alt="video frame"></div>
     <div class="utt"><span id="utt"></span></div>
-    <div class="q">How strongly does the utterance refer to a concrete object visible in the frame?</div>
+    <div class="q">Does the utterance refer to a concrete object visible in this frame (even if small, partial, or one of many)?</div>
     <div class="btns">
-      <button data-a="none"><kbd>1</kbd>No visible referent<small>small talk / absent / not about a concrete object</small></button>
-      <button data-a="partial"><kbd>2</kbd>Present but small / partial / one of many<small>the named object is present but not prominent</small></button>
-      <button data-a="clear"><kbd>3</kbd>Clearly present<small>prominent, plainly visible, central</small></button>
-      <button data-a="cant_tell"><kbd>0</kbd>Can't tell<small>unusable frame or utterance</small></button>
+      <button data-a="no"><kbd>F</kbd>No<small>small talk / not about an object / not in view</small></button>
+      <button data-a="yes"><kbd>J</kbd>Yes<small>the object is in view, even if small or partial</small></button>
+      <button data-a="cant_tell"><kbd>B</kbd>Can't rate<small>unusable frame or utterance</small></button>
     </div>
-    <div class="ref" id="ref">
-      <label for="noun">What object?</label>
-      <input id="noun" placeholder="lowercase noun, e.g. cup" autocomplete="off">
-      <button id="submit">Submit <kbd>Enter</kbd></button>
-    </div>
-    <div class="remind">People count (Hi, Dad → <i>dad</i>) · Names refer to what they name (Pepper → <i>dog</i>) · Sound words count (quack → <i>duck</i>) · Pronouns count (press it → <i>button</i>) · Pictures in a book → <i>book</i> · only what is visible in this frame</div>
+    <div class="remind">Only this frame (the camera-wearer and off-screen things are not visible) · People, names, sounds, pronouns count when the thing is in view · Pictures count when the utterance names what's pictured</div>
     <div class="nav">
-      <button id="back">← back <kbd>b</kbd></button>
+      <button id="back">← back <kbd>Z</kbd></button>
       <span id="editing" class="warn hidden">editing an earlier answer</span>
     </div>
   </section>
@@ -101,6 +93,7 @@
 <script>
 const $ = id => document.getElementById(id);
 let rater = null, state = null, queue = [], hist = [], cur = null, shownAt = 0, sel = null, sinceRefresh = 0;
+const LEGACY = { none: 'no', partial: 'yes', clear: 'yes' };  // pre-2026-09-11 three-level answers
 const api = (p, o) => fetch(p, o).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
 const raterQ = () => rater ? `?rater=${encodeURIComponent(rater)}` : '';
 
@@ -111,11 +104,10 @@ async function boot() {
   if (!rater) { $('login').classList.remove('hidden'); return; }
   localStorage.setItem('rater', rater);
   await refresh();
-  if (!localStorage.getItem('helpSeen')) showHelp(); else next();
+  if (localStorage.getItem('helpSeen') !== 'v2') showHelp(); else next();
 }
 $('go').onclick = () => { const n = $('name').value.trim(); if (n) { rater = n; localStorage.setItem('rater', n); $('login').classList.add('hidden'); boot(); } };
-const isEnter = e => e.key === 'Enter' || e.keyCode === 13;
-$('name').onkeydown = e => { if (isEnter(e)) $('go').click(); };
+$('name').onkeydown = e => { if (e.key === 'Enter') $('go').click(); };
 
 async function refresh() {
   state = await api('/api/state' + raterQ());
@@ -129,7 +121,7 @@ function progress() {
 }
 function showHelp() { $('task').classList.add('hidden'); $('help').classList.remove('hidden'); }
 $('helpLink').onclick = e => { e.preventDefault(); showHelp(); };
-$('helpOk').onclick = () => { localStorage.setItem('helpSeen', '1'); $('help').classList.add('hidden'); if (cur) show(cur, false); else next(); };
+$('helpOk').onclick = () => { localStorage.setItem('helpSeen', 'v2'); $('help').classList.add('hidden'); if (cur) show(cur, false); else next(); };
 
 function next() {
   if (sinceRefresh >= 25) { refresh().then(next); return; }
@@ -139,26 +131,22 @@ function next() {
 }
 async function show(id, editing) {
   cur = id; sel = null;
-  let text = state.done[id]?.text;
   const it = await api(`/api/item/${id}`);
   $('img').src = `/frames/${id}.jpg`; $('utt').textContent = it.text;
   $('task').classList.remove('hidden'); $('finished').classList.add('hidden');
   $('editing').classList.toggle('hidden', !editing);
   document.querySelectorAll('.btns button').forEach(b => b.classList.remove('sel'));
-  $('ref').style.display = 'none'; $('noun').value = '';
-  if (editing && state.done[id]) { select(state.done[id].answer, false); $('noun').value = state.done[id].referent || ''; }
+  if (editing && state.done[id]) select(LEGACY[state.done[id].answer] || state.done[id].answer, false);
   shownAt = Date.now();
 }
 function select(a, auto = true) {
   sel = a;
   document.querySelectorAll('.btns button').forEach(b => b.classList.toggle('sel', b.dataset.a === a));
-  if (a === 'partial' || a === 'clear') { $('ref').style.display = 'flex'; if (auto) $('noun').focus(); else $('noun').blur(); }
-  else { $('ref').style.display = 'none'; if (auto) submit(); }
+  if (auto) submit();
 }
 async function submit() {
   if (!sel || !cur) return;
-  const body = { rater, item_id: cur, answer: sel, referent: $('noun').value, rt_ms: Date.now() - shownAt, client_ts: new Date().toISOString() };
-  if ((sel === 'partial' || sel === 'clear') && !body.referent.trim()) { $('noun').focus(); return; }
+  const body = { rater, item_id: cur, answer: sel, referent: '', rt_ms: Date.now() - shownAt, client_ts: new Date().toISOString() };
   try { await api('/api/response', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); }
   catch (e) { alert('Could not save — check your connection and try again.'); return; }
   state.done[cur] = body;
@@ -173,12 +161,12 @@ function back() {
   queue.unshift(prev); show(prev, true);
 }
 document.querySelectorAll('.btns button').forEach(b => b.onclick = () => select(b.dataset.a));
-$('submit').onclick = submit; $('back').onclick = back;
-$('noun').onkeydown = e => { if (isEnter(e)) { e.preventDefault(); submit(); } e.stopPropagation(); };
+$('back').onclick = back;
 document.addEventListener('keydown', e => {
-  if ($('task').classList.contains('hidden') || e.target === $('noun')) return;
-  const m = { '1': 'none', '2': 'partial', '3': 'clear', '0': 'cant_tell' }[e.key];
-  if (m) { e.preventDefault(); select(m); } else if (e.key === 'b') { e.preventDefault(); back(); }
+  if ($('task').classList.contains('hidden') || e.metaKey || e.ctrlKey || e.altKey) return;
+  const m = { f: 'no', j: 'yes', b: 'cant_tell' }[e.key.toLowerCase()];
+  if (m) { e.preventDefault(); select(m); }
+  else if (e.key.toLowerCase() === 'z' || e.key === 'ArrowLeft') { e.preventDefault(); back(); }
 });
 boot();
 </script>
