@@ -74,8 +74,8 @@ def fmt(n):
 NAMED = {"base": "full (1.69M)", "filtnat": "172k referent-bearing", "t15": "172k referent-bearing",
          "t2": "172k referent-bearing", "alignedonly": "172k (aligned)", "rand172k": "172k (plain random)",
          "matchrand": "172k (matched, unaligned)",
-         "minusaligned": "1.51M (full−aligned)", "minusmatch": "1.51M (full−matched)",
-         "minusrand": "1.51M (full−random)", "win5_full": "full (1.69M)",
+         "minusaligned": "1.51M (full$-$aligned)", "minusmatch": "1.51M (full$-$matched)",
+         "minusrand": "1.51M (full$-$random)", "win5_full": "full (1.69M)",
          "nokchi": "1.30M (no child speech)", "randmatch": "1.30M (matched)"}
 
 def nominal(cond):
@@ -113,7 +113,7 @@ for name, rx, ev, note in BLOCKS:
         if q not in seen: seen.add(q); pairs_list.append(q)
     pairs = "; ".join(pairs_list)
     seeds = b.groupby(["enc", "cond"]).seed.nunique()
-    srange = f"{seeds.min()}–{seeds.max()}" if seeds.min() != seeds.max() else str(seeds.max())
+    srange = f"{seeds.min()}--{seeds.max()}" if seeds.min() != seeds.max() else str(seeds.max())
     figs = figs_for(sorted(set(b.cond)))
     figs += [k for k, v in {**MANUAL, **DERIVED}.items()
              if any(name.startswith(x) for x in v) and k not in figs]
