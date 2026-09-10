@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 R = __import__("pathlib").Path(__file__).resolve().parent.parent / "results"
 pr = pd.read_csv(R / "encoder_probe_domains.csv")
 ind = pd.read_csv(R / "indomain_eval.csv")
-ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]
+ENC = [(E["tag"], E["label"], E["color"]) for E in reversed(T.ENCODERS)]   # smallest first
 MK = {E["tag"]: E["marker"] for E in T.ENCODERS}
 
 fig, (ax, bx) = plt.subplots(1, 2, figsize=(T.W2, 2.6),

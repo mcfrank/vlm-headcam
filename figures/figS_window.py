@@ -16,7 +16,7 @@ sys.path.insert(0, str(__import__("pathlib").Path(__file__).parent))
 import theme as T, data as D
 import matplotlib.pyplot as plt
 
-ENC = [(E["tag"], E["label"], E["color"]) for E in T.ENCODERS]
+ENC = [(E["tag"], E["label"], E["color"]) for E in reversed(T.ENCODERS)]   # smallest first
 SCALES = [("rand_30000", "win5_30000", "30k"), ("rand_300000", "win5_300000", "300k"),
           ("rand_1000000", "win5_1000000", "1M"), ("base", "win5_full", "1.69M")]
 MK = {"30k": "o", "300k": "s", "1M": "^", "1.69M": "D"}
