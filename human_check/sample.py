@@ -34,10 +34,12 @@ CDI_OBJECT_CATS = {"animals", "food_drink", "household", "furniture_rooms", "toy
 NOT_NOUNS = {"can"}  # CDI lists it (container) but in transcripts it is almost always the modal
 
 # (name, lo, hi, n) — bins partition the score range 0..100
-STRATA = [("0_noun", 0, 0, 200), ("0_other", 0, 0, 100), ("1-49", 1, 49, 50),
+# 2026-09-10: zeros raised from 200/100 to 450/300 (--extend) so the pool is half zeros; raters
+# were learning the "mostly aligned" base rate of the first draw.
+STRATA = [("0_noun", 0, 0, 450), ("0_other", 0, 0, 300), ("1-49", 1, 49, 50),
           ("50-60", 50, 60, 150), ("70-75", 70, 75, 150), ("80", 80, 80, 150),
           ("90-95", 90, 95, 100), ("100", 100, 100, 150)]
-MAX_PER_CHILD = 30
+MAX_PER_CHILD = 45
 
 
 def concrete_nouns():
@@ -75,6 +77,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--seed", type=int, default=20260909)
+    ap.add_argument("--extend", help="existing sample.parquet: keep its items (and their ids) and only draw the shortfall")
     args = ap.parse_args()
     rng = np.random.default_rng(args.seed)
 
@@ -113,6 +116,17 @@ def main():
     cursors = {name: 0 for name in pools}
     picked = {name: [] for name in pools}
     per_child, used_min, used_vs = {}, set(), set()
+    keep = None
+    if args.extend:
+        keep = pd.read_parquet(args.extend)
+        kk = keep.merge(d.reset_index()[["index", "video_id", "frame_idx", "text"]], on=["video_id", "frame_idx", "text"])
+        assert len(kk) == len(keep), "existing items not all found in the population"
+        for r in kk.itertuples():
+            picked[r.stratum].append(r.index)
+            per_child[r.child_id] = per_child.get(r.child_id, 0) + 1
+            used_min.add((r.video_id, r.frame_idx // 60))
+            used_vs.add((r.video_id, r.stratum))
+        print(f"extending {len(keep)} existing items")
     active = True
     while active:
         active = False
@@ -142,10 +156,18 @@ def main():
     s["n_sample"] = s.stratum.map(s.stratum.value_counts())
     s["n_pop"] = s.stratum.map(pop)
     s["weight"] = s.n_pop / s.n_sample
-    ids = set()
-    while len(ids) < len(s):
-        ids.add(f"{rng.integers(16**8):08x}")
-    s["item_id"] = sorted(ids)
+    old = {} if keep is None else dict(zip(zip(keep.video_id, keep.frame_idx, keep.text), keep.item_id))
+    ids, out = set(old.values()), []
+    for k in zip(s.video_id, s.frame_idx, s.text):  # existing items keep their ids; new ones get fresh ones
+        if k in old:
+            out.append(old[k])
+            continue
+        while (i := f"{rng.integers(16**8):08x}") in ids:
+            pass
+        ids.add(i)
+        out.append(i)
+    s["item_id"] = out
+    assert s.item_id.is_unique
     s = s.sample(frac=1, random_state=args.seed).reset_index(drop=True)
     s = s.rename(columns={"alignment": "gemini_alignment", "referent": "gemini_referent"})
     cols = ["item_id", "video_id", "utterance_id", "frame_idx", "text", "child_id", "speaker",

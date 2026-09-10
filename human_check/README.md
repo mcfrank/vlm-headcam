@@ -1,6 +1,6 @@
 # Human check of the Gemini referential-alignment annotation
 
-Lab members rate 1,050 (frame, utterance) pairs *blind*, answering the same two questions Gemini
+Lab members rate 1,500 (frame, utterance) pairs *blind*, answering the same two questions Gemini
 answered, so the SI can report how accurate the paper's `alignment >= 50` rule and its referent
 labels are. Design rationale: `notes/HANDOFF_GEMINI_CHECK_APP.md`.
 
@@ -13,19 +13,21 @@ labels are. Design rationale: `notes/HANDOFF_GEMINI_CHECK_APP.md`.
 | 3 app | `app/` (FastAPI + one HTML page) | Cloud Run (IAP) **or** ccn2-14 via ssh tunnel | `data/responses/<rater>/<item>.json` |
 | 4 numbers | `analyze.py` | ccn2-14 (needs sample.parquet + responses) | `results/gemini_human_check*.csv` |
 
-Steps 1-2 are done (2026-09-09, seed 20260909). The venv is `/data2/mcfrank/gemini_check/venv`.
+Steps 1-2 are done (2026-09-09, seed 20260909; extended 2026-09-10 with `--extend`, which keeps
+the existing items and ids and draws only the shortfall). The venv is `/data2/mcfrank/gemini_check/venv`.
 
 ## Sample
 
 Population = final corpus (`bv26_pairs_en_audio`, 1.69M) joined to the Gemini table on
 (video_id, frame_idx, text), scored, 2-20 tokens: 1.31M pairs. Eight strata partition it by
 Gemini score, so the weights (`n_pop/n_sample`) turn sample precision/recall into corpus-level
-estimates of the >=50 rule:
+estimates of the >=50 rule. The pool is half zeros by design: the first draw (300 zeros / 750
+aligned) taught raters that "yes" was usually right.
 
 | stratum | n | pop share |
 |---|---|---|
-| 0, utterance has a concrete object noun (CDI object cats + Konkle) | 200 | 17% |
-| 0, other | 100 | 72% |
+| 0, utterance has a concrete object noun (CDI object cats + Konkle) | 450 | 17% |
+| 0, other | 300 | 72% |
 | 1-49 | 50 | 0.2% |
 | 50-60 | 150 | 2.4% |
 | 70-75 | 150 | 2.0% |
@@ -33,14 +35,19 @@ estimates of the >=50 rule:
 | 90-95 | 100 | 1.8% |
 | 100 | 150 | 2.0% |
 
-Constraints: <=30 per child (46 children used), one item per video-minute, one per video per
-stratum. Items carry opaque random ids; `items.json` holds only id + utterance text.
+Constraints: <=45 per child (47 children used), one item per video-minute, one per video per
+stratum. 1,500 items in all. Items carry opaque random ids; `items.json` holds only id + utterance text.
 
 ## The app
 
 Rater sees one frame (512 px longest edge as stored; Gemini saw the same frame downsized to 512)
 and the utterance. Q1 three buttons matching the prompt's anchors (none / present-but-small /
 clearly present, plus can't-tell); Q2 free-text noun when Q1 != none. Keys 1/2/3/0, Enter, `b`.
+Five conventions, all read off Gemini's own outputs (its prompt never stated them), are in the
+instructions and repeated under every item: people count as objects; names and nicknames refer
+to whatever visible thing they name; sound words count when the source is in view; pronouns
+count when the referent is identifiable; pictures in a book are "book". The check therefore
+measures agreement with Gemini's operative definition, which the SI should say.
 
 **Resumable / multi-rater.** Nothing is stored in the browser except the rater's name. Every
 answer is one JSON file on the server, so a rater can close the tab and continue from any
