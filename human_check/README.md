@@ -99,6 +99,12 @@ gcloud run services add-iam-policy-binding gemini-check --region us-central1 \
 
 Without the last binding, IAP lets people sign in but Cloud Run answers 403.
 
+**Bucket-mount performance.** Every file read on the mounted bucket is a GCS request. The app
+therefore keeps responses in memory (loaded once, updated on each save, listing rescanned every
+2 min for other instances' writes). Before that, `/api/state` reread every response file per
+call and took 1-2 minutes once one rater had finished all 1,500 items (2026-09-11), which
+new raters experienced as a dead page.
+
 **Only Stanford Google accounts can sign in.** IAP for Cloud Run uses a Google-managed OAuth
 client, which admits only identities inside the project's organization (stanford.edu); a granted
 gmail.com address gets a Google sign-in error, not the app. Grant people's @stanford.edu
