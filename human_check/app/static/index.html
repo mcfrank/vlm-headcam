@@ -123,9 +123,15 @@ function showHelp() { $('task').classList.add('hidden'); $('help').classList.rem
 $('helpLink').onclick = e => { e.preventDefault(); showHelp(); };
 $('helpOk').onclick = () => { localStorage.setItem('helpSeen', 'v2'); $('help').classList.add('hidden'); if (cur) show(cur, false); else next(); };
 
+let emptyRetries = 0;
 function next() {
   if (sinceRefresh >= 25) { refresh().then(next); return; }
-  if (!queue.length) { $('task').classList.add('hidden'); $('finished').classList.remove('hidden'); return; }
+  if (!queue.length) {
+    // only believe "finished" when the server agrees; otherwise re-fetch the queue
+    if (Object.keys(state.done).length < state.total && emptyRetries++ < 3) { refresh().then(next); return; }
+    $('task').classList.add('hidden'); $('finished').classList.remove('hidden'); return;
+  }
+  emptyRetries = 0;
   show(queue[0], false);
   queue.slice(1, 3).forEach(id => { new Image().src = `/frames/${id}.jpg`; });
 }
