@@ -43,14 +43,31 @@ def rater_id(request: Request, rater: str | None) -> str:
     return slug
 
 
+_CACHE: dict[str, dict[str, dict]] = {}   # rater -> item_id -> response
+_CACHE_AT = 0.0
+RESCAN_S = 120
+
+
 def all_responses() -> dict[str, dict[str, dict]]:
-    out = {}
-    if RESP.exists():
-        for rdir in RESP.iterdir():
-            if rdir.is_dir():
-                out[rdir.name] = {p.stem: json.loads(p.read_text())
-                                  for p in rdir.glob("*.json") if p.stem in ITEMS}
-    return out
+    """Responses by rater. Kept in memory: on the Cloud Run bucket mount every file read is a
+    GCS request, and rereading ~2k files per /api/state call made the app unusable once one
+    rater had finished. Other instances' writes are picked up by rescanning the listing every
+    RESCAN_S seconds and reading only files not yet cached."""
+    global _CACHE_AT
+    if time.time() - _CACHE_AT > RESCAN_S:
+        if RESP.exists():
+            for rdir in RESP.iterdir():
+                if not rdir.is_dir():
+                    continue
+                have = _CACHE.setdefault(rdir.name, {})
+                for p in rdir.glob("*.json"):
+                    if p.stem in ITEMS and p.stem not in have:
+                        try:
+                            have[p.stem] = json.loads(p.read_text())
+                        except (OSError, ValueError):
+                            pass
+        _CACHE_AT = time.time()
+    return _CACHE
 
 
 def queue_for(rater: str, resp: dict) -> list[str]:
@@ -134,6 +151,7 @@ def respond(body: Response, request: Request):
     d = RESP / r
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{body.item_id}.json").write_text(json.dumps(rec))
+    _CACHE.setdefault(r, {})[body.item_id] = rec
     return {"ok": True}
 
 
