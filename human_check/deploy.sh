@@ -35,7 +35,7 @@ case "${1:-}" in
         --add-volume "name=data,type=cloud-storage,bucket=$BUCKET" \
         --add-volume-mount "volume=data,mount-path=/data" \
         --set-env-vars DATA_DIR=/data,RATERS_PER_ITEM=3 \
-        --memory 512Mi --max-instances 2 --concurrency 20
+        --memory 512Mi --min-instances 1 --max-instances 2 --concurrency 20
     PN=$(gcloud projects describe "$PROJECT" --format='value(projectNumber)')
     gcloud run services add-iam-policy-binding "$SERVICE" --project "$PROJECT" --region "$REGION" \
         --member "serviceAccount:service-$PN@gcp-sa-iap.iam.gserviceaccount.com" --role roles/run.invoker
