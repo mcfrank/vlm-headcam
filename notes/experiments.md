@@ -1238,6 +1238,12 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   dinov3s → Oak; window caches (637 G) → per-encoder tars → Oak project/window_caches → deleted;
   DINO ckpt 199999 ×3 + configs + hf_release → Oak, intermediates deleted; 2025.2 legacy caches
   (~90 G) + DINO probe caches (~50 G) → tars → Oak → deleted; _retired_20260829 deleted.
+- **Archive driver DONE 16:34 (+ fixed re-run 17:31 for the c9 deletion).** Only hitch: a
+  `grep -c` exit-status bug produced four false FAILs on the encoder-cache uploads; all four
+  verified clean by hand (0 differing files) before anything was deleted. Final state:
+  /data2/mcfrank 134 G (was ~1.5 T); /data2 74% used, 1.8 T free; Oak holds every paper
+  artifact (STORAGE.md). Lab storage snapshot for Mike's update: thekej 1.45 T, lindaz26 0.90 T,
+  wanhee 0.78 T, lilianch 0.53 T, botran 0.43 T, nasimb 0.29 T, others <40 G.
 - **Wordbank comparison scored children on 40/46 CDI-matched words, models on 60.** The 20
   unmatched words are much harder for the models (L-OTS 100k: 60.2 on the 40 vs 41.9 on the 20;
   all-60 54.1). Fix: fig4A now scores models AND both CDI forms on the same 40 WG-matched words

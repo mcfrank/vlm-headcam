@@ -133,8 +133,11 @@ update `MANIFEST.tsv` and the mirror README.
   `notes/experiments.md` 2026-09-10): `src/` = paper chain, `src/archive/`, `runners/`,
   `runners/archive/`, `archive/{book,supplement.qmd,eval}`, `notes/sessions/`, `results/README.md`,
   root README, gitignore (pdfs, talks), scratch_lev removed; node synced and de-cluttered.
-- RUNNING: `runners/node_archive_20260910.sh` (§2.1–2.6 + probe caches, verify-then-delete;
-  log `/data2/mcfrank/oak_stage/node_archive_20260910.log`).
+- DONE 17:31: `runners/node_archive_20260910.sh` completed (§2.1–2.6 + probe caches, every
+  deletion after Oak verification; log `/data2/mcfrank/oak_stage/node_archive_20260910.log`).
+  Our /data2 footprint 1.5 T → 134 G; volume 88% → 74% (1.8 T free). All six encoder caches are
+  real dirs on ccn2b and on Oak. Residuals left on purpose: `emb_wf` (regenerable), `frames224`
+  (joint-pilot cache), DINO session's `tmp/` exports, `ladder/` (other project).
 - OPEN: methods_numbers for six encoders + `\input`; `paper` tag + Zenodo DOI at submission;
   encoder public release channel **[Mike]**; DINO fork commit hash; `check_provenance.py` still
   checks the (now archived) book's claim registry — retire or repoint it at `results/README.md`.
