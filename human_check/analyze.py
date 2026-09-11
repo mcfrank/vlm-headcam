@@ -118,11 +118,17 @@ def main():
     ap.add_argument("--responses", required=True)
     ap.add_argument("--out", default="results")
     ap.add_argument("--boot", type=int, default=1000)
+    ap.add_argument("--raters", help="comma-separated rater ids to keep (default all); order defines R1, R2, ...")
+    ap.add_argument("--suffix", default="", help="appended to output file names, e.g. _all")
     args = ap.parse_args()
     rng = np.random.default_rng(0)
     s = pd.read_parquet(args.sample)
     r = load_responses(args.responses)
     r = r[r.item_id.isin(s.item_id)]
+    keep = args.raters.split(",") if args.raters else sorted(r.rater.unique())
+    r = r[r.rater.isin(keep)].copy()
+    label = {name: f"R{i + 1}" for i, name in enumerate(keep)}
+    print("rater labels:", label)
     out = []
 
     def add(metric, value, n=None, ci=(np.nan, np.nan)):
@@ -150,6 +156,17 @@ def main():
     add("kripp_alpha_binary", kripp_alpha(units2), n_multi)
     k3, np3 = pairwise_kappa(r, "answer"); add("pairwise_kappa_3level", k3, np3)
     k2, np2 = pairwise_kappa(r, "aligned"); add("pairwise_kappa_binary", k2, np2)
+    wide = r.pivot_table(index="item_id", columns="rater", values="aligned", aggfunc="first")
+    pairs = []
+    for a_, b_ in combinations(wide.columns, 2):
+        both = wide[[a_, b_]].dropna()
+        if len(both) >= 20:
+            pairs.append(dict(pair=f"{label[a_]}-{label[b_]}", n_items=len(both), agree=np.mean(both[a_] == both[b_]),
+                              kappa=cohen_kappa(both[a_], both[b_]), yes_rate_a=both[a_].mean(), yes_rate_b=both[b_].mean()))
+    pairs = pd.DataFrame(pairs).round(4)
+    if len(pairs):
+        pairs.to_csv(Path(args.out) / f"gemini_human_check_pairs{args.suffix}.csv", index=False)
+        print(pairs.to_string(index=False))
 
     # ---- per item human summary ----
     it = r.groupby("item_id").agg(n_raters=("rater", "size"), human_score=("score", "mean"),
@@ -180,19 +197,41 @@ def main():
     for k, v in point.items():
         add(f"binary_{k}", v, len(b), (boots[k].quantile(0.025), boots[k].quantile(0.975)))
 
-    # ---- threshold sweep: Gemini >= t vs human majority ----
-    rows = []
-    for t in [50, 60, 70, 80, 90, 100]:
-        g, h, w = (b.gemini_alignment >= t).astype(int).values, b.human_aligned.values, b.weight.values
-        tp = (g & h).astype(float)
-        p_, r_ = tp.sum() / max(g.sum(), 1), tp.sum() / max(h.sum(), 1)
-        wp, wr = (w * tp).sum() / max((w * g).sum(), 1e-9), (w * tp).sum() / max((w * h).sum(), 1e-9)
-        rows.append(dict(threshold=t, n_gemini_pos=int(g.sum()), precision=p_, recall=r_, f1=2 * p_ * r_ / max(p_ + r_, 1e-9),
-                         w_precision=wp, w_recall=wr, w_f1=2 * wp * wr / max(wp + wr, 1e-9),
-                         corpus_share=float(s.weight[s.gemini_alignment >= t].sum() / s.weight.sum())))
+    # ---- per rater vs Gemini >= 50 ----
+    rs = r.merge(s[["item_id", "gemini_alignment", "weight"]], on="item_id")
+    rs["gemini_aligned"] = (rs.gemini_alignment >= 50).astype(int)
+    for name, x in rs.groupby("rater"):
+        x = x.rename(columns={"aligned": "human_aligned"})
+        pt = binary_stats(x)
+        bs = pd.DataFrame([binary_stats(x.sample(frac=1, replace=True, random_state=int(rng.integers(2**31)))) for _ in range(args.boot)])
+        for k in ["precision", "recall", "f1", "w_precision", "w_recall", "w_f1", "agree", "kappa"]:
+            add(f"{label[name]}_binary_{k}", pt[k], len(x), (bs[k].quantile(0.025), bs[k].quantile(0.975)))
+
+    # ---- threshold sweep: Gemini >= t vs human majority (and per rater), with item bootstrap CIs ----
+    def sweep(x, who):
+        rows = []
+        for t in [50, 60, 70, 80, 90, 100]:
+            def stats(y):
+                g, h, w = (y.gemini_alignment >= t).astype(int).values, y.human_aligned.values.astype(int), y.weight.values
+                tp = (g & h).astype(float)
+                p_, r_ = tp.sum() / max(g.sum(), 1), tp.sum() / max(h.sum(), 1)
+                wp, wr = (w * tp).sum() / max((w * g).sum(), 1e-9), (w * tp).sum() / max((w * h).sum(), 1e-9)
+                return dict(precision=p_, recall=r_, f1=2 * p_ * r_ / max(p_ + r_, 1e-9),
+                            w_precision=wp, w_recall=wr, w_f1=2 * wp * wr / max(wp + wr, 1e-9))
+            pt = stats(x)
+            bs = pd.DataFrame([stats(x.sample(frac=1, replace=True, random_state=int(rng.integers(2**31)))) for _ in range(min(args.boot, 300))])
+            row = dict(who=who, threshold=t, n_items=len(x), n_gemini_pos=int((x.gemini_alignment >= t).sum()),
+                       corpus_share=float(s.weight[s.gemini_alignment >= t].sum() / s.weight.sum()))
+            for k, v in pt.items():
+                row[k], row[k + "_lo"], row[k + "_hi"] = v, bs[k].quantile(0.025), bs[k].quantile(0.975)
+            rows.append(row)
+        return rows
+    rows = sweep(b, "consensus")
+    for name, x in rs.groupby("rater"):
+        rows += sweep(x.rename(columns={"aligned": "human_aligned"}), label[name])
     thr = pd.DataFrame(rows).round(4)
-    thr.to_csv(Path(args.out) / "gemini_human_check_threshold.csv", index=False)
-    print(thr.to_string(index=False))
+    thr.to_csv(Path(args.out) / f"gemini_human_check_threshold{args.suffix}.csv", index=False)
+    print(thr[thr.who == "consensus"][["threshold", "n_gemini_pos", "precision", "recall", "f1", "w_precision", "w_recall", "w_f1", "corpus_share"]].to_string(index=False))
 
     # ---- calibration by stratum ----
     cal = (d.groupby("stratum").agg(n_items=("item_id", "size"), gemini_mean=("gemini_alignment", "mean"),
@@ -200,7 +239,16 @@ def main():
                                     n_pop=("n_pop", "first"))
            .reindex(STRATA))
     cal["agree_binary"] = b.groupby("stratum").apply(lambda x: np.mean(x.gemini_aligned == x.human_aligned)).reindex(STRATA)
-    cal.round(3).to_csv(Path(args.out) / "gemini_human_check_calibration.csv")
+    # human yes-rate per rating (all raters pooled) with Wilson 95% CI, plus per-rater yes-rates
+    rs2 = rs.merge(s[["item_id", "stratum"]], on="item_id")
+    k_, n_ = rs2.groupby("stratum").aligned.sum().reindex(STRATA), rs2.groupby("stratum").aligned.size().reindex(STRATA)
+    z = 1.96; ph = k_ / n_
+    cal["n_ratings"], cal["yes_rate"] = n_, ph
+    cal["yes_lo"] = (ph + z**2 / (2 * n_) - z * np.sqrt(ph * (1 - ph) / n_ + z**2 / (4 * n_**2))) / (1 + z**2 / n_)
+    cal["yes_hi"] = (ph + z**2 / (2 * n_) + z * np.sqrt(ph * (1 - ph) / n_ + z**2 / (4 * n_**2))) / (1 + z**2 / n_)
+    for name in keep:
+        cal[f"yes_rate_{label[name]}"] = rs2[rs2.rater == name].groupby("stratum").aligned.mean().reindex(STRATA)
+    cal.round(4).to_csv(Path(args.out) / f"gemini_human_check_calibration{args.suffix}.csv")
     print(cal.round(3).to_string())
     for st in STRATA:
         if st in cal.index and pd.notna(cal.loc[st, "human_mean"]):
@@ -233,7 +281,7 @@ def main():
 
     res = pd.DataFrame(out)
     Path(args.out).mkdir(exist_ok=True, parents=True)
-    res.to_csv(Path(args.out) / "gemini_human_check.csv", index=False)
+    res.to_csv(Path(args.out) / f"gemini_human_check{args.suffix}.csv", index=False)
     print(res.to_string(index=False))
 
 

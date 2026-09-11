@@ -121,10 +121,16 @@ node, then each rater runs `ssh -L 8501:localhost:8501 ccn2-14` and opens http:/
 
 ## Analysis
 
-`analyze.py` writes `results/gemini_human_check.csv` (long: metric, value, n, bootstrap CI),
-`results/gemini_human_check_calibration.csv` (per stratum) and
-`results/gemini_human_check_threshold.csv` (precision / recall / F1 of Gemini >= t, sample and
-corpus-weighted, for t = 50..100). Metrics: Krippendorff's alpha and
+`analyze.py` writes `results/gemini_human_check.csv` (long: metric, value, n, bootstrap CI;
+includes per-rater rows `R1_*`, `R2_*`), `results/gemini_human_check_calibration.csv` (per
+stratum, with Wilson CIs on the pooled yes-rate and per-rater yes-rates),
+`results/gemini_human_check_threshold.csv` (precision / recall / F1 of Gemini >= t for the
+consensus and each rater, sample and corpus-weighted, bootstrap CIs) and
+`results/gemini_human_check_pairs.csv` (pairwise agreement / kappa). `--raters a,b` restricts to
+a subset and defines the R1, R2 labels; `--suffix _all` names a second output set. **The
+manuscript numbers are the V + S run** (`--raters vamoreno@stanford.edu,serlee@stanford.edu`);
+the `_all` files add Mike (R3), whose 391 ratings span several instruction revisions. Figure
+handoff: `notes/HANDOFF_gemini_check_figure.md`. Metrics: Krippendorff's alpha and
 mean pairwise kappa (3-level and binary); Spearman Gemini-vs-human; kappa, agreement, and
 sample + corpus-weighted precision/recall of the >=50 rule against the human majority;
 calibration (human mean by Gemini bin); false-negative rate among Gemini-0 items with/without a

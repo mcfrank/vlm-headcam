@@ -8,6 +8,7 @@ Runs on ccn2 with the Vertex service-account key (which deploy.sh grants objectA
 push uploads frames/*.jpg + items.json (skips objects already present); pull downloads responses/.
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from google.cloud import storage
@@ -33,15 +34,18 @@ def main():
             n += 1
         print(f"uploaded {n} objects to gs://{args.bucket}")
     else:
-        n = 0
+        todo = []
         for o in b.list_blobs(prefix="responses/"):
             if o.name.endswith("/"):  # directory placeholder objects from the FUSE mount
                 continue
             dst = data / o.name
+            if dst.exists() and dst.stat().st_size == o.size:
+                continue  # responses are never rewritten except by the rater's own edit (size then differs)
             dst.parent.mkdir(parents=True, exist_ok=True)
-            o.download_to_filename(dst)
-            n += 1
-        print(f"downloaded {n} responses to {data / 'responses'}")
+            todo.append((o, dst))
+        with ThreadPoolExecutor(32) as ex:
+            list(ex.map(lambda t: t[0].download_to_filename(t[1]), todo))
+        print(f"downloaded {len(todo)} new/changed responses to {data / 'responses'}")
 
 
 if __name__ == "__main__":
