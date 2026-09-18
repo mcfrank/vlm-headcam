@@ -21,10 +21,9 @@ trees ship as single tars.
 ## Release tree — `/ccn2b/dataset/babyview/2026.1/outputs/` (canonical, mirrored to Oak)
 
 Layers and keys: see `DATA_LAYOUT.md` (target layout achieved 2026-08-29; `MANIFEST.tsv` +
-per-layer READMEs). Embeddings: `image_embeddings/{dinov3s,dinov3b,dinov3l,dinov3l_bv}_grid4x4`
-are real directories; `{vits,vitb,vitl}_bv_grid4x4` are **symlinks into node-local
-`/data2/mcfrank/c9_caches/`** (to be moved onto ccn2b — CLEANUP_PLAN §2.2). Only dinov3b,
-dinov3l, dinov3l_bv are on Oak so far.
+per-layer READMEs). Embeddings: all seven `image_embeddings/<enc>_grid4x4` dirs (six paper
+encoders + legacy `dinov3l_bv`) are real directories on ccn2b (the three BV caches were moved
+off node-local scratch on 2026-09-10) and all are mirrored to Oak.
 
 ## Node — `/data2/mcfrank/` (after the 2026-09-10 archive: 134 G, was ~1.5 T)
 
