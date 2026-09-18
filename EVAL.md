@@ -80,8 +80,8 @@ Reference values (test-60, full corpus, mean ± sd over 5 seeds): OTS-304M 81.6 
   easier); the `d` column in `lev_vocab_items.csv` is a difficulty (higher = harder).
 - Code: `src/eval_lev_scaling.py` → `results/lev_scaling_final.csv` (one row per model × item).
 
-Reference values (full corpus, fair accuracy): OTS-304M 47.7, OTS-86M 40.4, OTS-22M 36.6,
-BV-304M 31.9, BV-86M 30.7, BV-22M 31.1.
+Reference values (full corpus, fair accuracy, mean over 5 seeds): OTS-304M 48.1, OTS-86M
+40.6, OTS-22M 36.6, BV-304M 32.2, BV-86M 30.7, BV-22M 31.2 (`results/encoder_grid.csv`).
 
 ## 4. How this project runs them (RegionMIL-format models)
 
@@ -132,12 +132,13 @@ its `reported_test_acc` (≈ 81.6) to within trial-sampling noise (exactly, if y
 
 - Selecting the epoch on test-60 inflates scores by 1–2 points; don't.
 - Dropping OOV categories instead of crediting chance inflates small models (see §2).
-- **Two LEVANTE items were unscorable in the paper's results.** The original image manifest
-  globbed `*.webp`, so the only two `.jpg` targets (`rubber band`, `turnstile`) were never
-  embedded and both items count as unplayable (chance) for every model in
-  `lev_scaling_final.csv`. The shared manifest includes them (found 2026-09-18). A new model
-  evaluated on the shared manifest can score up to 2 more items than ours did; for an exact
-  comparison, treat `vocab__rubberband` and `vocab__turnstile` as unplayable.
+- **Two LEVANTE images were missing until 2026-09-18.** The original image manifest globbed
+  `*.webp`, so the only two `.jpg` targets (`rubber band`, `turnstile`) were never embedded
+  and both items counted as unplayable for every model. Fixed: the two images were appended
+  to each encoder's cache (all other rows byte-identical) and every checkpoint re-evaluated.
+  Only `rubber band` changed (202 model rows); `turnstile` stays unplayable because the word
+  is in no model's vocabulary. Full-corpus fair accuracy moved by ≤0.5 points; neither item
+  has a child IRT difficulty, so child-likeness is unaffected.
 - Native (non-HF) encoders are embedded with the DINO fork's `embed_native_dino.py`, which
   has no `--root`: run it from `/ccn2b/dataset/babyview/eval_assets` so the relative paths
   resolve.

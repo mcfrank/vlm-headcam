@@ -1254,3 +1254,19 @@ Partial-window runs (pair-frame caches only) were killed and removed — superse
   vitb_bv but not dinov3b; probe now drops CLS and averages the 16 grid cells for every encoder
   and domain (`eval_indomain.py --probe-only`; rerun in progress, pre-fix CSV kept as
   `encoder_probe_domains.pre_gridonly.csv`). Also: one foil draw per item (n_trials was unused).
+
+### 2026-09-18 — eval assets shared + LEVANTE two-image fix
+- Eval assets moved to `/ccn2b/dataset/babyview/eval_assets/` (EVAL.md; Oak tar); manifests
+  rebuilt by `src/build_eval_manifests.py` (Konkle test/dev row-for-row identical to the paper's;
+  dev rule = case-sensitive `*.jpg` glob, which skips 22 valid `.JPG` dev images — kept for key
+  stability). Konkle re-embed from the shared root bit-exact vs the paper cache.
+- **LEVANTE fix:** the original image manifest globbed `*.webp`, so the only `.jpg` targets
+  (rubber band, turnstile) were never embedded → unplayable for every model. Re-embedding all
+  629 images perturbed other images in the last bits (batch composition; cos ≥ 0.99998), so
+  instead the two new rows were APPENDED to each cache (old rows byte-identical; caches before
+  the fix kept as `emb_lev_<enc>.pre_20260918`), then all 356 checkpoints re-evaluated
+  (`runners/lev_fix_20260918.sh`). Diff vs the published file: 202 rows, all `vocab__rubberband`;
+  turnstile stays unplayable (OOV everywhere). Full-corpus fair accuracy: OTS-22M 36.60→36.57,
+  OTS-86M 40.38→40.60, OTS-304M 47.67→48.14, BV-22M 31.07→31.16, BV-86M 30.69→30.66,
+  BV-304M 31.95→32.17. Both items have NaN child d → child-likeness ρ unchanged. Regenerated:
+  encoder_grid.csv (6 LEVANTE cells), fig4_development, figS_levante.

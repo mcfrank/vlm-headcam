@@ -68,7 +68,7 @@ B-OTS,1686105,0,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 B-OTS,1686105,0,vocab__squash,squash,,True,1.0
 B-OTS,1686105,0,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1686105,0,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1686105,0,vocab__rubberband,rubber band,,False,
+B-OTS,1686105,0,vocab__rubberband,rubber band,,True,0.0
 B-OTS,1686105,0,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,1686105,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-OTS,1686105,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -227,7 +227,7 @@ B-OTS,1686105,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 B-OTS,1686105,1,vocab__squash,squash,,True,1.0
 B-OTS,1686105,1,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1686105,1,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1686105,1,vocab__rubberband,rubber band,,False,
+B-OTS,1686105,1,vocab__rubberband,rubber band,,True,1.0
 B-OTS,1686105,1,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,1686105,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-OTS,1686105,1,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -386,7 +386,7 @@ B-OTS,1686105,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-OTS,1686105,2,vocab__squash,squash,,True,1.0
 B-OTS,1686105,2,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1686105,2,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1686105,2,vocab__rubberband,rubber band,,False,
+B-OTS,1686105,2,vocab__rubberband,rubber band,,True,0.0
 B-OTS,1686105,2,vocab__stump,stump,-1.7437,True,1.0
 B-OTS,1686105,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-OTS,1686105,2,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -545,7 +545,7 @@ B-OTS,1686105,3,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 B-OTS,1686105,3,vocab__squash,squash,,True,0.0
 B-OTS,1686105,3,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1686105,3,vocab__stew,stew,-0.0446,True,1.0
-B-OTS,1686105,3,vocab__rubberband,rubber band,,False,
+B-OTS,1686105,3,vocab__rubberband,rubber band,,True,1.0
 B-OTS,1686105,3,vocab__stump,stump,-1.7437,True,1.0
 B-OTS,1686105,3,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-OTS,1686105,3,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -704,7 +704,7 @@ B-OTS,1686105,4,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-OTS,1686105,4,vocab__squash,squash,,True,1.0
 B-OTS,1686105,4,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1686105,4,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1686105,4,vocab__rubberband,rubber band,,False,
+B-OTS,1686105,4,vocab__rubberband,rubber band,,True,1.0
 B-OTS,1686105,4,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,1686105,4,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-OTS,1686105,4,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -863,7 +863,7 @@ B-OTS,1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-OTS,1000000,0,vocab__squash,squash,,True,0.0
 B-OTS,1000000,0,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1000000,0,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1000000,0,vocab__rubberband,rubber band,,False,
+B-OTS,1000000,0,vocab__rubberband,rubber band,,True,0.0
 B-OTS,1000000,0,vocab__stump,stump,-1.7437,True,1.0
 B-OTS,1000000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-OTS,1000000,0,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -1022,7 +1022,7 @@ B-OTS,1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 B-OTS,1000000,1,vocab__squash,squash,,True,0.0
 B-OTS,1000000,1,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1000000,1,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1000000,1,vocab__rubberband,rubber band,,False,
+B-OTS,1000000,1,vocab__rubberband,rubber band,,True,0.0
 B-OTS,1000000,1,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,1000000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-OTS,1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -1181,7 +1181,7 @@ B-OTS,1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 B-OTS,1000000,2,vocab__squash,squash,,True,1.0
 B-OTS,1000000,2,vocab__squirrel,squirrel,,True,1.0
 B-OTS,1000000,2,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,1000000,2,vocab__rubberband,rubber band,,False,
+B-OTS,1000000,2,vocab__rubberband,rubber band,,True,0.0
 B-OTS,1000000,2,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,1000000,2,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-OTS,1000000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -1340,7 +1340,7 @@ B-OTS,100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,0,vocab__squash,squash,,True,0.0
 B-OTS,100000,0,vocab__squirrel,squirrel,,True,1.0
 B-OTS,100000,0,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,100000,0,vocab__rubberband,rubber band,,False,
+B-OTS,100000,0,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,0,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,0,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -1499,7 +1499,7 @@ B-OTS,100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,1,vocab__squash,squash,,True,0.0
 B-OTS,100000,1,vocab__squirrel,squirrel,,True,1.0
 B-OTS,100000,1,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,100000,1,vocab__rubberband,rubber band,,False,
+B-OTS,100000,1,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,1,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,1,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -1658,7 +1658,7 @@ B-OTS,100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,2,vocab__squash,squash,,True,0.0
 B-OTS,100000,2,vocab__squirrel,squirrel,,True,1.0
 B-OTS,100000,2,vocab__stew,stew,-0.0446,False,
-B-OTS,100000,2,vocab__rubberband,rubber band,,False,
+B-OTS,100000,2,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,2,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-OTS,100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -1817,7 +1817,7 @@ B-OTS,100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,3,vocab__squash,squash,,True,0.0
 B-OTS,100000,3,vocab__squirrel,squirrel,,True,0.0
 B-OTS,100000,3,vocab__stew,stew,-0.0446,False,
-B-OTS,100000,3,vocab__rubberband,rubber band,,False,
+B-OTS,100000,3,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,3,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,3,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -1976,7 +1976,7 @@ B-OTS,100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,4,vocab__squash,squash,,True,0.0
 B-OTS,100000,4,vocab__squirrel,squirrel,,True,0.0
 B-OTS,100000,4,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,100000,4,vocab__rubberband,rubber band,,False,
+B-OTS,100000,4,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,4,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,100000,4,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -2135,7 +2135,7 @@ B-OTS,100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,5,vocab__squash,squash,,True,1.0
 B-OTS,100000,5,vocab__squirrel,squirrel,,True,0.0
 B-OTS,100000,5,vocab__stew,stew,-0.0446,False,
-B-OTS,100000,5,vocab__rubberband,rubber band,,False,
+B-OTS,100000,5,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,5,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,5,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -2294,7 +2294,7 @@ B-OTS,100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,6,vocab__squash,squash,,True,0.0
 B-OTS,100000,6,vocab__squirrel,squirrel,,True,0.0
 B-OTS,100000,6,vocab__stew,stew,-0.0446,False,
-B-OTS,100000,6,vocab__rubberband,rubber band,,False,
+B-OTS,100000,6,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,6,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,6,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -2453,7 +2453,7 @@ B-OTS,100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,100000,7,vocab__squash,squash,,True,0.0
 B-OTS,100000,7,vocab__squirrel,squirrel,,True,0.0
 B-OTS,100000,7,vocab__stew,stew,-0.0446,False,
-B-OTS,100000,7,vocab__rubberband,rubber band,,False,
+B-OTS,100000,7,vocab__rubberband,rubber band,,True,0.0
 B-OTS,100000,7,vocab__stump,stump,-1.7437,False,
 B-OTS,100000,7,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -3884,7 +3884,7 @@ B-OTS,300000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-OTS,300000,0,vocab__squash,squash,,True,0.0
 B-OTS,300000,0,vocab__squirrel,squirrel,,True,1.0
 B-OTS,300000,0,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,300000,0,vocab__rubberband,rubber band,,False,
+B-OTS,300000,0,vocab__rubberband,rubber band,,True,0.0
 B-OTS,300000,0,vocab__stump,stump,-1.7437,False,
 B-OTS,300000,0,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -4043,7 +4043,7 @@ B-OTS,300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,300000,1,vocab__squash,squash,,True,0.0
 B-OTS,300000,1,vocab__squirrel,squirrel,,True,1.0
 B-OTS,300000,1,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,300000,1,vocab__rubberband,rubber band,,False,
+B-OTS,300000,1,vocab__rubberband,rubber band,,True,0.0
 B-OTS,300000,1,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,300000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-OTS,300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -4202,7 +4202,7 @@ B-OTS,300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,300000,2,vocab__squash,squash,,True,0.0
 B-OTS,300000,2,vocab__squirrel,squirrel,,True,1.0
 B-OTS,300000,2,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,300000,2,vocab__rubberband,rubber band,,False,
+B-OTS,300000,2,vocab__rubberband,rubber band,,True,0.0
 B-OTS,300000,2,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,300000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-OTS,300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -4361,7 +4361,7 @@ B-OTS,300000,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-OTS,300000,3,vocab__squash,squash,,True,1.0
 B-OTS,300000,3,vocab__squirrel,squirrel,,True,1.0
 B-OTS,300000,3,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,300000,3,vocab__rubberband,rubber band,,False,
+B-OTS,300000,3,vocab__rubberband,rubber band,,True,0.0
 B-OTS,300000,3,vocab__stump,stump,-1.7437,True,0.0
 B-OTS,300000,3,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -4520,7 +4520,7 @@ B-OTS,300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,300000,4,vocab__squash,squash,,True,0.0
 B-OTS,300000,4,vocab__squirrel,squirrel,,True,1.0
 B-OTS,300000,4,vocab__stew,stew,-0.0446,True,0.0
-B-OTS,300000,4,vocab__rubberband,rubber band,,False,
+B-OTS,300000,4,vocab__rubberband,rubber band,,True,0.0
 B-OTS,300000,4,vocab__stump,stump,-1.7437,True,1.0
 B-OTS,300000,4,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -4679,7 +4679,7 @@ B-OTS,30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,0,vocab__squash,squash,,False,
 B-OTS,30000,0,vocab__squirrel,squirrel,,True,0.0
 B-OTS,30000,0,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,0,vocab__rubberband,rubber band,,False,
+B-OTS,30000,0,vocab__rubberband,rubber band,,True,0.0
 B-OTS,30000,0,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,0,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -4838,7 +4838,7 @@ B-OTS,30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,1,vocab__squash,squash,,False,
 B-OTS,30000,1,vocab__squirrel,squirrel,,True,1.0
 B-OTS,30000,1,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,1,vocab__rubberband,rubber band,,False,
+B-OTS,30000,1,vocab__rubberband,rubber band,,True,1.0
 B-OTS,30000,1,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,1,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -4997,7 +4997,7 @@ B-OTS,30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,2,vocab__squash,squash,,False,
 B-OTS,30000,2,vocab__squirrel,squirrel,,True,0.0
 B-OTS,30000,2,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,2,vocab__rubberband,rubber band,,False,
+B-OTS,30000,2,vocab__rubberband,rubber band,,True,1.0
 B-OTS,30000,2,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,2,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -5156,7 +5156,7 @@ B-OTS,30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,3,vocab__squash,squash,,False,
 B-OTS,30000,3,vocab__squirrel,squirrel,,True,1.0
 B-OTS,30000,3,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,3,vocab__rubberband,rubber band,,False,
+B-OTS,30000,3,vocab__rubberband,rubber band,,True,1.0
 B-OTS,30000,3,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,3,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -5315,7 +5315,7 @@ B-OTS,30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,4,vocab__squash,squash,,False,
 B-OTS,30000,4,vocab__squirrel,squirrel,,True,1.0
 B-OTS,30000,4,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,4,vocab__rubberband,rubber band,,False,
+B-OTS,30000,4,vocab__rubberband,rubber band,,True,0.0
 B-OTS,30000,4,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,4,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -5474,7 +5474,7 @@ B-OTS,30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,5,vocab__squash,squash,,True,0.0
 B-OTS,30000,5,vocab__squirrel,squirrel,,True,0.0
 B-OTS,30000,5,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,5,vocab__rubberband,rubber band,,False,
+B-OTS,30000,5,vocab__rubberband,rubber band,,True,0.0
 B-OTS,30000,5,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,5,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -5633,7 +5633,7 @@ B-OTS,30000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,6,vocab__squash,squash,,False,
 B-OTS,30000,6,vocab__squirrel,squirrel,,True,0.0
 B-OTS,30000,6,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,6,vocab__rubberband,rubber band,,False,
+B-OTS,30000,6,vocab__rubberband,rubber band,,True,1.0
 B-OTS,30000,6,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,6,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -5792,7 +5792,7 @@ B-OTS,30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 B-OTS,30000,7,vocab__squash,squash,,True,0.0
 B-OTS,30000,7,vocab__squirrel,squirrel,,True,0.0
 B-OTS,30000,7,vocab__stew,stew,-0.0446,False,
-B-OTS,30000,7,vocab__rubberband,rubber band,,False,
+B-OTS,30000,7,vocab__rubberband,rubber band,,True,0.0
 B-OTS,30000,7,vocab__stump,stump,-1.7437,False,
 B-OTS,30000,7,vocab__sunflower,sunflower,-4.1555,False,
 B-OTS,30000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -7223,7 +7223,7 @@ L-OTS,1686105,0,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 L-OTS,1686105,0,vocab__squash,squash,,True,1.0
 L-OTS,1686105,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1686105,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1686105,0,vocab__rubberband,rubber band,,False,
+L-OTS,1686105,0,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1686105,0,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,1686105,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS,1686105,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -7382,7 +7382,7 @@ L-OTS,1686105,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,1686105,1,vocab__squash,squash,,True,1.0
 L-OTS,1686105,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1686105,1,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1686105,1,vocab__rubberband,rubber band,,False,
+L-OTS,1686105,1,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1686105,1,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,1686105,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS,1686105,1,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -7541,7 +7541,7 @@ L-OTS,1686105,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,1686105,2,vocab__squash,squash,,True,1.0
 L-OTS,1686105,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1686105,2,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1686105,2,vocab__rubberband,rubber band,,False,
+L-OTS,1686105,2,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1686105,2,vocab__stump,stump,-1.7437,True,0.0
 L-OTS,1686105,2,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS,1686105,2,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -7700,7 +7700,7 @@ L-OTS,1686105,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,1686105,3,vocab__squash,squash,,True,1.0
 L-OTS,1686105,3,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1686105,3,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1686105,3,vocab__rubberband,rubber band,,False,
+L-OTS,1686105,3,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1686105,3,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,1686105,3,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS,1686105,3,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -7859,7 +7859,7 @@ L-OTS,1686105,4,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,1686105,4,vocab__squash,squash,,True,1.0
 L-OTS,1686105,4,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1686105,4,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1686105,4,vocab__rubberband,rubber band,,False,
+L-OTS,1686105,4,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1686105,4,vocab__stump,stump,-1.7437,True,0.0
 L-OTS,1686105,4,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS,1686105,4,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -8018,7 +8018,7 @@ L-OTS,1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,1000000,0,vocab__squash,squash,,True,1.0
 L-OTS,1000000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1000000,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1000000,0,vocab__rubberband,rubber band,,False,
+L-OTS,1000000,0,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1000000,0,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,1000000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS,1000000,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -8177,7 +8177,7 @@ L-OTS,1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 L-OTS,1000000,1,vocab__squash,squash,,True,1.0
 L-OTS,1000000,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1000000,1,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,1000000,1,vocab__rubberband,rubber band,,False,
+L-OTS,1000000,1,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1000000,1,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,1000000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS,1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -8336,7 +8336,7 @@ L-OTS,1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,1000000,2,vocab__squash,squash,,True,1.0
 L-OTS,1000000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS,1000000,2,vocab__stew,stew,-0.0446,True,1.0
-L-OTS,1000000,2,vocab__rubberband,rubber band,,False,
+L-OTS,1000000,2,vocab__rubberband,rubber band,,True,1.0
 L-OTS,1000000,2,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,1000000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS,1000000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -8495,7 +8495,7 @@ L-OTS,100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,0,vocab__squash,squash,,True,0.0
 L-OTS,100000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS,100000,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,100000,0,vocab__rubberband,rubber band,,False,
+L-OTS,100000,0,vocab__rubberband,rubber band,,True,0.0
 L-OTS,100000,0,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -8654,7 +8654,7 @@ L-OTS,100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,1,vocab__squash,squash,,True,0.0
 L-OTS,100000,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS,100000,1,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,100000,1,vocab__rubberband,rubber band,,False,
+L-OTS,100000,1,vocab__rubberband,rubber band,,True,1.0
 L-OTS,100000,1,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -8813,7 +8813,7 @@ L-OTS,100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,2,vocab__squash,squash,,True,0.0
 L-OTS,100000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS,100000,2,vocab__stew,stew,-0.0446,False,
-L-OTS,100000,2,vocab__rubberband,rubber band,,False,
+L-OTS,100000,2,vocab__rubberband,rubber band,,True,0.0
 L-OTS,100000,2,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS,100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -8972,7 +8972,7 @@ L-OTS,100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,3,vocab__squash,squash,,True,0.0
 L-OTS,100000,3,vocab__squirrel,squirrel,,True,1.0
 L-OTS,100000,3,vocab__stew,stew,-0.0446,False,
-L-OTS,100000,3,vocab__rubberband,rubber band,,False,
+L-OTS,100000,3,vocab__rubberband,rubber band,,True,0.0
 L-OTS,100000,3,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -9131,7 +9131,7 @@ L-OTS,100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,4,vocab__squash,squash,,True,0.0
 L-OTS,100000,4,vocab__squirrel,squirrel,,True,1.0
 L-OTS,100000,4,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,100000,4,vocab__rubberband,rubber band,,False,
+L-OTS,100000,4,vocab__rubberband,rubber band,,True,1.0
 L-OTS,100000,4,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,100000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -9290,7 +9290,7 @@ L-OTS,100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,5,vocab__squash,squash,,True,0.0
 L-OTS,100000,5,vocab__squirrel,squirrel,,True,0.0
 L-OTS,100000,5,vocab__stew,stew,-0.0446,False,
-L-OTS,100000,5,vocab__rubberband,rubber band,,False,
+L-OTS,100000,5,vocab__rubberband,rubber band,,True,0.0
 L-OTS,100000,5,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,5,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -9449,7 +9449,7 @@ L-OTS,100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,6,vocab__squash,squash,,True,0.0
 L-OTS,100000,6,vocab__squirrel,squirrel,,True,1.0
 L-OTS,100000,6,vocab__stew,stew,-0.0446,False,
-L-OTS,100000,6,vocab__rubberband,rubber band,,False,
+L-OTS,100000,6,vocab__rubberband,rubber band,,True,1.0
 L-OTS,100000,6,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,6,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -9608,7 +9608,7 @@ L-OTS,100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,100000,7,vocab__squash,squash,,True,0.0
 L-OTS,100000,7,vocab__squirrel,squirrel,,True,0.0
 L-OTS,100000,7,vocab__stew,stew,-0.0446,False,
-L-OTS,100000,7,vocab__rubberband,rubber band,,False,
+L-OTS,100000,7,vocab__rubberband,rubber band,,True,0.0
 L-OTS,100000,7,vocab__stump,stump,-1.7437,False,
 L-OTS,100000,7,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -11039,7 +11039,7 @@ L-OTS,300000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,300000,0,vocab__squash,squash,,True,0.0
 L-OTS,300000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS,300000,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,300000,0,vocab__rubberband,rubber band,,False,
+L-OTS,300000,0,vocab__rubberband,rubber band,,True,0.0
 L-OTS,300000,0,vocab__stump,stump,-1.7437,False,
 L-OTS,300000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -11198,7 +11198,7 @@ L-OTS,300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,300000,1,vocab__squash,squash,,True,0.0
 L-OTS,300000,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS,300000,1,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,300000,1,vocab__rubberband,rubber band,,False,
+L-OTS,300000,1,vocab__rubberband,rubber band,,True,1.0
 L-OTS,300000,1,vocab__stump,stump,-1.7437,True,0.0
 L-OTS,300000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS,300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -11357,7 +11357,7 @@ L-OTS,300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,300000,2,vocab__squash,squash,,True,0.0
 L-OTS,300000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS,300000,2,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,300000,2,vocab__rubberband,rubber band,,False,
+L-OTS,300000,2,vocab__rubberband,rubber band,,True,0.0
 L-OTS,300000,2,vocab__stump,stump,-1.7437,True,0.0
 L-OTS,300000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS,300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -11516,7 +11516,7 @@ L-OTS,300000,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS,300000,3,vocab__squash,squash,,True,0.0
 L-OTS,300000,3,vocab__squirrel,squirrel,,True,1.0
 L-OTS,300000,3,vocab__stew,stew,-0.0446,True,1.0
-L-OTS,300000,3,vocab__rubberband,rubber band,,False,
+L-OTS,300000,3,vocab__rubberband,rubber band,,True,0.0
 L-OTS,300000,3,vocab__stump,stump,-1.7437,True,1.0
 L-OTS,300000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -11675,7 +11675,7 @@ L-OTS,300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,300000,4,vocab__squash,squash,,True,0.0
 L-OTS,300000,4,vocab__squirrel,squirrel,,True,1.0
 L-OTS,300000,4,vocab__stew,stew,-0.0446,True,0.0
-L-OTS,300000,4,vocab__rubberband,rubber band,,False,
+L-OTS,300000,4,vocab__rubberband,rubber band,,True,0.0
 L-OTS,300000,4,vocab__stump,stump,-1.7437,True,0.0
 L-OTS,300000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -11834,7 +11834,7 @@ L-OTS,30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,0,vocab__squash,squash,,False,
 L-OTS,30000,0,vocab__squirrel,squirrel,,True,0.0
 L-OTS,30000,0,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,0,vocab__rubberband,rubber band,,False,
+L-OTS,30000,0,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,0,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -11993,7 +11993,7 @@ L-OTS,30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,1,vocab__squash,squash,,False,
 L-OTS,30000,1,vocab__squirrel,squirrel,,True,0.0
 L-OTS,30000,1,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,1,vocab__rubberband,rubber band,,False,
+L-OTS,30000,1,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,1,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -12152,7 +12152,7 @@ L-OTS,30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,2,vocab__squash,squash,,False,
 L-OTS,30000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS,30000,2,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,2,vocab__rubberband,rubber band,,False,
+L-OTS,30000,2,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,2,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,2,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -12311,7 +12311,7 @@ L-OTS,30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,3,vocab__squash,squash,,False,
 L-OTS,30000,3,vocab__squirrel,squirrel,,True,0.0
 L-OTS,30000,3,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,3,vocab__rubberband,rubber band,,False,
+L-OTS,30000,3,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,3,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -12470,7 +12470,7 @@ L-OTS,30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,4,vocab__squash,squash,,False,
 L-OTS,30000,4,vocab__squirrel,squirrel,,True,0.0
 L-OTS,30000,4,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,4,vocab__rubberband,rubber band,,False,
+L-OTS,30000,4,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,4,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -12629,7 +12629,7 @@ L-OTS,30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,5,vocab__squash,squash,,True,0.0
 L-OTS,30000,5,vocab__squirrel,squirrel,,True,0.0
 L-OTS,30000,5,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,5,vocab__rubberband,rubber band,,False,
+L-OTS,30000,5,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,5,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,5,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -12788,7 +12788,7 @@ L-OTS,30000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,6,vocab__squash,squash,,False,
 L-OTS,30000,6,vocab__squirrel,squirrel,,True,1.0
 L-OTS,30000,6,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,6,vocab__rubberband,rubber band,,False,
+L-OTS,30000,6,vocab__rubberband,rubber band,,True,1.0
 L-OTS,30000,6,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,6,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -12947,7 +12947,7 @@ L-OTS,30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS,30000,7,vocab__squash,squash,,True,0.0
 L-OTS,30000,7,vocab__squirrel,squirrel,,True,0.0
 L-OTS,30000,7,vocab__stew,stew,-0.0446,False,
-L-OTS,30000,7,vocab__rubberband,rubber band,,False,
+L-OTS,30000,7,vocab__rubberband,rubber band,,True,0.0
 L-OTS,30000,7,vocab__stump,stump,-1.7437,False,
 L-OTS,30000,7,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS,30000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -14378,7 +14378,7 @@ S-OTS,1686105,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1686105,0,vocab__squash,squash,,True,1.0
 S-OTS,1686105,0,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1686105,0,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1686105,0,vocab__rubberband,rubber band,,False,
+S-OTS,1686105,0,vocab__rubberband,rubber band,,True,0.0
 S-OTS,1686105,0,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1686105,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-OTS,1686105,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -14537,7 +14537,7 @@ S-OTS,1686105,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1686105,1,vocab__squash,squash,,True,1.0
 S-OTS,1686105,1,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1686105,1,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1686105,1,vocab__rubberband,rubber band,,False,
+S-OTS,1686105,1,vocab__rubberband,rubber band,,True,0.0
 S-OTS,1686105,1,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1686105,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1686105,1,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -14696,7 +14696,7 @@ S-OTS,1686105,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1686105,2,vocab__squash,squash,,True,1.0
 S-OTS,1686105,2,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1686105,2,vocab__stew,stew,-0.0446,True,1.0
-S-OTS,1686105,2,vocab__rubberband,rubber band,,False,
+S-OTS,1686105,2,vocab__rubberband,rubber band,,True,1.0
 S-OTS,1686105,2,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1686105,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1686105,2,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -14855,7 +14855,7 @@ S-OTS,1686105,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1686105,3,vocab__squash,squash,,True,1.0
 S-OTS,1686105,3,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1686105,3,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1686105,3,vocab__rubberband,rubber band,,False,
+S-OTS,1686105,3,vocab__rubberband,rubber band,,True,0.0
 S-OTS,1686105,3,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1686105,3,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1686105,3,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -15014,7 +15014,7 @@ S-OTS,1686105,4,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1686105,4,vocab__squash,squash,,True,1.0
 S-OTS,1686105,4,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1686105,4,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1686105,4,vocab__rubberband,rubber band,,False,
+S-OTS,1686105,4,vocab__rubberband,rubber band,,True,0.0
 S-OTS,1686105,4,vocab__stump,stump,-1.7437,True,1.0
 S-OTS,1686105,4,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1686105,4,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -15173,7 +15173,7 @@ S-OTS,1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1000000,0,vocab__squash,squash,,True,1.0
 S-OTS,1000000,0,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1000000,0,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1000000,0,vocab__rubberband,rubber band,,False,
+S-OTS,1000000,0,vocab__rubberband,rubber band,,True,0.0
 S-OTS,1000000,0,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1000000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1000000,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -15332,7 +15332,7 @@ S-OTS,1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1000000,1,vocab__squash,squash,,True,1.0
 S-OTS,1000000,1,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1000000,1,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1000000,1,vocab__rubberband,rubber band,,False,
+S-OTS,1000000,1,vocab__rubberband,rubber band,,True,1.0
 S-OTS,1000000,1,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1000000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -15491,7 +15491,7 @@ S-OTS,1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,1000000,2,vocab__squash,squash,,True,1.0
 S-OTS,1000000,2,vocab__squirrel,squirrel,,True,1.0
 S-OTS,1000000,2,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,1000000,2,vocab__rubberband,rubber band,,False,
+S-OTS,1000000,2,vocab__rubberband,rubber band,,True,0.0
 S-OTS,1000000,2,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,1000000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,1000000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -15650,7 +15650,7 @@ S-OTS,100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,0,vocab__squash,squash,,True,0.0
 S-OTS,100000,0,vocab__squirrel,squirrel,,True,0.0
 S-OTS,100000,0,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,100000,0,vocab__rubberband,rubber band,,False,
+S-OTS,100000,0,vocab__rubberband,rubber band,,True,1.0
 S-OTS,100000,0,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,0,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -15809,7 +15809,7 @@ S-OTS,100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,1,vocab__squash,squash,,True,0.0
 S-OTS,100000,1,vocab__squirrel,squirrel,,True,0.0
 S-OTS,100000,1,vocab__stew,stew,-0.0446,True,1.0
-S-OTS,100000,1,vocab__rubberband,rubber band,,False,
+S-OTS,100000,1,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,1,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,1,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -15968,7 +15968,7 @@ S-OTS,100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,2,vocab__squash,squash,,True,0.0
 S-OTS,100000,2,vocab__squirrel,squirrel,,True,0.0
 S-OTS,100000,2,vocab__stew,stew,-0.0446,False,
-S-OTS,100000,2,vocab__rubberband,rubber band,,False,
+S-OTS,100000,2,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,2,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -16127,7 +16127,7 @@ S-OTS,100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,3,vocab__squash,squash,,True,1.0
 S-OTS,100000,3,vocab__squirrel,squirrel,,True,1.0
 S-OTS,100000,3,vocab__stew,stew,-0.0446,False,
-S-OTS,100000,3,vocab__rubberband,rubber band,,False,
+S-OTS,100000,3,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,3,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,3,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -16286,7 +16286,7 @@ S-OTS,100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,4,vocab__squash,squash,,True,0.0
 S-OTS,100000,4,vocab__squirrel,squirrel,,True,0.0
 S-OTS,100000,4,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,100000,4,vocab__rubberband,rubber band,,False,
+S-OTS,100000,4,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,4,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,100000,4,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -16445,7 +16445,7 @@ S-OTS,100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,5,vocab__squash,squash,,True,0.0
 S-OTS,100000,5,vocab__squirrel,squirrel,,True,0.0
 S-OTS,100000,5,vocab__stew,stew,-0.0446,False,
-S-OTS,100000,5,vocab__rubberband,rubber band,,False,
+S-OTS,100000,5,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,5,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,5,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -16604,7 +16604,7 @@ S-OTS,100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,6,vocab__squash,squash,,True,0.0
 S-OTS,100000,6,vocab__squirrel,squirrel,,True,1.0
 S-OTS,100000,6,vocab__stew,stew,-0.0446,False,
-S-OTS,100000,6,vocab__rubberband,rubber band,,False,
+S-OTS,100000,6,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,6,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,6,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -16763,7 +16763,7 @@ S-OTS,100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,100000,7,vocab__squash,squash,,True,0.0
 S-OTS,100000,7,vocab__squirrel,squirrel,,True,1.0
 S-OTS,100000,7,vocab__stew,stew,-0.0446,False,
-S-OTS,100000,7,vocab__rubberband,rubber band,,False,
+S-OTS,100000,7,vocab__rubberband,rubber band,,True,0.0
 S-OTS,100000,7,vocab__stump,stump,-1.7437,False,
 S-OTS,100000,7,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -18194,7 +18194,7 @@ S-OTS,300000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,300000,0,vocab__squash,squash,,True,0.0
 S-OTS,300000,0,vocab__squirrel,squirrel,,True,0.0
 S-OTS,300000,0,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,300000,0,vocab__rubberband,rubber band,,False,
+S-OTS,300000,0,vocab__rubberband,rubber band,,True,0.0
 S-OTS,300000,0,vocab__stump,stump,-1.7437,False,
 S-OTS,300000,0,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -18353,7 +18353,7 @@ S-OTS,300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,300000,1,vocab__squash,squash,,True,0.0
 S-OTS,300000,1,vocab__squirrel,squirrel,,True,0.0
 S-OTS,300000,1,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,300000,1,vocab__rubberband,rubber band,,False,
+S-OTS,300000,1,vocab__rubberband,rubber band,,True,0.0
 S-OTS,300000,1,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,300000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -18512,7 +18512,7 @@ S-OTS,300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,300000,2,vocab__squash,squash,,True,0.0
 S-OTS,300000,2,vocab__squirrel,squirrel,,True,0.0
 S-OTS,300000,2,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,300000,2,vocab__rubberband,rubber band,,False,
+S-OTS,300000,2,vocab__rubberband,rubber band,,True,0.0
 S-OTS,300000,2,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,300000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-OTS,300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -18671,7 +18671,7 @@ S-OTS,300000,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-OTS,300000,3,vocab__squash,squash,,True,0.0
 S-OTS,300000,3,vocab__squirrel,squirrel,,True,1.0
 S-OTS,300000,3,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,300000,3,vocab__rubberband,rubber band,,False,
+S-OTS,300000,3,vocab__rubberband,rubber band,,True,0.0
 S-OTS,300000,3,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,300000,3,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -18830,7 +18830,7 @@ S-OTS,300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,300000,4,vocab__squash,squash,,True,1.0
 S-OTS,300000,4,vocab__squirrel,squirrel,,True,1.0
 S-OTS,300000,4,vocab__stew,stew,-0.0446,True,0.0
-S-OTS,300000,4,vocab__rubberband,rubber band,,False,
+S-OTS,300000,4,vocab__rubberband,rubber band,,True,0.0
 S-OTS,300000,4,vocab__stump,stump,-1.7437,True,0.0
 S-OTS,300000,4,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -18989,7 +18989,7 @@ S-OTS,30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,0,vocab__squash,squash,,False,
 S-OTS,30000,0,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,0,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,0,vocab__rubberband,rubber band,,False,
+S-OTS,30000,0,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,0,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,0,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -19148,7 +19148,7 @@ S-OTS,30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,1,vocab__squash,squash,,False,
 S-OTS,30000,1,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,1,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,1,vocab__rubberband,rubber band,,False,
+S-OTS,30000,1,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,1,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,1,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -19307,7 +19307,7 @@ S-OTS,30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,2,vocab__squash,squash,,False,
 S-OTS,30000,2,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,2,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,2,vocab__rubberband,rubber band,,False,
+S-OTS,30000,2,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,2,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,2,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -19466,7 +19466,7 @@ S-OTS,30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,3,vocab__squash,squash,,False,
 S-OTS,30000,3,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,3,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,3,vocab__rubberband,rubber band,,False,
+S-OTS,30000,3,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,3,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,3,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -19625,7 +19625,7 @@ S-OTS,30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,4,vocab__squash,squash,,False,
 S-OTS,30000,4,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,4,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,4,vocab__rubberband,rubber band,,False,
+S-OTS,30000,4,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,4,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,4,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -19784,7 +19784,7 @@ S-OTS,30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,5,vocab__squash,squash,,True,1.0
 S-OTS,30000,5,vocab__squirrel,squirrel,,True,1.0
 S-OTS,30000,5,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,5,vocab__rubberband,rubber band,,False,
+S-OTS,30000,5,vocab__rubberband,rubber band,,True,1.0
 S-OTS,30000,5,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,5,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -19943,7 +19943,7 @@ S-OTS,30000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,6,vocab__squash,squash,,False,
 S-OTS,30000,6,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,6,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,6,vocab__rubberband,rubber band,,False,
+S-OTS,30000,6,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,6,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,6,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -20102,7 +20102,7 @@ S-OTS,30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 S-OTS,30000,7,vocab__squash,squash,,True,0.0
 S-OTS,30000,7,vocab__squirrel,squirrel,,True,0.0
 S-OTS,30000,7,vocab__stew,stew,-0.0446,False,
-S-OTS,30000,7,vocab__rubberband,rubber band,,False,
+S-OTS,30000,7,vocab__rubberband,rubber band,,True,0.0
 S-OTS,30000,7,vocab__stump,stump,-1.7437,False,
 S-OTS,30000,7,vocab__sunflower,sunflower,-4.1555,False,
 S-OTS,30000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -21533,7 +21533,7 @@ B-BV,1686105,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1686105,0,vocab__squash,squash,,True,0.0
 B-BV,1686105,0,vocab__squirrel,squirrel,,True,1.0
 B-BV,1686105,0,vocab__stew,stew,-0.0446,True,1.0
-B-BV,1686105,0,vocab__rubberband,rubber band,,False,
+B-BV,1686105,0,vocab__rubberband,rubber band,,True,1.0
 B-BV,1686105,0,vocab__stump,stump,-1.7437,True,1.0
 B-BV,1686105,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-BV,1686105,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -21692,7 +21692,7 @@ B-BV,1686105,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1686105,1,vocab__squash,squash,,True,1.0
 B-BV,1686105,1,vocab__squirrel,squirrel,,True,0.0
 B-BV,1686105,1,vocab__stew,stew,-0.0446,True,1.0
-B-BV,1686105,1,vocab__rubberband,rubber band,,False,
+B-BV,1686105,1,vocab__rubberband,rubber band,,True,0.0
 B-BV,1686105,1,vocab__stump,stump,-1.7437,True,1.0
 B-BV,1686105,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-BV,1686105,1,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -21851,7 +21851,7 @@ B-BV,1686105,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1686105,2,vocab__squash,squash,,True,0.0
 B-BV,1686105,2,vocab__squirrel,squirrel,,True,0.0
 B-BV,1686105,2,vocab__stew,stew,-0.0446,True,0.0
-B-BV,1686105,2,vocab__rubberband,rubber band,,False,
+B-BV,1686105,2,vocab__rubberband,rubber band,,True,0.0
 B-BV,1686105,2,vocab__stump,stump,-1.7437,True,1.0
 B-BV,1686105,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,1686105,2,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -22010,7 +22010,7 @@ B-BV,1686105,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1686105,3,vocab__squash,squash,,True,1.0
 B-BV,1686105,3,vocab__squirrel,squirrel,,True,0.0
 B-BV,1686105,3,vocab__stew,stew,-0.0446,True,1.0
-B-BV,1686105,3,vocab__rubberband,rubber band,,False,
+B-BV,1686105,3,vocab__rubberband,rubber band,,True,0.0
 B-BV,1686105,3,vocab__stump,stump,-1.7437,True,1.0
 B-BV,1686105,3,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,1686105,3,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -22169,7 +22169,7 @@ B-BV,1686105,4,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1686105,4,vocab__squash,squash,,True,0.0
 B-BV,1686105,4,vocab__squirrel,squirrel,,True,1.0
 B-BV,1686105,4,vocab__stew,stew,-0.0446,True,1.0
-B-BV,1686105,4,vocab__rubberband,rubber band,,False,
+B-BV,1686105,4,vocab__rubberband,rubber band,,True,0.0
 B-BV,1686105,4,vocab__stump,stump,-1.7437,True,0.0
 B-BV,1686105,4,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,1686105,4,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -22328,7 +22328,7 @@ B-BV,1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1000000,0,vocab__squash,squash,,True,0.0
 B-BV,1000000,0,vocab__squirrel,squirrel,,True,0.0
 B-BV,1000000,0,vocab__stew,stew,-0.0446,True,1.0
-B-BV,1000000,0,vocab__rubberband,rubber band,,False,
+B-BV,1000000,0,vocab__rubberband,rubber band,,True,0.0
 B-BV,1000000,0,vocab__stump,stump,-1.7437,True,0.0
 B-BV,1000000,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 B-BV,1000000,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -22487,7 +22487,7 @@ B-BV,1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 B-BV,1000000,1,vocab__squash,squash,,True,1.0
 B-BV,1000000,1,vocab__squirrel,squirrel,,True,0.0
 B-BV,1000000,1,vocab__stew,stew,-0.0446,True,1.0
-B-BV,1000000,1,vocab__rubberband,rubber band,,False,
+B-BV,1000000,1,vocab__rubberband,rubber band,,True,0.0
 B-BV,1000000,1,vocab__stump,stump,-1.7437,True,0.0
 B-BV,1000000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -22646,7 +22646,7 @@ B-BV,1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,1000000,2,vocab__squash,squash,,True,0.0
 B-BV,1000000,2,vocab__squirrel,squirrel,,True,0.0
 B-BV,1000000,2,vocab__stew,stew,-0.0446,True,0.0
-B-BV,1000000,2,vocab__rubberband,rubber band,,False,
+B-BV,1000000,2,vocab__rubberband,rubber band,,True,0.0
 B-BV,1000000,2,vocab__stump,stump,-1.7437,True,1.0
 B-BV,1000000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,1000000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -22805,7 +22805,7 @@ B-BV,100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,0,vocab__squash,squash,,True,0.0
 B-BV,100000,0,vocab__squirrel,squirrel,,True,1.0
 B-BV,100000,0,vocab__stew,stew,-0.0446,True,0.0
-B-BV,100000,0,vocab__rubberband,rubber band,,False,
+B-BV,100000,0,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,0,vocab__stump,stump,-1.7437,False,
 B-BV,100000,0,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -22964,7 +22964,7 @@ B-BV,100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,1,vocab__squash,squash,,True,0.0
 B-BV,100000,1,vocab__squirrel,squirrel,,True,0.0
 B-BV,100000,1,vocab__stew,stew,-0.0446,True,1.0
-B-BV,100000,1,vocab__rubberband,rubber band,,False,
+B-BV,100000,1,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,1,vocab__stump,stump,-1.7437,False,
 B-BV,100000,1,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -23123,7 +23123,7 @@ B-BV,100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,2,vocab__squash,squash,,True,0.0
 B-BV,100000,2,vocab__squirrel,squirrel,,True,0.0
 B-BV,100000,2,vocab__stew,stew,-0.0446,False,
-B-BV,100000,2,vocab__rubberband,rubber band,,False,
+B-BV,100000,2,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,2,vocab__stump,stump,-1.7437,False,
 B-BV,100000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -23282,7 +23282,7 @@ B-BV,100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,3,vocab__squash,squash,,True,0.0
 B-BV,100000,3,vocab__squirrel,squirrel,,True,0.0
 B-BV,100000,3,vocab__stew,stew,-0.0446,False,
-B-BV,100000,3,vocab__rubberband,rubber band,,False,
+B-BV,100000,3,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,3,vocab__stump,stump,-1.7437,False,
 B-BV,100000,3,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -23441,7 +23441,7 @@ B-BV,100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,4,vocab__squash,squash,,True,0.0
 B-BV,100000,4,vocab__squirrel,squirrel,,True,0.0
 B-BV,100000,4,vocab__stew,stew,-0.0446,True,0.0
-B-BV,100000,4,vocab__rubberband,rubber band,,False,
+B-BV,100000,4,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,4,vocab__stump,stump,-1.7437,True,0.0
 B-BV,100000,4,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -23600,7 +23600,7 @@ B-BV,100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,5,vocab__squash,squash,,True,0.0
 B-BV,100000,5,vocab__squirrel,squirrel,,True,0.0
 B-BV,100000,5,vocab__stew,stew,-0.0446,False,
-B-BV,100000,5,vocab__rubberband,rubber band,,False,
+B-BV,100000,5,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,5,vocab__stump,stump,-1.7437,False,
 B-BV,100000,5,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -23759,7 +23759,7 @@ B-BV,100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,6,vocab__squash,squash,,True,0.0
 B-BV,100000,6,vocab__squirrel,squirrel,,True,0.0
 B-BV,100000,6,vocab__stew,stew,-0.0446,False,
-B-BV,100000,6,vocab__rubberband,rubber band,,False,
+B-BV,100000,6,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,6,vocab__stump,stump,-1.7437,False,
 B-BV,100000,6,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -23918,7 +23918,7 @@ B-BV,100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,100000,7,vocab__squash,squash,,True,0.0
 B-BV,100000,7,vocab__squirrel,squirrel,,True,1.0
 B-BV,100000,7,vocab__stew,stew,-0.0446,False,
-B-BV,100000,7,vocab__rubberband,rubber band,,False,
+B-BV,100000,7,vocab__rubberband,rubber band,,True,0.0
 B-BV,100000,7,vocab__stump,stump,-1.7437,False,
 B-BV,100000,7,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -25349,7 +25349,7 @@ B-BV,300000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,300000,0,vocab__squash,squash,,True,0.0
 B-BV,300000,0,vocab__squirrel,squirrel,,True,1.0
 B-BV,300000,0,vocab__stew,stew,-0.0446,True,1.0
-B-BV,300000,0,vocab__rubberband,rubber band,,False,
+B-BV,300000,0,vocab__rubberband,rubber band,,True,0.0
 B-BV,300000,0,vocab__stump,stump,-1.7437,False,
 B-BV,300000,0,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -25508,7 +25508,7 @@ B-BV,300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,300000,1,vocab__squash,squash,,True,0.0
 B-BV,300000,1,vocab__squirrel,squirrel,,True,0.0
 B-BV,300000,1,vocab__stew,stew,-0.0446,True,0.0
-B-BV,300000,1,vocab__rubberband,rubber band,,False,
+B-BV,300000,1,vocab__rubberband,rubber band,,True,0.0
 B-BV,300000,1,vocab__stump,stump,-1.7437,True,0.0
 B-BV,300000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -25667,7 +25667,7 @@ B-BV,300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,300000,2,vocab__squash,squash,,True,0.0
 B-BV,300000,2,vocab__squirrel,squirrel,,True,0.0
 B-BV,300000,2,vocab__stew,stew,-0.0446,True,0.0
-B-BV,300000,2,vocab__rubberband,rubber band,,False,
+B-BV,300000,2,vocab__rubberband,rubber band,,True,0.0
 B-BV,300000,2,vocab__stump,stump,-1.7437,True,0.0
 B-BV,300000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 B-BV,300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -25826,7 +25826,7 @@ B-BV,300000,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 B-BV,300000,3,vocab__squash,squash,,True,0.0
 B-BV,300000,3,vocab__squirrel,squirrel,,True,1.0
 B-BV,300000,3,vocab__stew,stew,-0.0446,True,0.0
-B-BV,300000,3,vocab__rubberband,rubber band,,False,
+B-BV,300000,3,vocab__rubberband,rubber band,,True,0.0
 B-BV,300000,3,vocab__stump,stump,-1.7437,True,0.0
 B-BV,300000,3,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -25985,7 +25985,7 @@ B-BV,300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,300000,4,vocab__squash,squash,,True,0.0
 B-BV,300000,4,vocab__squirrel,squirrel,,True,0.0
 B-BV,300000,4,vocab__stew,stew,-0.0446,True,0.0
-B-BV,300000,4,vocab__rubberband,rubber band,,False,
+B-BV,300000,4,vocab__rubberband,rubber band,,True,0.0
 B-BV,300000,4,vocab__stump,stump,-1.7437,True,1.0
 B-BV,300000,4,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -26144,7 +26144,7 @@ B-BV,30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,0,vocab__squash,squash,,False,
 B-BV,30000,0,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,0,vocab__stew,stew,-0.0446,False,
-B-BV,30000,0,vocab__rubberband,rubber band,,False,
+B-BV,30000,0,vocab__rubberband,rubber band,,True,1.0
 B-BV,30000,0,vocab__stump,stump,-1.7437,False,
 B-BV,30000,0,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -26303,7 +26303,7 @@ B-BV,30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,1,vocab__squash,squash,,False,
 B-BV,30000,1,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,1,vocab__stew,stew,-0.0446,False,
-B-BV,30000,1,vocab__rubberband,rubber band,,False,
+B-BV,30000,1,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,1,vocab__stump,stump,-1.7437,False,
 B-BV,30000,1,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -26462,7 +26462,7 @@ B-BV,30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,2,vocab__squash,squash,,False,
 B-BV,30000,2,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,2,vocab__stew,stew,-0.0446,False,
-B-BV,30000,2,vocab__rubberband,rubber band,,False,
+B-BV,30000,2,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,2,vocab__stump,stump,-1.7437,False,
 B-BV,30000,2,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -26621,7 +26621,7 @@ B-BV,30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,3,vocab__squash,squash,,False,
 B-BV,30000,3,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,3,vocab__stew,stew,-0.0446,False,
-B-BV,30000,3,vocab__rubberband,rubber band,,False,
+B-BV,30000,3,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,3,vocab__stump,stump,-1.7437,False,
 B-BV,30000,3,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -26780,7 +26780,7 @@ B-BV,30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,4,vocab__squash,squash,,False,
 B-BV,30000,4,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,4,vocab__stew,stew,-0.0446,False,
-B-BV,30000,4,vocab__rubberband,rubber band,,False,
+B-BV,30000,4,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,4,vocab__stump,stump,-1.7437,False,
 B-BV,30000,4,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -26939,7 +26939,7 @@ B-BV,30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,5,vocab__squash,squash,,True,0.0
 B-BV,30000,5,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,5,vocab__stew,stew,-0.0446,False,
-B-BV,30000,5,vocab__rubberband,rubber band,,False,
+B-BV,30000,5,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,5,vocab__stump,stump,-1.7437,False,
 B-BV,30000,5,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -27098,7 +27098,7 @@ B-BV,30000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,6,vocab__squash,squash,,False,
 B-BV,30000,6,vocab__squirrel,squirrel,,True,0.0
 B-BV,30000,6,vocab__stew,stew,-0.0446,False,
-B-BV,30000,6,vocab__rubberband,rubber band,,False,
+B-BV,30000,6,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,6,vocab__stump,stump,-1.7437,False,
 B-BV,30000,6,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -27257,7 +27257,7 @@ B-BV,30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 B-BV,30000,7,vocab__squash,squash,,True,1.0
 B-BV,30000,7,vocab__squirrel,squirrel,,True,1.0
 B-BV,30000,7,vocab__stew,stew,-0.0446,False,
-B-BV,30000,7,vocab__rubberband,rubber band,,False,
+B-BV,30000,7,vocab__rubberband,rubber band,,True,0.0
 B-BV,30000,7,vocab__stump,stump,-1.7437,False,
 B-BV,30000,7,vocab__sunflower,sunflower,-4.1555,False,
 B-BV,30000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -28688,7 +28688,7 @@ L-BV,1686105,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1686105,0,vocab__squash,squash,,True,0.0
 L-BV,1686105,0,vocab__squirrel,squirrel,,True,1.0
 L-BV,1686105,0,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1686105,0,vocab__rubberband,rubber band,,False,
+L-BV,1686105,0,vocab__rubberband,rubber band,,True,0.0
 L-BV,1686105,0,vocab__stump,stump,-1.7437,True,1.0
 L-BV,1686105,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-BV,1686105,0,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -28847,7 +28847,7 @@ L-BV,1686105,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1686105,1,vocab__squash,squash,,True,0.0
 L-BV,1686105,1,vocab__squirrel,squirrel,,True,1.0
 L-BV,1686105,1,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1686105,1,vocab__rubberband,rubber band,,False,
+L-BV,1686105,1,vocab__rubberband,rubber band,,True,1.0
 L-BV,1686105,1,vocab__stump,stump,-1.7437,True,0.0
 L-BV,1686105,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,1686105,1,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -29006,7 +29006,7 @@ L-BV,1686105,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1686105,2,vocab__squash,squash,,True,0.0
 L-BV,1686105,2,vocab__squirrel,squirrel,,True,1.0
 L-BV,1686105,2,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1686105,2,vocab__rubberband,rubber band,,False,
+L-BV,1686105,2,vocab__rubberband,rubber band,,True,1.0
 L-BV,1686105,2,vocab__stump,stump,-1.7437,True,1.0
 L-BV,1686105,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,1686105,2,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -29165,7 +29165,7 @@ L-BV,1686105,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1686105,3,vocab__squash,squash,,True,0.0
 L-BV,1686105,3,vocab__squirrel,squirrel,,True,1.0
 L-BV,1686105,3,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1686105,3,vocab__rubberband,rubber band,,False,
+L-BV,1686105,3,vocab__rubberband,rubber band,,True,1.0
 L-BV,1686105,3,vocab__stump,stump,-1.7437,True,0.0
 L-BV,1686105,3,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-BV,1686105,3,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -29324,7 +29324,7 @@ L-BV,1686105,4,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1686105,4,vocab__squash,squash,,True,0.0
 L-BV,1686105,4,vocab__squirrel,squirrel,,True,1.0
 L-BV,1686105,4,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1686105,4,vocab__rubberband,rubber band,,False,
+L-BV,1686105,4,vocab__rubberband,rubber band,,True,0.0
 L-BV,1686105,4,vocab__stump,stump,-1.7437,True,0.0
 L-BV,1686105,4,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,1686105,4,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -29483,7 +29483,7 @@ L-BV,1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1000000,0,vocab__squash,squash,,True,0.0
 L-BV,1000000,0,vocab__squirrel,squirrel,,True,1.0
 L-BV,1000000,0,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1000000,0,vocab__rubberband,rubber band,,False,
+L-BV,1000000,0,vocab__rubberband,rubber band,,True,0.0
 L-BV,1000000,0,vocab__stump,stump,-1.7437,True,0.0
 L-BV,1000000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,1000000,0,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -29642,7 +29642,7 @@ L-BV,1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 L-BV,1000000,1,vocab__squash,squash,,True,0.0
 L-BV,1000000,1,vocab__squirrel,squirrel,,True,1.0
 L-BV,1000000,1,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1000000,1,vocab__rubberband,rubber band,,False,
+L-BV,1000000,1,vocab__rubberband,rubber band,,True,0.0
 L-BV,1000000,1,vocab__stump,stump,-1.7437,True,0.0
 L-BV,1000000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-BV,1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -29801,7 +29801,7 @@ L-BV,1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,1000000,2,vocab__squash,squash,,True,0.0
 L-BV,1000000,2,vocab__squirrel,squirrel,,True,0.0
 L-BV,1000000,2,vocab__stew,stew,-0.0446,True,0.0
-L-BV,1000000,2,vocab__rubberband,rubber band,,False,
+L-BV,1000000,2,vocab__rubberband,rubber band,,True,0.0
 L-BV,1000000,2,vocab__stump,stump,-1.7437,True,0.0
 L-BV,1000000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,1000000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -29960,7 +29960,7 @@ L-BV,100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,0,vocab__squash,squash,,True,1.0
 L-BV,100000,0,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,0,vocab__stew,stew,-0.0446,True,0.0
-L-BV,100000,0,vocab__rubberband,rubber band,,False,
+L-BV,100000,0,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,0,vocab__stump,stump,-1.7437,False,
 L-BV,100000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -30119,7 +30119,7 @@ L-BV,100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,1,vocab__squash,squash,,True,0.0
 L-BV,100000,1,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,1,vocab__stew,stew,-0.0446,True,0.0
-L-BV,100000,1,vocab__rubberband,rubber band,,False,
+L-BV,100000,1,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,1,vocab__stump,stump,-1.7437,False,
 L-BV,100000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -30278,7 +30278,7 @@ L-BV,100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,2,vocab__squash,squash,,True,1.0
 L-BV,100000,2,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,2,vocab__stew,stew,-0.0446,False,
-L-BV,100000,2,vocab__rubberband,rubber band,,False,
+L-BV,100000,2,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,2,vocab__stump,stump,-1.7437,False,
 L-BV,100000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -30437,7 +30437,7 @@ L-BV,100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,3,vocab__squash,squash,,True,0.0
 L-BV,100000,3,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,3,vocab__stew,stew,-0.0446,False,
-L-BV,100000,3,vocab__rubberband,rubber band,,False,
+L-BV,100000,3,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,3,vocab__stump,stump,-1.7437,False,
 L-BV,100000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -30596,7 +30596,7 @@ L-BV,100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,4,vocab__squash,squash,,True,0.0
 L-BV,100000,4,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,4,vocab__stew,stew,-0.0446,True,1.0
-L-BV,100000,4,vocab__rubberband,rubber band,,False,
+L-BV,100000,4,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,4,vocab__stump,stump,-1.7437,True,1.0
 L-BV,100000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -30755,7 +30755,7 @@ L-BV,100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,5,vocab__squash,squash,,True,0.0
 L-BV,100000,5,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,5,vocab__stew,stew,-0.0446,False,
-L-BV,100000,5,vocab__rubberband,rubber band,,False,
+L-BV,100000,5,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,5,vocab__stump,stump,-1.7437,False,
 L-BV,100000,5,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -30914,7 +30914,7 @@ L-BV,100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,6,vocab__squash,squash,,True,0.0
 L-BV,100000,6,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,6,vocab__stew,stew,-0.0446,False,
-L-BV,100000,6,vocab__rubberband,rubber band,,False,
+L-BV,100000,6,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,6,vocab__stump,stump,-1.7437,False,
 L-BV,100000,6,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -31073,7 +31073,7 @@ L-BV,100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,100000,7,vocab__squash,squash,,True,1.0
 L-BV,100000,7,vocab__squirrel,squirrel,,True,0.0
 L-BV,100000,7,vocab__stew,stew,-0.0446,False,
-L-BV,100000,7,vocab__rubberband,rubber band,,False,
+L-BV,100000,7,vocab__rubberband,rubber band,,True,0.0
 L-BV,100000,7,vocab__stump,stump,-1.7437,False,
 L-BV,100000,7,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -32504,7 +32504,7 @@ L-BV,300000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-BV,300000,0,vocab__squash,squash,,True,1.0
 L-BV,300000,0,vocab__squirrel,squirrel,,True,0.0
 L-BV,300000,0,vocab__stew,stew,-0.0446,True,0.0
-L-BV,300000,0,vocab__rubberband,rubber band,,False,
+L-BV,300000,0,vocab__rubberband,rubber band,,True,0.0
 L-BV,300000,0,vocab__stump,stump,-1.7437,False,
 L-BV,300000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -32663,7 +32663,7 @@ L-BV,300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,300000,1,vocab__squash,squash,,True,0.0
 L-BV,300000,1,vocab__squirrel,squirrel,,True,1.0
 L-BV,300000,1,vocab__stew,stew,-0.0446,True,0.0
-L-BV,300000,1,vocab__rubberband,rubber band,,False,
+L-BV,300000,1,vocab__rubberband,rubber band,,True,1.0
 L-BV,300000,1,vocab__stump,stump,-1.7437,True,0.0
 L-BV,300000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -32822,7 +32822,7 @@ L-BV,300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,300000,2,vocab__squash,squash,,True,1.0
 L-BV,300000,2,vocab__squirrel,squirrel,,True,0.0
 L-BV,300000,2,vocab__stew,stew,-0.0446,True,0.0
-L-BV,300000,2,vocab__rubberband,rubber band,,False,
+L-BV,300000,2,vocab__rubberband,rubber band,,True,0.0
 L-BV,300000,2,vocab__stump,stump,-1.7437,True,1.0
 L-BV,300000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-BV,300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -32981,7 +32981,7 @@ L-BV,300000,3,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 L-BV,300000,3,vocab__squash,squash,,True,0.0
 L-BV,300000,3,vocab__squirrel,squirrel,,True,1.0
 L-BV,300000,3,vocab__stew,stew,-0.0446,True,1.0
-L-BV,300000,3,vocab__rubberband,rubber band,,False,
+L-BV,300000,3,vocab__rubberband,rubber band,,True,1.0
 L-BV,300000,3,vocab__stump,stump,-1.7437,True,0.0
 L-BV,300000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -33140,7 +33140,7 @@ L-BV,300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,300000,4,vocab__squash,squash,,True,0.0
 L-BV,300000,4,vocab__squirrel,squirrel,,True,0.0
 L-BV,300000,4,vocab__stew,stew,-0.0446,True,1.0
-L-BV,300000,4,vocab__rubberband,rubber band,,False,
+L-BV,300000,4,vocab__rubberband,rubber band,,True,0.0
 L-BV,300000,4,vocab__stump,stump,-1.7437,True,0.0
 L-BV,300000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -33299,7 +33299,7 @@ L-BV,30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,0,vocab__squash,squash,,False,
 L-BV,30000,0,vocab__squirrel,squirrel,,True,0.0
 L-BV,30000,0,vocab__stew,stew,-0.0446,False,
-L-BV,30000,0,vocab__rubberband,rubber band,,False,
+L-BV,30000,0,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,0,vocab__stump,stump,-1.7437,False,
 L-BV,30000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -33458,7 +33458,7 @@ L-BV,30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,1,vocab__squash,squash,,False,
 L-BV,30000,1,vocab__squirrel,squirrel,,True,0.0
 L-BV,30000,1,vocab__stew,stew,-0.0446,False,
-L-BV,30000,1,vocab__rubberband,rubber band,,False,
+L-BV,30000,1,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,1,vocab__stump,stump,-1.7437,False,
 L-BV,30000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -33617,7 +33617,7 @@ L-BV,30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,2,vocab__squash,squash,,False,
 L-BV,30000,2,vocab__squirrel,squirrel,,True,0.0
 L-BV,30000,2,vocab__stew,stew,-0.0446,False,
-L-BV,30000,2,vocab__rubberband,rubber band,,False,
+L-BV,30000,2,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,2,vocab__stump,stump,-1.7437,False,
 L-BV,30000,2,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -33776,7 +33776,7 @@ L-BV,30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,3,vocab__squash,squash,,False,
 L-BV,30000,3,vocab__squirrel,squirrel,,True,1.0
 L-BV,30000,3,vocab__stew,stew,-0.0446,False,
-L-BV,30000,3,vocab__rubberband,rubber band,,False,
+L-BV,30000,3,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,3,vocab__stump,stump,-1.7437,False,
 L-BV,30000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -33935,7 +33935,7 @@ L-BV,30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,4,vocab__squash,squash,,False,
 L-BV,30000,4,vocab__squirrel,squirrel,,True,0.0
 L-BV,30000,4,vocab__stew,stew,-0.0446,False,
-L-BV,30000,4,vocab__rubberband,rubber band,,False,
+L-BV,30000,4,vocab__rubberband,rubber band,,True,1.0
 L-BV,30000,4,vocab__stump,stump,-1.7437,False,
 L-BV,30000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -34094,7 +34094,7 @@ L-BV,30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,5,vocab__squash,squash,,True,0.0
 L-BV,30000,5,vocab__squirrel,squirrel,,True,0.0
 L-BV,30000,5,vocab__stew,stew,-0.0446,False,
-L-BV,30000,5,vocab__rubberband,rubber band,,False,
+L-BV,30000,5,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,5,vocab__stump,stump,-1.7437,False,
 L-BV,30000,5,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -34253,7 +34253,7 @@ L-BV,30000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,6,vocab__squash,squash,,False,
 L-BV,30000,6,vocab__squirrel,squirrel,,True,0.0
 L-BV,30000,6,vocab__stew,stew,-0.0446,False,
-L-BV,30000,6,vocab__rubberband,rubber band,,False,
+L-BV,30000,6,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,6,vocab__stump,stump,-1.7437,False,
 L-BV,30000,6,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -34412,7 +34412,7 @@ L-BV,30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 L-BV,30000,7,vocab__squash,squash,,True,1.0
 L-BV,30000,7,vocab__squirrel,squirrel,,True,1.0
 L-BV,30000,7,vocab__stew,stew,-0.0446,False,
-L-BV,30000,7,vocab__rubberband,rubber band,,False,
+L-BV,30000,7,vocab__rubberband,rubber band,,True,0.0
 L-BV,30000,7,vocab__stump,stump,-1.7437,False,
 L-BV,30000,7,vocab__sunflower,sunflower,-4.1555,False,
 L-BV,30000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -35843,7 +35843,7 @@ S-BV,1686105,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1686105,0,vocab__squash,squash,,True,0.0
 S-BV,1686105,0,vocab__squirrel,squirrel,,True,1.0
 S-BV,1686105,0,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1686105,0,vocab__rubberband,rubber band,,False,
+S-BV,1686105,0,vocab__rubberband,rubber band,,True,0.0
 S-BV,1686105,0,vocab__stump,stump,-1.7437,True,1.0
 S-BV,1686105,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,1686105,0,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -36002,7 +36002,7 @@ S-BV,1686105,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1686105,1,vocab__squash,squash,,True,0.0
 S-BV,1686105,1,vocab__squirrel,squirrel,,True,1.0
 S-BV,1686105,1,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1686105,1,vocab__rubberband,rubber band,,False,
+S-BV,1686105,1,vocab__rubberband,rubber band,,True,1.0
 S-BV,1686105,1,vocab__stump,stump,-1.7437,True,0.0
 S-BV,1686105,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,1686105,1,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -36161,7 +36161,7 @@ S-BV,1686105,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1686105,2,vocab__squash,squash,,True,0.0
 S-BV,1686105,2,vocab__squirrel,squirrel,,True,1.0
 S-BV,1686105,2,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1686105,2,vocab__rubberband,rubber band,,False,
+S-BV,1686105,2,vocab__rubberband,rubber band,,True,1.0
 S-BV,1686105,2,vocab__stump,stump,-1.7437,True,0.0
 S-BV,1686105,2,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,1686105,2,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -36320,7 +36320,7 @@ S-BV,1686105,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1686105,3,vocab__squash,squash,,True,1.0
 S-BV,1686105,3,vocab__squirrel,squirrel,,True,1.0
 S-BV,1686105,3,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1686105,3,vocab__rubberband,rubber band,,False,
+S-BV,1686105,3,vocab__rubberband,rubber band,,True,0.0
 S-BV,1686105,3,vocab__stump,stump,-1.7437,True,1.0
 S-BV,1686105,3,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,1686105,3,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -36479,7 +36479,7 @@ S-BV,1686105,4,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1686105,4,vocab__squash,squash,,True,1.0
 S-BV,1686105,4,vocab__squirrel,squirrel,,True,1.0
 S-BV,1686105,4,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1686105,4,vocab__rubberband,rubber band,,False,
+S-BV,1686105,4,vocab__rubberband,rubber band,,True,0.0
 S-BV,1686105,4,vocab__stump,stump,-1.7437,True,1.0
 S-BV,1686105,4,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,1686105,4,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -36638,7 +36638,7 @@ S-BV,1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1000000,0,vocab__squash,squash,,True,1.0
 S-BV,1000000,0,vocab__squirrel,squirrel,,True,1.0
 S-BV,1000000,0,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1000000,0,vocab__rubberband,rubber band,,False,
+S-BV,1000000,0,vocab__rubberband,rubber band,,True,0.0
 S-BV,1000000,0,vocab__stump,stump,-1.7437,True,0.0
 S-BV,1000000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-BV,1000000,0,vocab__swordfish,swordfish,-0.4291,True,0.0
@@ -36797,7 +36797,7 @@ S-BV,1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1000000,1,vocab__squash,squash,,True,0.0
 S-BV,1000000,1,vocab__squirrel,squirrel,,True,1.0
 S-BV,1000000,1,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1000000,1,vocab__rubberband,rubber band,,False,
+S-BV,1000000,1,vocab__rubberband,rubber band,,True,0.0
 S-BV,1000000,1,vocab__stump,stump,-1.7437,True,1.0
 S-BV,1000000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -36956,7 +36956,7 @@ S-BV,1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,1000000,2,vocab__squash,squash,,True,1.0
 S-BV,1000000,2,vocab__squirrel,squirrel,,True,1.0
 S-BV,1000000,2,vocab__stew,stew,-0.0446,True,0.0
-S-BV,1000000,2,vocab__rubberband,rubber band,,False,
+S-BV,1000000,2,vocab__rubberband,rubber band,,True,1.0
 S-BV,1000000,2,vocab__stump,stump,-1.7437,True,0.0
 S-BV,1000000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-BV,1000000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -37115,7 +37115,7 @@ S-BV,100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,0,vocab__squash,squash,,True,0.0
 S-BV,100000,0,vocab__squirrel,squirrel,,True,0.0
 S-BV,100000,0,vocab__stew,stew,-0.0446,True,0.0
-S-BV,100000,0,vocab__rubberband,rubber band,,False,
+S-BV,100000,0,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,0,vocab__stump,stump,-1.7437,False,
 S-BV,100000,0,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -37274,7 +37274,7 @@ S-BV,100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,1,vocab__squash,squash,,True,0.0
 S-BV,100000,1,vocab__squirrel,squirrel,,True,0.0
 S-BV,100000,1,vocab__stew,stew,-0.0446,True,0.0
-S-BV,100000,1,vocab__rubberband,rubber band,,False,
+S-BV,100000,1,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,1,vocab__stump,stump,-1.7437,False,
 S-BV,100000,1,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -37433,7 +37433,7 @@ S-BV,100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,2,vocab__squash,squash,,True,1.0
 S-BV,100000,2,vocab__squirrel,squirrel,,True,1.0
 S-BV,100000,2,vocab__stew,stew,-0.0446,False,
-S-BV,100000,2,vocab__rubberband,rubber band,,False,
+S-BV,100000,2,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,2,vocab__stump,stump,-1.7437,False,
 S-BV,100000,2,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -37592,7 +37592,7 @@ S-BV,100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,3,vocab__squash,squash,,True,0.0
 S-BV,100000,3,vocab__squirrel,squirrel,,True,0.0
 S-BV,100000,3,vocab__stew,stew,-0.0446,False,
-S-BV,100000,3,vocab__rubberband,rubber band,,False,
+S-BV,100000,3,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,3,vocab__stump,stump,-1.7437,False,
 S-BV,100000,3,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -37751,7 +37751,7 @@ S-BV,100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,4,vocab__squash,squash,,True,0.0
 S-BV,100000,4,vocab__squirrel,squirrel,,True,0.0
 S-BV,100000,4,vocab__stew,stew,-0.0446,True,0.0
-S-BV,100000,4,vocab__rubberband,rubber band,,False,
+S-BV,100000,4,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,4,vocab__stump,stump,-1.7437,True,1.0
 S-BV,100000,4,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -37910,7 +37910,7 @@ S-BV,100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,5,vocab__squash,squash,,True,1.0
 S-BV,100000,5,vocab__squirrel,squirrel,,True,1.0
 S-BV,100000,5,vocab__stew,stew,-0.0446,False,
-S-BV,100000,5,vocab__rubberband,rubber band,,False,
+S-BV,100000,5,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,5,vocab__stump,stump,-1.7437,False,
 S-BV,100000,5,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -38069,7 +38069,7 @@ S-BV,100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,6,vocab__squash,squash,,True,1.0
 S-BV,100000,6,vocab__squirrel,squirrel,,True,0.0
 S-BV,100000,6,vocab__stew,stew,-0.0446,False,
-S-BV,100000,6,vocab__rubberband,rubber band,,False,
+S-BV,100000,6,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,6,vocab__stump,stump,-1.7437,False,
 S-BV,100000,6,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -38228,7 +38228,7 @@ S-BV,100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,100000,7,vocab__squash,squash,,True,0.0
 S-BV,100000,7,vocab__squirrel,squirrel,,True,0.0
 S-BV,100000,7,vocab__stew,stew,-0.0446,False,
-S-BV,100000,7,vocab__rubberband,rubber band,,False,
+S-BV,100000,7,vocab__rubberband,rubber band,,True,0.0
 S-BV,100000,7,vocab__stump,stump,-1.7437,False,
 S-BV,100000,7,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -39659,7 +39659,7 @@ S-BV,300000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,300000,0,vocab__squash,squash,,True,0.0
 S-BV,300000,0,vocab__squirrel,squirrel,,True,0.0
 S-BV,300000,0,vocab__stew,stew,-0.0446,True,1.0
-S-BV,300000,0,vocab__rubberband,rubber band,,False,
+S-BV,300000,0,vocab__rubberband,rubber band,,True,0.0
 S-BV,300000,0,vocab__stump,stump,-1.7437,False,
 S-BV,300000,0,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -39818,7 +39818,7 @@ S-BV,300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,300000,1,vocab__squash,squash,,True,0.0
 S-BV,300000,1,vocab__squirrel,squirrel,,True,0.0
 S-BV,300000,1,vocab__stew,stew,-0.0446,True,0.0
-S-BV,300000,1,vocab__rubberband,rubber band,,False,
+S-BV,300000,1,vocab__rubberband,rubber band,,True,0.0
 S-BV,300000,1,vocab__stump,stump,-1.7437,True,0.0
 S-BV,300000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 S-BV,300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -39977,7 +39977,7 @@ S-BV,300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,300000,2,vocab__squash,squash,,True,0.0
 S-BV,300000,2,vocab__squirrel,squirrel,,True,0.0
 S-BV,300000,2,vocab__stew,stew,-0.0446,True,0.0
-S-BV,300000,2,vocab__rubberband,rubber band,,False,
+S-BV,300000,2,vocab__rubberband,rubber band,,True,0.0
 S-BV,300000,2,vocab__stump,stump,-1.7437,True,0.0
 S-BV,300000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 S-BV,300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -40136,7 +40136,7 @@ S-BV,300000,3,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 S-BV,300000,3,vocab__squash,squash,,True,1.0
 S-BV,300000,3,vocab__squirrel,squirrel,,True,1.0
 S-BV,300000,3,vocab__stew,stew,-0.0446,True,0.0
-S-BV,300000,3,vocab__rubberband,rubber band,,False,
+S-BV,300000,3,vocab__rubberband,rubber band,,True,0.0
 S-BV,300000,3,vocab__stump,stump,-1.7437,True,0.0
 S-BV,300000,3,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -40295,7 +40295,7 @@ S-BV,300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,300000,4,vocab__squash,squash,,True,0.0
 S-BV,300000,4,vocab__squirrel,squirrel,,True,1.0
 S-BV,300000,4,vocab__stew,stew,-0.0446,True,0.0
-S-BV,300000,4,vocab__rubberband,rubber band,,False,
+S-BV,300000,4,vocab__rubberband,rubber band,,True,0.0
 S-BV,300000,4,vocab__stump,stump,-1.7437,True,1.0
 S-BV,300000,4,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -40454,7 +40454,7 @@ S-BV,30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,0,vocab__squash,squash,,False,
 S-BV,30000,0,vocab__squirrel,squirrel,,True,0.0
 S-BV,30000,0,vocab__stew,stew,-0.0446,False,
-S-BV,30000,0,vocab__rubberband,rubber band,,False,
+S-BV,30000,0,vocab__rubberband,rubber band,,True,0.0
 S-BV,30000,0,vocab__stump,stump,-1.7437,False,
 S-BV,30000,0,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -40613,7 +40613,7 @@ S-BV,30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,1,vocab__squash,squash,,False,
 S-BV,30000,1,vocab__squirrel,squirrel,,True,0.0
 S-BV,30000,1,vocab__stew,stew,-0.0446,False,
-S-BV,30000,1,vocab__rubberband,rubber band,,False,
+S-BV,30000,1,vocab__rubberband,rubber band,,True,1.0
 S-BV,30000,1,vocab__stump,stump,-1.7437,False,
 S-BV,30000,1,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -40772,7 +40772,7 @@ S-BV,30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,2,vocab__squash,squash,,False,
 S-BV,30000,2,vocab__squirrel,squirrel,,True,0.0
 S-BV,30000,2,vocab__stew,stew,-0.0446,False,
-S-BV,30000,2,vocab__rubberband,rubber band,,False,
+S-BV,30000,2,vocab__rubberband,rubber band,,True,0.0
 S-BV,30000,2,vocab__stump,stump,-1.7437,False,
 S-BV,30000,2,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -40931,7 +40931,7 @@ S-BV,30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,3,vocab__squash,squash,,False,
 S-BV,30000,3,vocab__squirrel,squirrel,,True,1.0
 S-BV,30000,3,vocab__stew,stew,-0.0446,False,
-S-BV,30000,3,vocab__rubberband,rubber band,,False,
+S-BV,30000,3,vocab__rubberband,rubber band,,True,0.0
 S-BV,30000,3,vocab__stump,stump,-1.7437,False,
 S-BV,30000,3,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -41090,7 +41090,7 @@ S-BV,30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,4,vocab__squash,squash,,False,
 S-BV,30000,4,vocab__squirrel,squirrel,,True,1.0
 S-BV,30000,4,vocab__stew,stew,-0.0446,False,
-S-BV,30000,4,vocab__rubberband,rubber band,,False,
+S-BV,30000,4,vocab__rubberband,rubber band,,True,1.0
 S-BV,30000,4,vocab__stump,stump,-1.7437,False,
 S-BV,30000,4,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -41249,7 +41249,7 @@ S-BV,30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,5,vocab__squash,squash,,True,0.0
 S-BV,30000,5,vocab__squirrel,squirrel,,True,0.0
 S-BV,30000,5,vocab__stew,stew,-0.0446,False,
-S-BV,30000,5,vocab__rubberband,rubber band,,False,
+S-BV,30000,5,vocab__rubberband,rubber band,,True,1.0
 S-BV,30000,5,vocab__stump,stump,-1.7437,False,
 S-BV,30000,5,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -41408,7 +41408,7 @@ S-BV,30000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,6,vocab__squash,squash,,False,
 S-BV,30000,6,vocab__squirrel,squirrel,,True,0.0
 S-BV,30000,6,vocab__stew,stew,-0.0446,False,
-S-BV,30000,6,vocab__rubberband,rubber band,,False,
+S-BV,30000,6,vocab__rubberband,rubber band,,True,0.0
 S-BV,30000,6,vocab__stump,stump,-1.7437,False,
 S-BV,30000,6,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -41567,7 +41567,7 @@ S-BV,30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 S-BV,30000,7,vocab__squash,squash,,True,1.0
 S-BV,30000,7,vocab__squirrel,squirrel,,True,0.0
 S-BV,30000,7,vocab__stew,stew,-0.0446,False,
-S-BV,30000,7,vocab__rubberband,rubber band,,False,
+S-BV,30000,7,vocab__rubberband,rubber band,,True,0.0
 S-BV,30000,7,vocab__stump,stump,-1.7437,False,
 S-BV,30000,7,vocab__sunflower,sunflower,-4.1555,False,
 S-BV,30000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -49835,7 +49835,7 @@ L-OTS (2025.2),1820000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS (2025.2),1820000,0,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),1820000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),1820000,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),1820000,0,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),1820000,0,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),1820000,0,vocab__stump,stump,-1.7437,True,1.0
 L-OTS (2025.2),1820000,0,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS (2025.2),1820000,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -49994,7 +49994,7 @@ L-OTS (2025.2),1820000,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 L-OTS (2025.2),1820000,1,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),1820000,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),1820000,1,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),1820000,1,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),1820000,1,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),1820000,1,vocab__stump,stump,-1.7437,True,1.0
 L-OTS (2025.2),1820000,1,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS (2025.2),1820000,1,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -50153,7 +50153,7 @@ L-OTS (2025.2),1820000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS (2025.2),1820000,2,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),1820000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),1820000,2,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),1820000,2,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),1820000,2,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),1820000,2,vocab__stump,stump,-1.7437,True,1.0
 L-OTS (2025.2),1820000,2,vocab__sunflower,sunflower,-4.1555,True,1.0
 L-OTS (2025.2),1820000,2,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -50312,7 +50312,7 @@ L-OTS (2025.2),1000000,0,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS (2025.2),1000000,0,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),1000000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),1000000,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),1000000,0,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),1000000,0,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),1000000,0,vocab__stump,stump,-1.7437,True,0.0
 L-OTS (2025.2),1000000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS (2025.2),1000000,0,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -50471,7 +50471,7 @@ L-OTS (2025.2),1000000,1,vocab__sprinkler,sprinkler,-2.5125,True,0.0
 L-OTS (2025.2),1000000,1,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),1000000,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),1000000,1,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),1000000,1,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),1000000,1,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),1000000,1,vocab__stump,stump,-1.7437,True,0.0
 L-OTS (2025.2),1000000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS (2025.2),1000000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -50630,7 +50630,7 @@ L-OTS (2025.2),1000000,2,vocab__sprinkler,sprinkler,-2.5125,True,1.0
 L-OTS (2025.2),1000000,2,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),1000000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),1000000,2,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),1000000,2,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),1000000,2,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),1000000,2,vocab__stump,stump,-1.7437,True,1.0
 L-OTS (2025.2),1000000,2,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS (2025.2),1000000,2,vocab__swordfish,swordfish,-0.4291,True,1.0
@@ -50789,7 +50789,7 @@ L-OTS (2025.2),100000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,0,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),100000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),100000,0,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,0,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,0,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),100000,0,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -50948,7 +50948,7 @@ L-OTS (2025.2),100000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,1,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),100000,1,vocab__squirrel,squirrel,,True,0.0
 L-OTS (2025.2),100000,1,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,1,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,1,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),100000,1,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -51107,7 +51107,7 @@ L-OTS (2025.2),100000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,2,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),100000,2,vocab__squirrel,squirrel,,True,0.0
 L-OTS (2025.2),100000,2,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,2,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,2,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),100000,2,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,2,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -51266,7 +51266,7 @@ L-OTS (2025.2),100000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,3,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),100000,3,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),100000,3,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,3,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,3,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),100000,3,vocab__stump,stump,-1.7437,True,1.0
 L-OTS (2025.2),100000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -51425,7 +51425,7 @@ L-OTS (2025.2),100000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,4,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),100000,4,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),100000,4,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,4,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,4,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),100000,4,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -51584,7 +51584,7 @@ L-OTS (2025.2),100000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,5,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),100000,5,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),100000,5,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,5,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,5,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),100000,5,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,5,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -51743,7 +51743,7 @@ L-OTS (2025.2),100000,6,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,6,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),100000,6,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),100000,6,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),100000,6,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,6,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),100000,6,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,6,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,6,vocab__swordfish,swordfish,-0.4291,False,
@@ -51902,7 +51902,7 @@ L-OTS (2025.2),100000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),100000,7,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),100000,7,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),100000,7,vocab__stew,stew,-0.0446,True,1.0
-L-OTS (2025.2),100000,7,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),100000,7,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),100000,7,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),100000,7,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),100000,7,vocab__swordfish,swordfish,-0.4291,False,
@@ -52220,7 +52220,7 @@ L-OTS (2025.2),10000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),10000,1,vocab__squash,squash,,False,
 L-OTS (2025.2),10000,1,vocab__squirrel,squirrel,,False,
 L-OTS (2025.2),10000,1,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),10000,1,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),10000,1,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),10000,1,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),10000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),10000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -52538,7 +52538,7 @@ L-OTS (2025.2),10000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),10000,3,vocab__squash,squash,,False,
 L-OTS (2025.2),10000,3,vocab__squirrel,squirrel,,True,0.0
 L-OTS (2025.2),10000,3,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),10000,3,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),10000,3,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),10000,3,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),10000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),10000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -53333,7 +53333,7 @@ L-OTS (2025.2),300000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),300000,0,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),300000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),300000,0,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),300000,0,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),300000,0,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),300000,0,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),300000,0,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS (2025.2),300000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -53492,7 +53492,7 @@ L-OTS (2025.2),300000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),300000,1,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),300000,1,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),300000,1,vocab__stew,stew,-0.0446,True,1.0
-L-OTS (2025.2),300000,1,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),300000,1,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),300000,1,vocab__stump,stump,-1.7437,True,0.0
 L-OTS (2025.2),300000,1,vocab__sunflower,sunflower,-4.1555,True,0.0
 L-OTS (2025.2),300000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -53651,7 +53651,7 @@ L-OTS (2025.2),300000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),300000,2,vocab__squash,squash,,True,1.0
 L-OTS (2025.2),300000,2,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),300000,2,vocab__stew,stew,-0.0446,True,1.0
-L-OTS (2025.2),300000,2,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),300000,2,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),300000,2,vocab__stump,stump,-1.7437,True,0.0
 L-OTS (2025.2),300000,2,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),300000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -53810,7 +53810,7 @@ L-OTS (2025.2),300000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),300000,3,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),300000,3,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),300000,3,vocab__stew,stew,-0.0446,True,0.0
-L-OTS (2025.2),300000,3,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),300000,3,vocab__rubberband,rubber band,,True,1.0
 L-OTS (2025.2),300000,3,vocab__stump,stump,-1.7437,True,1.0
 L-OTS (2025.2),300000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),300000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -53969,7 +53969,7 @@ L-OTS (2025.2),300000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),300000,4,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),300000,4,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),300000,4,vocab__stew,stew,-0.0446,True,1.0
-L-OTS (2025.2),300000,4,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),300000,4,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),300000,4,vocab__stump,stump,-1.7437,True,0.0
 L-OTS (2025.2),300000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),300000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -54128,7 +54128,7 @@ L-OTS (2025.2),30000,0,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,0,vocab__squash,squash,,False,
 L-OTS (2025.2),30000,0,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),30000,0,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,0,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,0,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,0,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,0,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,0,vocab__swordfish,swordfish,-0.4291,False,
@@ -54287,7 +54287,7 @@ L-OTS (2025.2),30000,1,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,1,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),30000,1,vocab__squirrel,squirrel,,True,0.0
 L-OTS (2025.2),30000,1,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,1,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,1,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,1,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,1,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,1,vocab__swordfish,swordfish,-0.4291,False,
@@ -54446,7 +54446,7 @@ L-OTS (2025.2),30000,2,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,2,vocab__squash,squash,,False,
 L-OTS (2025.2),30000,2,vocab__squirrel,squirrel,,True,0.0
 L-OTS (2025.2),30000,2,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,2,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,2,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,2,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,2,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,2,vocab__swordfish,swordfish,-0.4291,False,
@@ -54605,7 +54605,7 @@ L-OTS (2025.2),30000,3,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,3,vocab__squash,squash,,False,
 L-OTS (2025.2),30000,3,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),30000,3,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,3,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,3,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,3,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,3,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,3,vocab__swordfish,swordfish,-0.4291,False,
@@ -54764,7 +54764,7 @@ L-OTS (2025.2),30000,4,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,4,vocab__squash,squash,,True,0.0
 L-OTS (2025.2),30000,4,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),30000,4,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,4,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,4,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,4,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,4,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,4,vocab__swordfish,swordfish,-0.4291,False,
@@ -54923,7 +54923,7 @@ L-OTS (2025.2),30000,5,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,5,vocab__squash,squash,,False,
 L-OTS (2025.2),30000,5,vocab__squirrel,squirrel,,True,0.0
 L-OTS (2025.2),30000,5,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,5,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,5,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,5,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,5,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,5,vocab__swordfish,swordfish,-0.4291,False,
@@ -55241,7 +55241,7 @@ L-OTS (2025.2),30000,7,vocab__sprinkler,sprinkler,-2.5125,False,
 L-OTS (2025.2),30000,7,vocab__squash,squash,,False,
 L-OTS (2025.2),30000,7,vocab__squirrel,squirrel,,True,1.0
 L-OTS (2025.2),30000,7,vocab__stew,stew,-0.0446,False,
-L-OTS (2025.2),30000,7,vocab__rubberband,rubber band,,False,
+L-OTS (2025.2),30000,7,vocab__rubberband,rubber band,,True,0.0
 L-OTS (2025.2),30000,7,vocab__stump,stump,-1.7437,False,
 L-OTS (2025.2),30000,7,vocab__sunflower,sunflower,-4.1555,False,
 L-OTS (2025.2),30000,7,vocab__swordfish,swordfish,-0.4291,False,
