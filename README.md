@@ -23,7 +23,7 @@ with children on Konkle object images and the LEVANTE vocabulary items.
 | [`archive/`](archive/) | the deprecated Quarto book (2025.2 corpus), the drafting supplement, cue-era eval scripts; [README](archive/README.md) |
 
 Annotation pipelines (pose, Gemini alignment, language ID) live in the companion repo
-`bv-annotations`; the BabyView-trained DINOv3 encoders come from the DINO-retraining fork
+[`babyview-project/bv-annotations`](https://github.com/babyview-project/bv-annotations); the BabyView-trained DINOv3 encoders come from the DINO-retraining fork
 (cited by commit hash in the paper).
 
 ## Start here

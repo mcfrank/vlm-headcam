@@ -6,7 +6,7 @@ in this audit (wf cache builder recovered from node scratch), several flagged be
 
 ## THE CHAIN — everything a named paper result depends on
 
-### Stage 0 · release + annotation layers (repo: vlm-headcam + bv-annotations)
+### Stage 0 · release + annotation layers (repo: vlm-headcam + [bv-annotations](https://github.com/babyview-project/bv-annotations))
 | artifact | producer |
 |---|---|
 | release consolidation, keys, verification | `migrate_2026.py`, `pose_rekey.py`, `merge_emb_shards.py`, `verify_release.py`, `make_mp3_2026.py` |
