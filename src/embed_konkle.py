@@ -15,6 +15,7 @@ ap.add_argument("--out", required=True)
 ap.add_argument("--grid", type=int, default=4); ap.add_argument("--batch", type=int, default=128)
 ap.add_argument("--model", default=None, help="HF model id (default: common.DINO_MODEL = DINOv2)")
 ap.add_argument("--emb-dim", type=int, default=None)
+ap.add_argument("--root", default="", help="prefix for relative manifest paths (the shared eval-asset root; see EVAL.md)")
 args = ap.parse_args(); G = args.grid
 out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
 man = pd.read_parquet(args.manifest).reset_index(drop=True)
@@ -39,7 +40,7 @@ def flush():
     for j, p in enumerate(pos): embs[p] = feat[j]; ok[p] = True
 
 for i, r in enumerate(man.itertuples(index=False)):
-    try: buf.append(Image.open(r.path).convert("RGB")); pos.append(i)
+    try: buf.append(Image.open(Path(args.root) / r.path).convert("RGB")); pos.append(i)
     except Exception: continue
     if len(buf) >= args.batch: flush(); buf, pos = [], []
 flush()

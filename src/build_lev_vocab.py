@@ -16,7 +16,7 @@ import pandas as pd
 LEV = "/Users/mcfrank/Projects/levante-bench/data/assets/2026-02-22"
 BANK = f"{LEV}/corpus/vocab/vocab-item-bank.csv"
 IMGDIR = f"{LEV}/visual/vocab"
-OUT = sys.argv[1] if len(sys.argv) > 1 else "/Users/mcfrank/Projects/vlm-headcam/scratch_lev"
+OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 os.makedirs(OUT, exist_ok=True)
 
 

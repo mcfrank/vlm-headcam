@@ -13,7 +13,9 @@ excluded cue analyses. They are not maintained and mostly assume `src/` on `sys.
 manifests: `build_grid_manifests`, `build_phase2`, `build_scaling_manifests`, `build_topline`,
 `build_within_child`, `build_window_frames`, `build_full_frames`, `build_gemini_arms`,
 `build_exp_manifests`, `build_jobs`, `build_region`, `build_eval` (YOLOE eval set),
-`build_crop_eval`, `build_headnoun`, `build_word_prior`, `build_lev_vocab`.
+`build_crop_eval`, `build_headnoun`, `build_word_prior`. (`build_lev_vocab` was archived here
+by mistake on 2026-09-10 and moved back to `src/` on 2026-09-18: it builds the paper's LEVANTE
+item table.)
 training variants: `train_arch`, `train_caption`, `train_perword`, `train_regionprior`,
 `train_wordweight` (the two-tower baselines `train.py` / `train_boot.py` stay in `src/`
 because the paper's trainer imports them).

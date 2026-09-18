@@ -10,20 +10,26 @@ gets the highest word–image score?* Anything that can produce `score(word, ima
 evaluated. Our models are frozen-encoder two-towers (`RegionMIL`), so the scripts here assume
 that format; §5 says what to match if your model is something else.
 
-## 1. Assets (all on ccn2-14; nothing here is human-subjects data)
+## 1. Assets — `/ccn2b/dataset/babyview/eval_assets/` (shared; not human-subjects data)
+
+All paths below are relative to that root (its README: `release_docs/README_eval_assets.md`).
+Archived on Oak as `babyview-2026.1-mirror/project/eval_assets_shared_20260918.tar`.
 
 | asset | where | what |
 |---|---|---|
-| Konkle **test-60** images | `/data2/mcfrank/vlm-headcam/data/konkle/<category>/*.jpg` (+ `data/konkle_imgs.tgz`) | 60 categories × 17 photos = 1,020; Vong et al.'s (2024) test split of the Konkle object set |
-| Konkle **dev-117** images | `…/data/konkle_dev/<category>/*.jpg` (+ `konkle_dev.tgz`) | 117 other categories, 1,431 photos (4–16 per category, median 15); used ONLY for epoch selection and item analyses |
-| Konkle manifests | `manifests/konkle_manifest.parquet` (test; has `path`), `manifests/eval_frames_konkle.parquet` (same rows, no `path`), `manifests/eval_frames_konkle_dev.parquet` | columns `video_id, frame_idx, category[, path]`; `video_id`/`frame_idx` are pseudo-keys so eval images share the frame-cache format |
+| Konkle **test-60** images | `konkle/<category>/*.jpg` | 60 categories × 17 photos = 1,020; Vong et al.'s (2024) test split of the Konkle object set |
+| Konkle **dev-117** images | `konkle_dev/<category>/*.jpg` | 117 other categories, 1,431 photos (4–16 per category, median 15); used ONLY for epoch selection and item analyses |
+| Konkle manifests | `manifests/konkle_manifest.parquet` (test), `manifests/eval_frames_konkle.parquet` (same rows, no `path`), `manifests/eval_frames_konkle_dev.parquet` | columns `video_id, frame_idx, category[, path]`; `video_id`/`frame_idx` are pseudo-keys so eval images share the frame-cache format; `path` is relative to the root |
 | LEVANTE item table | `lev_vocab_items.csv` | 159 items: `item_uid, target_word, c0, c1, c2, c3, d`. **`c0` is always the correct image**; `d` is the child IRT item difficulty, **higher = harder** (lowest: lollipop, carrot; highest: turnstile, aesthete) |
-| LEVANTE images | `lev_vocab_images/*.webp` (681) + `manifests/lev_vocab_manifest.parquet` | from the tracked item bank of `langcog/levante-bench` (`data/assets/2026-02-22/corpus/vocab/`) |
-| child comparison tables | `results/wordbank_anchors_40.csv`, `results/levante_child_by_age.csv` (in git) | Wordbank CDI trajectories on the 40 CDI-matched Konkle words; LEVANTE children's IRT-imputed accuracy by age (`figures/make_wordbank_anchors.R`, `figures/make_wordbank_40.py`, `figures/make_levante_ages.py`) |
+| LEVANTE images | `lev_vocab_images/` + `manifests/lev_vocab_manifest.parquet` (629 images = exactly those the items use) | from the tracked item bank of `langcog/levante-bench` (`data/assets/2026-02-22/corpus/vocab/`) |
+| child comparison tables | in git: `results/wordbank_anchors_40.csv`, `results/levante_child_by_age.csv` | Wordbank CDI trajectories on the 40 CDI-matched Konkle words; LEVANTE children's IRT-imputed accuracy by age (`figures/make_wordbank_anchors.R`, `figures/make_wordbank_40.py`, `figures/make_levante_ages.py`) |
 
-Everything except the child tables is also in `eval_assets.tar` /
-`eval_assets_20260910.tar` on Oak (`babyview-2026.1-mirror/project/`). The Konkle images are
-the public Konkle et al. object set; the split is Vong et al.'s.
+**Use the manifests, not a directory walk.** The `konkle_dev` folders carry junk from the
+original distribution (macOS `._*` files, `Thumbs.db`, nested `TestItems/`) and 22 valid
+images with an uppercase `.JPG` extension that the paper never used; the manifests list
+exactly the paper's images. They are rebuilt, row for row, by
+`src/build_eval_manifests.py --root <root>`; the item table by `src/build_lev_vocab.py`.
+The Konkle images are the public Konkle et al. object set; the split is Vong et al.'s.
 
 ## 2. Konkle 4AFC — the exact protocol
 
@@ -85,10 +91,11 @@ grid** of average-pooled patch tokens.
 
 ```bash
 # on ccn2-14, from the repo root; PY=/ccn2/u/khaiaw/miniconda3/envs/ccwm/bin/python
+R=/ccn2b/dataset/babyview/eval_assets
 # 1. embed the eval images with YOUR frozen encoder (HF id or local path)
-$PY -B src/embed_konkle.py --manifest manifests/konkle_manifest.parquet        --model <hf_id> --grid 4 --out emb_ch8_eval/<enc>_konkle
-$PY -B src/embed_konkle.py --manifest manifests/eval_frames_konkle_dev.parquet --model <hf_id> --grid 4 --out emb_ch8_eval/<enc>_konkle_dev
-$PY -B src/embed_konkle.py --manifest manifests/lev_vocab_manifest.parquet     --model <hf_id> --grid 4 --out emb_lev_<enc>
+$PY -B src/embed_konkle.py --root $R --manifest $R/manifests/konkle_manifest.parquet        --model <hf_id> --grid 4 --out emb_ch8_eval/<enc>_konkle
+$PY -B src/embed_konkle.py --root $R --manifest $R/manifests/eval_frames_konkle_dev.parquet --model <hf_id> --grid 4 --out emb_ch8_eval/<enc>_konkle_dev
+$PY -B src/embed_konkle.py --root $R --manifest $R/manifests/lev_vocab_manifest.parquet     --model <hf_id> --grid 4 --out emb_lev_<enc>
 # 2. train; Konkle dev/test are scored every epoch and the dev-selected test score is recorded
 $PY -B src/train_frame_mil.py --window 0 --manifest manifests/<pairs>.parquet --caches <train cache dirs> \
     --eval-cache emb_ch8_eval/<enc>_konkle --eval-frames manifests/eval_frames_konkle.parquet \
@@ -125,6 +132,15 @@ its `reported_test_acc` (≈ 81.6) to within trial-sampling noise (exactly, if y
 
 - Selecting the epoch on test-60 inflates scores by 1–2 points; don't.
 - Dropping OOV categories instead of crediting chance inflates small models (see §2).
+- **Two LEVANTE items were unscorable in the paper's results.** The original image manifest
+  globbed `*.webp`, so the only two `.jpg` targets (`rubber band`, `turnstile`) were never
+  embedded and both items count as unplayable (chance) for every model in
+  `lev_scaling_final.csv`. The shared manifest includes them (found 2026-09-18). A new model
+  evaluated on the shared manifest can score up to 2 more items than ours did; for an exact
+  comparison, treat `vocab__rubberband` and `vocab__turnstile` as unplayable.
+- Native (non-HF) encoders are embedded with the DINO fork's `embed_native_dino.py`, which
+  has no `--root`: run it from `/ccn2b/dataset/babyview/eval_assets` so the relative paths
+  resolve.
 - `lev_scaling_final.csv` also contains legacy 2025.2-corpus rows labelled
   `L-OTS (2025.2)` / `L-BV (preview, 2025.2)`; filter by encoder label.
 - The OTS-86M Konkle cache has 16 regions (grid only), the others 17 (CLS + grid); the

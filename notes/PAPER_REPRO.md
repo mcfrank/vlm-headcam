@@ -32,6 +32,10 @@ in `hf_release/*.pt` (git-UNTRACKED, 429M — see gaps).
 `train_joint.py`, `run_joint_pilot.sh`.
 
 ### Stage 3 · evals + numbers
+eval assets (shared at `/ccn2b/dataset/babyview/eval_assets/`, see `EVAL.md`):
+`build_lev_vocab.py` (LEVANTE item table from the levante-bench item bank) and
+`build_eval_manifests.py` (Konkle test/dev + LEVANTE image manifests; reproduces the paper's
+row for row — added 2026-09-18, these were previously uncommitted/ad hoc).
 `eval_items_konkle.py`, `eval_lev_scaling.py`, `make_pipeline_counts.py`,
 `make_methods_numbers.py`, `make_diagnostics.py`; lexicon SI inputs: `lex_extract.py`,
 `lex_score.py`, `lex_word2vec.py`, `lex_partial.py`, `lex_category_structure.py`,

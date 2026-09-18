@@ -63,6 +63,14 @@ dino_probe_caches_20260910.tar, window_caches/window_<enc>_20260910.tar ×6 (637
 
 **Restore anything:** `rsync -rltP oak-dtn:/oak/stanford/groups/mcfrank/babyview-2026.1-mirror/<path> <dest>`
 
+## Evaluation assets — `/ccn2b/dataset/babyview/eval_assets/` (2026-09-18)
+
+Konkle test-60 / dev-117 images, LEVANTE vocabulary items + images, and manifests with paths
+relative to that root (README there; protocol in `EVAL.md`). Moved from the node working tree;
+the working tree's `manifests/{konkle_manifest,eval_frames_konkle,eval_frames_konkle_dev,
+lev_vocab_manifest}.parquet` and `lev_vocab_items.csv` are symlinks into it (pre-move copies in
+`manifests/_pre_shared_20260918/`). Oak: `project/eval_assets_shared_20260918.tar`.
+
 ## Laptop — `~/Projects/vlm-headcam`
 
 Working clone; `results/` (11 M) is the committed source for every figure; `._lexicon_cache`
