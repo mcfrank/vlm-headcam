@@ -38,6 +38,8 @@ and links with `xr`, so renumbering here would only cause churn. Control ids ref
 | `figS_corpus_effort.py` | | recording hours per child (from `diagnostics/2026.1/`) |
 | `figS_corpus_age.py` | | age coverage and longitudinal span |
 | `figS_speech_density.py` | | utterance rate per video and per child |
+| `figS_gemini_check.py` | | human check of the Gemini alignment annotation: calibration + threshold sweep |
+| `figS_scaling_odds.py` | | fig2A/fig4 as scaling laws: log odds of knowing vs log data, power-law exponents (optional) |
 
 The last three are ported from `supplement.qmd` (its figs 2–4) onto the project theme; they
 read the committed release diagnostics in `diagnostics/2026.1/`, not the cluster.

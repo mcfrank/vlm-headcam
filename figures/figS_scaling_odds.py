@@ -1,11 +1,12 @@
-"""EXPLORATORY (not in the Makefile): fig2A / fig4 replotted as scaling laws.
+"""fig2A / fig4 replotted as scaling laws (optional SI figure).
 
-Vlad's suggestion: a power law needs two ratio-scale quantities, so plot log odds against
-log data and read the exponent off the slope. For a 4AFC with chance 25 the ratio-scale
-quantity is the odds of KNOWING under the know-it-or-guess model, k = (p - 25) / 75,
-odds = k / (1 - k): zero at chance, unbounded above. Same log base (10) on both axes so
-the slope is the exponent. Points whose mean is within 2 pts of chance are drawn open at
-the bottom and left out of the fits (their log odds is undefined within noise).
+A power law needs two ratio-scale quantities, so plot log odds against log data and read
+the exponent off the slope. For a 4AFC with chance 25 the ratio-scale quantity is the odds
+of KNOWING under the know-it-or-guess model, k = (p - 25) / 75, odds = k / (1 - k): zero
+at chance, unbounded above (the same correction fig4 applies to the CDI). Same log base
+(10) on both axes so the slope is the exponent. Cells whose mean accuracy is within 2 pts
+of chance are omitted: their log odds is undefined within seed noise. The caption should
+say which (the three BabyView-trained encoders at 3k-30k pairs; every encoder at 3k).
 
 A: Konkle-60 vs training pairs, six encoders (the fig2A data), OLS line per encoder over the
    fitted points with its slope.
@@ -35,8 +36,8 @@ def series(a, x, y, e, col, mk, key, xlab_at, fit_lo_x=None):
     lo, hi = lodds(np.maximum(y - e, 25 + 0.3)), lodds(y + e)
     a.errorbar(x[ok], lodds(y[ok]), yerr=[lodds(y[ok]) - lo[ok], hi[ok] - lodds(y[ok])],
                fmt=mk, color=col, ms=2.8, lw=0, elinewidth=0.6, capsize=1.2, zorder=4)
-    a.scatter(x[~ok], np.full((~ok).sum(), YMIN + 0.08), marker=mk, s=12, facecolors="white",
-              edgecolors=col, lw=0.8, zorder=4, clip_on=False)
+    if (~ok).any():
+        DROPPED.append((key, ", ".join(f"{v:.3g}" for v in x[~ok])))
     m = ok if fit_lo_x is None else ok & (x >= fit_lo_x)
     slope, icpt = np.polyfit(np.log10(x[m]), lodds(y[m]), 1)
     xx = np.logspace(np.log10(x[m].min()) - 0.2, np.log10(x[m].max()) + 0.2, 20)
@@ -52,11 +53,11 @@ def flush(a):
     ENDS.clear()
 
 
-ENDS = []
+ENDS, DROPPED = [], []
 
 
 fig, axes = plt.subplots(1, 3, figsize=(T.W2, 2.5), gridspec_kw=dict(wspace=0.36))
-YMIN, YMAX = -2.2, 1.2
+YMIN, YMAX = -1.9, 1.2
 
 # ---- A: Konkle-60 vs pairs ---------------------------------------------------------
 ax = axes[0]
@@ -123,8 +124,6 @@ cx.set_ylabel("log$_{10}$ odds of knowing (LEVANTE)")
 for a in axes:
     a.set_ylim(YMIN, YMAX)
     a.axhline(0, color=T.GRID, lw=0.7, zorder=0)
-    a.text(0.02, 0.98, "open = within 2 pts of chance", transform=a.transAxes, fontsize=4.6,
-           color=T.SUB, va="top")
     T.clean(a)
 for a in [axes[2]]:
     ax2 = a.secondary_yaxis("right", functions=(lambda l: 25 + 75 * (10 ** l / (1 + 10 ** l)),
@@ -136,4 +135,6 @@ axes[2].text(1.13, 0.5, "4AFC %", transform=axes[2].transAxes, fontsize=5, color
              rotation=90, va="center", ha="left")
 for a, l in zip(axes, "ABC"):
     T.panel(a, l, dx=-0.30)
-T.save(fig, "explore_scaling_odds")
+print("  NOTE figS_scaling_odds: cells within 2 pts of chance omitted (A pairs; B, C years): " +
+      "; ".join(f"{k} at {v}" for k, v in DROPPED))
+T.save(fig, "figS_scaling_odds")
