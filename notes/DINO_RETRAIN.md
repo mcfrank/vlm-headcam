@@ -166,3 +166,14 @@ twin, milder than S/B's 0.91); functional gate 3-seed HF word-probe 29.1+-2.3 vs
 C9 caches for vitl_bv: eval caches row-count-verified (konkle 1020 / dev 1431 / lev 681,
 R=17 D=1024); frame caches 6 shards -> /data2/mcfrank/c9_caches/vitl_bv_grid4x4 with
 canonical ccn2b symlink (driver c9_vitl.sh, marker VITL_C9_ALL_DONE_VERIFIED).
+
+## 2026-10-16: HF release gated behind BabyView/Databrary access
+All three repos (mcxfrank/babyview-dino-{vits16,vitb16,vitl16}) switched from open to
+gated=manual, matching awwkl/zwm-babyview-170m: requesters get BabyView access on Databrary
+(volume 1882), click Request access, and email mcfrank@stanford.edu with their HF username
+and a screenshot of their Databrary access; Mike approves in the mcxfrank account. The
+model cards (still public) gained an Access section; the local hf_release/ copies are synced.
+Verified: anonymous downloads of the HF weights and the native .pt return 401, and the public
+pages show the instructions. Deliberately stricter than the lab's earlier precedent of ungated
+embedding models (Khai is being asked to gate his DINOs too). ~116 downloads happened while
+the repos were open (Aug-Oct 2026); gating does not recall those copies.
