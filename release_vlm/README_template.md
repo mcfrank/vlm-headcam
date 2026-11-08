@@ -7,6 +7,19 @@ tags: [vision-language, word-learning, cross-situational-learning, developmental
 
 # {name} — a cross-situational word learner trained on children's egocentric video ({label})
 
+## Access
+These weights are gated: access is limited to researchers who have been granted access to
+the BabyView dataset, because BabyView contains egocentric video of children in home and
+school environments.
+
+1. Request access to BabyView through Databrary: https://www.databrary.org/volume/1882
+2. Once approved, click **Request access** on this page, then email mcfrank@stanford.edu with your
+   Hugging Face username and a screenshot showing your BabyView access on Databrary.
+3. We will approve your request.
+
+More about the dataset: https://babyview-project.github.io/dataset/
+
+## About
 A small contrastive vision–language model that learned word–object mappings from the
 **BabyView corpus** (release 2026.1): 1.69M utterance–frame pairs (2,441 hours of
 head-mounted-camera video from 48 children, English-language recordings). The image side is
@@ -71,18 +84,6 @@ Konkle: 60 object categories, photos from Konkle et al. (2010), following Vong e
 In-domain: 603 held-out BabyView frames from videos excluded from training. LEVANTE: 159
 child vocabulary items; out-of-vocabulary items scored at chance. Full protocols:
 `EVAL.md` in the code repository.
-
-## Access
-These weights are gated: access is limited to researchers who have been granted access to
-the BabyView dataset, because BabyView contains egocentric video of children in home and
-school environments.
-
-1. Request access to BabyView through Databrary: https://www.databrary.org/volume/1882
-2. Once approved, click **Request access** on this page, then email mcfrank@stanford.edu with your
-   Hugging Face username and a screenshot showing your BabyView access on Databrary.
-3. We will approve your request.
-
-More about the dataset: https://babyview-project.github.io/dataset/
 
 ## Data statement
 Model weights only. BabyView videos, frames and transcripts are restricted human-subjects data
